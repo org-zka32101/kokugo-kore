@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$raw = [Console]::In.ReadToEnd(); try { $j = $raw | ConvertFrom-Json; if ($j.tool_input.command -like '*flutter build apk*') { $src = 'H:\\マイドライブ\\apps\\kokugo-kore\\build\\app\\outputs\\flutter-apk\\app-release.apk'; $dst = 'H:\\マイドライブ\\apps\\kokugo-kore\\apk\\app-release.apk'; if (Test-Path $src) { Copy-Item $src $dst -Force; Write-Host 'APK コピー完了: apk/app-release.apk' } } } catch {}",
+            "timeout": 30,
+            "statusMessage": "APKをapk/フォルダにコピー中..."
+          }
+        ]
+      }
+    ]
+  }
+}

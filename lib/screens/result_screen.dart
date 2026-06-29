@@ -1,0 +1,363 @@
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/quest_model.dart';
+import 'package:shared_core/models/badge_model.dart';
+import '../providers/adaptive_provider.dart';
+import '../providers/progress_provider.dart';
+import '../providers/badge_provider.dart';
+import 'package:shared_core/shared_core.dart' show characterStateProvider;
+import '../providers/coin_provider.dart';
+import '../theme/app_theme.dart';
+
+class ResultScreen extends ConsumerStatefulWidget {
+  final QuestResult result;
+  final Stage stage;
+
+  const ResultScreen({super.key, required this.result, required this.stage});
+
+  @override
+  ConsumerState<ResultScreen> createState() => _ResultScreenState();
+}
+
+class _ResultScreenState extends ConsumerState<ResultScreen> {
+  late ConfettiController _confetti;
+  List<BadgeModel> _newBadges = [];
+  bool _saving = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _confetti = ConfettiController(duration: const Duration(seconds: 3));
+    _saveResult();
+  }
+
+  Future<void> _saveResult() async {
+    final r = widget.result;
+    final s = widget.stage;
+    final isKanji = s.quizType == QuizType.primary;
+
+    await ref.read(progressProvider.notifier).recordResult(
+      grade: s.grade,
+      stageNumber: s.stageNumber,
+      correct: r.correctCount,
+      total: r.totalCount,
+      isKanji: isKanji,
+      isPerfect: r.isPerfect,
+    );
+
+    final progress = ref.read(progressProvider);
+    final newBadges = await ref.read(badgeProvider.notifier).checkAndAward(
+      streakDays: progress.streakDays,
+      totalKanjiCorrect: progress.totalKanjiCorrect,
+      totalReadingCorrect: progress.totalReadingCorrect,
+      maxStageCleared: progress.maxStageCleared,
+      perfectStageCount: progress.perfectStageCount,
+      justPerfect: r.isPerfect,
+    );
+
+    // アダプティブ記録
+    await ref.read(adaptiveProvider.notifier).recordAttempt(
+      grade: s.grade,
+      stageNumber: s.stageNumber,
+      correct: r.correctCount,
+      total: r.totalCount,
+    );
+
+    // Earn coins based on score
+    if (r.isPassed) {
+      final percentage = r.correctCount / r.totalCount;
+      final coins = percentage >= 1.0 ? 30 : percentage >= 0.8 ? 20 : 10;
+      await ref.read(coinProvider.notifier).addCoins(coins);
+    }
+
+    // Check if any characters unlock based on new progress
+    final updatedProgress = ref.read(progressProvider);
+    await ref
+        .read(characterStateProvider.notifier)
+        .checkUnlocks(updatedProgress.clearedStageIds.length);
+
+    if (mounted) {
+      setState(() {
+        _newBadges = newBadges;
+        _saving = false;
+      });
+      if (r.isPassed) _confetti.play();
+    }
+  }
+
+  @override
+  void dispose() {
+    _confetti.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final r = widget.result;
+    final pct = r.correctCount / r.totalCount;
+    final color = pct >= 0.8 ? kAccentGreen : pct >= 0.6 ? kPrimaryColor : kAccentRed;
+    final emoji = r.isPerfect ? '🏆' : pct >= 0.8 ? '⭐' : pct >= 0.6 ? '👍' : '📖';
+    final message = r.isPerfect
+        ? '完璧！あなたは天才です！🌟'
+        : pct >= 0.8
+            ? 'すばらしい成績ですね！👏'
+            : pct >= 0.6
+                ? 'よくできました！次も頑張ろう！💪'
+                : 'もう一度やってみよう！頑張れば絶対できます！🔥';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('結果'),
+        automaticallyImplyLeading: false,
+        backgroundColor: kPrimaryColor,
+      ),
+      body: Stack(
+        children: [
+          if (!_saving)
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confetti,
+                blastDirectionality: BlastDirectionality.explosive,
+                numberOfParticles: 30,
+                colors: const [kPrimaryColor, kAccentGreen, Colors.blue, Colors.pink],
+              ),
+            ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                _saving
+                    ? const CircularProgressIndicator()
+                    : _ScoreDisplay(emoji: emoji, message: message, r: r, color: color),
+                const SizedBox(height: 24),
+                _StageInfo(stage: widget.stage, elapsed: r.elapsed),
+                if (_newBadges.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  _NewBadgesSection(badges: _newBadges),
+                ],
+                const SizedBox(height: 28),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/stages',
+                          (route) => route.settings.name == '/home',
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: kPrimaryColor),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('ステージ選択'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/home',
+                          (route) => false,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text('ホームへ'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScoreDisplay extends StatelessWidget {
+  final String emoji;
+  final String message;
+  final QuestResult r;
+  final Color color;
+
+  const _ScoreDisplay({
+    required this.emoji,
+    required this.message,
+    required this.r,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 12, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 64)),
+          const SizedBox(height: 12),
+          Text(message, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextDark)),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _ScoreStat(
+                label: 'せいかい',
+                value: '${r.correctCount}',
+                suffix: '/ ${r.totalCount}問',
+                color: color,
+              ),
+              _ScoreStat(
+                label: 'スコア',
+                value: '${r.score}',
+                suffix: '点',
+                color: color,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: r.correctCount / r.totalCount,
+              minHeight: 12,
+              backgroundColor: Colors.grey.shade200,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScoreStat extends StatelessWidget {
+  final String label;
+  final String value;
+  final String suffix;
+  final Color color;
+
+  const _ScoreStat({
+    required this.label,
+    required this.value,
+    required this.suffix,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 12)),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(value, style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: color)),
+            const SizedBox(width: 4),
+            Text(suffix, style: const TextStyle(fontSize: 14, color: kTextMuted)),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StageInfo extends StatelessWidget {
+  final Stage stage;
+  final Duration elapsed;
+
+  const _StageInfo({required this.stage, required this.elapsed});
+
+  @override
+  Widget build(BuildContext context) {
+    final mins = elapsed.inMinutes;
+    final secs = elapsed.inSeconds % 60;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kBgLight,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _InfoItem(label: 'ステージ', value: '${stage.stageNumber}'),
+          _InfoItem(label: 'タイプ', value: stage.quizType == QuizType.primary ? '漢字' : '読解'),
+          _InfoItem(
+            label: 'タイム',
+            value: mins > 0 ? '${mins}分${secs}秒' : '${secs}秒',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoItem extends StatelessWidget {
+  final String label;
+  final String value;
+  const _InfoItem({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      ],
+    );
+  }
+}
+
+class _NewBadgesSection extends StatelessWidget {
+  final List<BadgeModel> badges;
+  const _NewBadgesSection({required this.badges});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFE082), Color(0xFFFFF9C4)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFCC02)),
+      ),
+      child: Column(
+        children: [
+          const Text('🎉 新しいバッジをゲット！', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 12,
+            children: badges.map((b) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(b.emoji, style: const TextStyle(fontSize: 36)),
+                const SizedBox(height: 4),
+                Text(b.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              ],
+            )).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
