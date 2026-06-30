@@ -34,6 +34,26 @@ class WeeklyStats with _$WeeklyStats {
 }
 
 @freezed
+class MonthlyStats with _$MonthlyStats {
+  const factory MonthlyStats({
+    required String month, // YYYY-MM
+    required int totalQuestsCompleted,
+    required int totalCorrectAnswers,
+    required int totalAnswers,
+    required double accuracyRate, // 0.0 ~ 1.0
+    required int totalStudyMinutes,
+    required int totalCoinsEarned,
+    required int studyDaysCount, // 学習した日数
+    required Map<String, dynamic> categoryStats, // {categoryId: {correct, total, accuracy}}
+  }) = _MonthlyStats;
+
+  factory MonthlyStats.fromJson(Map<String, dynamic> json) =>
+      _$MonthlyStatsFromJson(json);
+
+  double get accuracyPercentage => accuracyRate * 100;
+}
+
+@freezed
 class ProgressAnalytics with _$ProgressAnalytics {
   const factory ProgressAnalytics({
     required String userId,
