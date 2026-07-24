@@ -38,7 +38,7 @@ class LearningStatsCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '正答率: ${monthlyStats.accuracyPercentage.toStringAsFixed(1)}%',
+                    '正答率: ${(monthlyStats.accuracyRate * 100).toStringAsFixed(1)}%',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: kPrimaryColor,
@@ -91,21 +91,21 @@ class LearningStatsCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: kSecondaryColor.withOpacity(0.1),
+                color: kAccentBlue.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.calendar_today,
-                    color: kSecondaryColor,
+                    color: kAccentBlue,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '学習日数: ${monthlyStats.studyDaysCount}日',
                     style: TextStyle(
-                      color: kSecondaryColor,
+                      color: kAccentBlue,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

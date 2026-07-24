@@ -33,6 +33,31 @@ class CharacterNotifier extends BaseCharacterNotifier {
   }
 }
 
+/// クイズ画面に表示する「注目キャラクター」（=最後にレベルアップしたキャラ）
+final featuredCharacterProvider =
+    StateNotifierProvider<FeaturedCharacterNotifier, String?>((ref) {
+  return FeaturedCharacterNotifier();
+});
+
+class FeaturedCharacterNotifier extends StateNotifier<String?> {
+  static const String storageKey = 'kokugo_featured_character';
+
+  FeaturedCharacterNotifier() : super(null) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getString(storageKey);
+  }
+
+  Future<void> setFeatured(String characterId) async {
+    state = characterId;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(storageKey, characterId);
+  }
+}
+
 /// 独立した EXP 管理プロバイダ（v1.3）
 /// shared_core.CharacterState と型の競合を避けるため独立実装
 final expProvider = StateNotifierProvider<ExpNotifier, Map<String, KokugoCharacterState>>((ref) {

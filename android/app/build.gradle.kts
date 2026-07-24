@@ -22,11 +22,20 @@ android {
 
     defaultConfig {
         applicationId = "com.petitworksapps.shougakukore.kokugo"
-        minSdk = flutter.minSdkVersion  // coreLibraryDesugaring requires minSdk >= 21
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../keystore/release_new.jks")
+            storePassword = "12345678"
+            keyAlias = "kokugo_release"
+            keyPassword = "12345678"
+        }
     }
 
     buildTypes {
@@ -41,8 +50,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // 常に debug signing を使用（パスワード未設定の場合）
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

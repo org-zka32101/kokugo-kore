@@ -585,6 +585,359 @@ abstract class _WeeklyStats implements WeeklyStats {
       throw _privateConstructorUsedError;
 }
 
+MonthlyStats _$MonthlyStatsFromJson(Map<String, dynamic> json) {
+  return _MonthlyStats.fromJson(json);
+}
+
+/// @nodoc
+mixin _$MonthlyStats {
+  String get month => throw _privateConstructorUsedError; // YYYY-MM
+  int get totalQuestsCompleted => throw _privateConstructorUsedError;
+  int get totalCorrectAnswers => throw _privateConstructorUsedError;
+  int get totalAnswers => throw _privateConstructorUsedError;
+  double get accuracyRate => throw _privateConstructorUsedError; // 0.0 ~ 1.0
+  int get totalStudyMinutes => throw _privateConstructorUsedError;
+  int get totalCoinsEarned => throw _privateConstructorUsedError;
+  int get studyDaysCount => throw _privateConstructorUsedError; // 学習した日数
+  Map<String, dynamic> get categoryStats => throw _privateConstructorUsedError;
+
+  /// Serializes this MonthlyStats to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of MonthlyStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $MonthlyStatsCopyWith<MonthlyStats> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $MonthlyStatsCopyWith<$Res> {
+  factory $MonthlyStatsCopyWith(
+    MonthlyStats value,
+    $Res Function(MonthlyStats) then,
+  ) = _$MonthlyStatsCopyWithImpl<$Res, MonthlyStats>;
+  @useResult
+  $Res call({
+    String month,
+    int totalQuestsCompleted,
+    int totalCorrectAnswers,
+    int totalAnswers,
+    double accuracyRate,
+    int totalStudyMinutes,
+    int totalCoinsEarned,
+    int studyDaysCount,
+    Map<String, dynamic> categoryStats,
+  });
+}
+
+/// @nodoc
+class _$MonthlyStatsCopyWithImpl<$Res, $Val extends MonthlyStats>
+    implements $MonthlyStatsCopyWith<$Res> {
+  _$MonthlyStatsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of MonthlyStats
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? month = null,
+    Object? totalQuestsCompleted = null,
+    Object? totalCorrectAnswers = null,
+    Object? totalAnswers = null,
+    Object? accuracyRate = null,
+    Object? totalStudyMinutes = null,
+    Object? totalCoinsEarned = null,
+    Object? studyDaysCount = null,
+    Object? categoryStats = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            month: null == month
+                ? _value.month
+                : month // ignore: cast_nullable_to_non_nullable
+                      as String,
+            totalQuestsCompleted: null == totalQuestsCompleted
+                ? _value.totalQuestsCompleted
+                : totalQuestsCompleted // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalCorrectAnswers: null == totalCorrectAnswers
+                ? _value.totalCorrectAnswers
+                : totalCorrectAnswers // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalAnswers: null == totalAnswers
+                ? _value.totalAnswers
+                : totalAnswers // ignore: cast_nullable_to_non_nullable
+                      as int,
+            accuracyRate: null == accuracyRate
+                ? _value.accuracyRate
+                : accuracyRate // ignore: cast_nullable_to_non_nullable
+                      as double,
+            totalStudyMinutes: null == totalStudyMinutes
+                ? _value.totalStudyMinutes
+                : totalStudyMinutes // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalCoinsEarned: null == totalCoinsEarned
+                ? _value.totalCoinsEarned
+                : totalCoinsEarned // ignore: cast_nullable_to_non_nullable
+                      as int,
+            studyDaysCount: null == studyDaysCount
+                ? _value.studyDaysCount
+                : studyDaysCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            categoryStats: null == categoryStats
+                ? _value.categoryStats
+                : categoryStats // ignore: cast_nullable_to_non_nullable
+                      as Map<String, dynamic>,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$MonthlyStatsImplCopyWith<$Res>
+    implements $MonthlyStatsCopyWith<$Res> {
+  factory _$$MonthlyStatsImplCopyWith(
+    _$MonthlyStatsImpl value,
+    $Res Function(_$MonthlyStatsImpl) then,
+  ) = __$$MonthlyStatsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String month,
+    int totalQuestsCompleted,
+    int totalCorrectAnswers,
+    int totalAnswers,
+    double accuracyRate,
+    int totalStudyMinutes,
+    int totalCoinsEarned,
+    int studyDaysCount,
+    Map<String, dynamic> categoryStats,
+  });
+}
+
+/// @nodoc
+class __$$MonthlyStatsImplCopyWithImpl<$Res>
+    extends _$MonthlyStatsCopyWithImpl<$Res, _$MonthlyStatsImpl>
+    implements _$$MonthlyStatsImplCopyWith<$Res> {
+  __$$MonthlyStatsImplCopyWithImpl(
+    _$MonthlyStatsImpl _value,
+    $Res Function(_$MonthlyStatsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of MonthlyStats
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? month = null,
+    Object? totalQuestsCompleted = null,
+    Object? totalCorrectAnswers = null,
+    Object? totalAnswers = null,
+    Object? accuracyRate = null,
+    Object? totalStudyMinutes = null,
+    Object? totalCoinsEarned = null,
+    Object? studyDaysCount = null,
+    Object? categoryStats = null,
+  }) {
+    return _then(
+      _$MonthlyStatsImpl(
+        month: null == month
+            ? _value.month
+            : month // ignore: cast_nullable_to_non_nullable
+                  as String,
+        totalQuestsCompleted: null == totalQuestsCompleted
+            ? _value.totalQuestsCompleted
+            : totalQuestsCompleted // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalCorrectAnswers: null == totalCorrectAnswers
+            ? _value.totalCorrectAnswers
+            : totalCorrectAnswers // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalAnswers: null == totalAnswers
+            ? _value.totalAnswers
+            : totalAnswers // ignore: cast_nullable_to_non_nullable
+                  as int,
+        accuracyRate: null == accuracyRate
+            ? _value.accuracyRate
+            : accuracyRate // ignore: cast_nullable_to_non_nullable
+                  as double,
+        totalStudyMinutes: null == totalStudyMinutes
+            ? _value.totalStudyMinutes
+            : totalStudyMinutes // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalCoinsEarned: null == totalCoinsEarned
+            ? _value.totalCoinsEarned
+            : totalCoinsEarned // ignore: cast_nullable_to_non_nullable
+                  as int,
+        studyDaysCount: null == studyDaysCount
+            ? _value.studyDaysCount
+            : studyDaysCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        categoryStats: null == categoryStats
+            ? _value._categoryStats
+            : categoryStats // ignore: cast_nullable_to_non_nullable
+                  as Map<String, dynamic>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$MonthlyStatsImpl implements _MonthlyStats {
+  const _$MonthlyStatsImpl({
+    required this.month,
+    required this.totalQuestsCompleted,
+    required this.totalCorrectAnswers,
+    required this.totalAnswers,
+    required this.accuracyRate,
+    required this.totalStudyMinutes,
+    required this.totalCoinsEarned,
+    required this.studyDaysCount,
+    required final Map<String, dynamic> categoryStats,
+  }) : _categoryStats = categoryStats;
+
+  factory _$MonthlyStatsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MonthlyStatsImplFromJson(json);
+
+  @override
+  final String month;
+  // YYYY-MM
+  @override
+  final int totalQuestsCompleted;
+  @override
+  final int totalCorrectAnswers;
+  @override
+  final int totalAnswers;
+  @override
+  final double accuracyRate;
+  // 0.0 ~ 1.0
+  @override
+  final int totalStudyMinutes;
+  @override
+  final int totalCoinsEarned;
+  @override
+  final int studyDaysCount;
+  // 学習した日数
+  final Map<String, dynamic> _categoryStats;
+  // 学習した日数
+  @override
+  Map<String, dynamic> get categoryStats {
+    if (_categoryStats is EqualUnmodifiableMapView) return _categoryStats;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_categoryStats);
+  }
+
+  @override
+  String toString() {
+    return 'MonthlyStats(month: $month, totalQuestsCompleted: $totalQuestsCompleted, totalCorrectAnswers: $totalCorrectAnswers, totalAnswers: $totalAnswers, accuracyRate: $accuracyRate, totalStudyMinutes: $totalStudyMinutes, totalCoinsEarned: $totalCoinsEarned, studyDaysCount: $studyDaysCount, categoryStats: $categoryStats)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MonthlyStatsImpl &&
+            (identical(other.month, month) || other.month == month) &&
+            (identical(other.totalQuestsCompleted, totalQuestsCompleted) ||
+                other.totalQuestsCompleted == totalQuestsCompleted) &&
+            (identical(other.totalCorrectAnswers, totalCorrectAnswers) ||
+                other.totalCorrectAnswers == totalCorrectAnswers) &&
+            (identical(other.totalAnswers, totalAnswers) ||
+                other.totalAnswers == totalAnswers) &&
+            (identical(other.accuracyRate, accuracyRate) ||
+                other.accuracyRate == accuracyRate) &&
+            (identical(other.totalStudyMinutes, totalStudyMinutes) ||
+                other.totalStudyMinutes == totalStudyMinutes) &&
+            (identical(other.totalCoinsEarned, totalCoinsEarned) ||
+                other.totalCoinsEarned == totalCoinsEarned) &&
+            (identical(other.studyDaysCount, studyDaysCount) ||
+                other.studyDaysCount == studyDaysCount) &&
+            const DeepCollectionEquality().equals(
+              other._categoryStats,
+              _categoryStats,
+            ));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    month,
+    totalQuestsCompleted,
+    totalCorrectAnswers,
+    totalAnswers,
+    accuracyRate,
+    totalStudyMinutes,
+    totalCoinsEarned,
+    studyDaysCount,
+    const DeepCollectionEquality().hash(_categoryStats),
+  );
+
+  /// Create a copy of MonthlyStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MonthlyStatsImplCopyWith<_$MonthlyStatsImpl> get copyWith =>
+      __$$MonthlyStatsImplCopyWithImpl<_$MonthlyStatsImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MonthlyStatsImplToJson(this);
+  }
+}
+
+abstract class _MonthlyStats implements MonthlyStats {
+  const factory _MonthlyStats({
+    required final String month,
+    required final int totalQuestsCompleted,
+    required final int totalCorrectAnswers,
+    required final int totalAnswers,
+    required final double accuracyRate,
+    required final int totalStudyMinutes,
+    required final int totalCoinsEarned,
+    required final int studyDaysCount,
+    required final Map<String, dynamic> categoryStats,
+  }) = _$MonthlyStatsImpl;
+
+  factory _MonthlyStats.fromJson(Map<String, dynamic> json) =
+      _$MonthlyStatsImpl.fromJson;
+
+  @override
+  String get month; // YYYY-MM
+  @override
+  int get totalQuestsCompleted;
+  @override
+  int get totalCorrectAnswers;
+  @override
+  int get totalAnswers;
+  @override
+  double get accuracyRate; // 0.0 ~ 1.0
+  @override
+  int get totalStudyMinutes;
+  @override
+  int get totalCoinsEarned;
+  @override
+  int get studyDaysCount; // 学習した日数
+  @override
+  Map<String, dynamic> get categoryStats;
+
+  /// Create a copy of MonthlyStats
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MonthlyStatsImplCopyWith<_$MonthlyStatsImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 ProgressAnalytics _$ProgressAnalyticsFromJson(Map<String, dynamic> json) {
   return _ProgressAnalytics.fromJson(json);
 }

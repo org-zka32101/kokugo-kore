@@ -38,7 +38,7 @@ class LearningAnalyticsScreen extends ConsumerWidget {
           children: [
             _buildStatisticsTab(),
             _buildTrendTab(),
-            _buildMonthlyAnalyticsTab(ref),
+            _buildMonthlyAnalyticsTab(context, ref),
             _buildCategoryTab(),
           ],
         ),
@@ -47,7 +47,7 @@ class LearningAnalyticsScreen extends ConsumerWidget {
   }
 
   /// 月別学力タブ
-  Widget _buildMonthlyAnalyticsTab(WidgetRef ref) {
+  Widget _buildMonthlyAnalyticsTab(BuildContext context, WidgetRef ref) {
     final analytics = ref.watch(analyticsProvider);
 
     if (analytics == null) {

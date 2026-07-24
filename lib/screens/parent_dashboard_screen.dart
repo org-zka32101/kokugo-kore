@@ -38,25 +38,38 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('保護者ダッシュボード'),
-        backgroundColor: kPrimaryColor,
-        elevation: 0,
+        title: const Text('👨‍👩‍👧‍👦 保護者ダッシュボード'),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [kPrimaryColor, kPrimaryDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 4,
       ),
       body: Column(
         children: [
           // 子ども選択セクション
           _buildChildSelector(context),
           // タブ
-          TabBar(
-            controller: _tabController,
-            labelColor: kPrimaryColor,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: kPrimaryColor,
-            tabs: const [
-              Tab(text: '📊 進捗'),
-              Tab(text: '🎯 分析'),
-              Tab(text: '⭐ バッジ'),
-            ],
+          Material(
+            elevation: 2,
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: kPrimaryColor,
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: kPrimaryColor,
+              indicatorWeight: 3,
+              tabs: const [
+                Tab(text: '📊 進捗'),
+                Tab(text: '🎯 分析'),
+                Tab(text: '⭐ バッジ'),
+              ],
+            ),
           ),
           // タブコンテンツ
           Expanded(
@@ -79,17 +92,21 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: kBgLight,
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade50, Colors.purple.shade50],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'お子様を選択',
-            style: TextStyle(fontSize: 12, color: kTextMuted),
+            '👧 お子様を選択',
+            style: TextStyle(fontSize: 13, color: kTextMuted, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           SizedBox(
             height: 50,
             child: ListView(
@@ -98,7 +115,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
                 // TODO: Get actual children from profile provider
                 _buildChildButton('太郎 (小1)', true),
                 _buildChildButton('花子 (小3)', false),
-                _buildChildButton('新規追加', false),
+                _buildChildButton('➕ 新規追加', false),
               ],
             ),
           ),
@@ -110,26 +127,45 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
   /// 子どもボタン
   Widget _buildChildButton(String name, bool selected) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: GestureDetector(
-        onTap: () {
-          setState(() => _selectedChildId = name);
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: selected ? kPrimaryColor : Colors.white,
-            border: Border.all(
-              color: selected ? kPrimaryColor : Colors.grey.shade300,
+      padding: const EdgeInsets.only(right: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            setState(() => _selectedChildId = name);
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: selected
+                  ? LinearGradient(
+                      colors: [kPrimaryColor, kPrimaryDark],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : LinearGradient(
+                      colors: [Colors.white, Colors.grey.shade100],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+              border: Border.all(
+                color: selected ? kPrimaryColor : Colors.grey.shade300,
+                width: selected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: selected
+                  ? [BoxShadow(color: kPrimaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))]
+                  : [],
             ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(
-            child: Text(
-              name,
-              style: TextStyle(
-                color: selected ? Colors.white : Colors.black,
-                fontWeight: FontWeight.bold,
+            child: Center(
+              child: Text(
+                name,
+                style: TextStyle(
+                  color: selected ? Colors.white : Colors.black87,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
             ),
           ),
@@ -154,28 +190,52 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
                 const SizedBox(height: 20),
 
                 // 進捗グラフ
-                const Text(
-                  '進捗状況',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                const ProgressChartWidget(
-                  totalQuestions: 500,
-                  completedQuestions: 342,
-                  accuracy: 0.78,
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '📊 進捗状況',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        const ProgressChartWidget(
+                          totalQuestions: 500,
+                          completedQuestions: 342,
+                          accuracy: 0.78,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
 
                 // 推奨学習ペース
-                const Text(
-                  '学習ペース',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                const PaceRecommendationCard(
-                  currentDaily: 12,
-                  recommendedDaily: 15,
-                  consistency: 0.75,
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '⏱️ 学習ペース',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        const PaceRecommendationCard(
+                          currentDaily: 12,
+                          recommendedDaily: 15,
+                          consistency: 0.75,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -190,35 +250,71 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 正答率トレンド
-          const Text(
-            '正答率の推移',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '📈 正答率の推移',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  const AccuracyTrendWidget(
+                    weeklyAccuracies: [65, 68, 70, 72, 75, 78, 80],
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          const AccuracyTrendWidget(
-            weeklyAccuracies: [65, 68, 70, 72, 75, 78, 80],
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
           // 漢字習得リスト
-          const Text(
-            '漢字習得状況',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '🔤 漢字習得状況',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  const KanjiMasteryListWidget(
+                    masteredCount: 85,
+                    totalCount: 240,
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          const KanjiMasteryListWidget(
-            masteredCount: 85,
-            totalCount: 240,
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
           // カテゴリ別分析
-          const Text(
-            'カテゴリ別成績',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '📊 カテゴリ別成績',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildCategoryAnalysis(),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          _buildCategoryAnalysis(),
         ],
       ),
     );
@@ -231,44 +327,76 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
       child: Column(
         children: [
           // 獲得バッジ
-          const Text(
-            '獲得したバッジ',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          GridView.count(
-            crossAxisCount: 4,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              _buildBadgeTile('🌟', '初心者'),
-              _buildBadgeTile('⭐', 'がんばり'),
-              _buildBadgeTile('🥇', 'チャンピオン'),
-              _buildBadgeTile('🎯', '目標達成'),
-              _buildBadgeTile('🔥', '連続学習'),
-              _buildBadgeTile('📚', '読書家'),
-              _buildBadgeTile('🤝', '友人招待'),
-              _buildBadgeTile('🏆', 'ランキング'),
-            ],
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '🏆 獲得したバッジ',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  GridView.count(
+                    crossAxisCount: 4,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    children: [
+                      _buildBadgeTile('🌟', '初心者'),
+                      _buildBadgeTile('⭐', 'がんばり'),
+                      _buildBadgeTile('🥇', 'チャンピオン'),
+                      _buildBadgeTile('🎯', '目標達成'),
+                      _buildBadgeTile('🔥', '連続学習'),
+                      _buildBadgeTile('📚', '読書家'),
+                      _buildBadgeTile('🤝', '友人招待'),
+                      _buildBadgeTile('🏆', 'ランキング'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  /// バッジタイル
+  /// バッジタイル（カード風）
   Widget _buildBadgeTile(String emoji, String label) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(emoji, style: const TextStyle(fontSize: 32)),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11),
-          textAlign: TextAlign.center,
+    return InkWell(
+      onTap: () {},
+      borderRadius: BorderRadius.circular(12),
+      child: Card(
+        elevation: 1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.white, Colors.grey.shade50],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 36)),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 

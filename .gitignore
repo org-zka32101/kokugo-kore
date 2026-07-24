@@ -12,5 +12,13 @@ firebase_options.dart
 *.aab
 *.ipa
 .gradle/
+.gradle-home/
 .m2/
 xcuserdata/
+.kotlin/
+.flutter-plugins-dependencies
+ios/certs/
+*.mobileprovision
+*.p12
+*.cer
+*.csr

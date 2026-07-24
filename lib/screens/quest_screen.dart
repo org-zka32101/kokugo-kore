@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_core/shared_core.dart' show characterStateProvider;
+import '../data/kokugo_characters.dart';
 import '../models/quest_model.dart';
+import '../providers/character_provider.dart';
 import '../theme/app_theme.dart';
 
 class QuestScreen extends ConsumerStatefulWidget {
@@ -108,6 +111,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
       body: Column(
         children: [
           _ProgressBar(progress: progress, current: _currentIndex + 1, total: total),
+          const _FeaturedCharacterBanner(),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -187,6 +191,82 @@ class _ProgressBar extends StatelessWidget {
               minHeight: 6,
               backgroundColor: Colors.grey.shade200,
               valueColor: const AlwaysStoppedAnimation<Color>(kPrimaryColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 育成中のキャラクター（最後にレベルアップしたキャラ）を表示するバナー。
+/// 算数コレのクイズ画面での「育成中キャラ表示」に相当する。
+class _FeaturedCharacterBanner extends ConsumerWidget {
+  const _FeaturedCharacterBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final featuredId = ref.watch(featuredCharacterProvider);
+    final charStates = ref.watch(characterStateProvider);
+
+    final unlockedIds = kKokugoCharacters
+        .where((c) => charStates[c.id]?.isUnlocked ?? false)
+        .map((c) => c.id);
+    final characterId = featuredId ?? unlockedIds.firstOrNull ?? kKokugoCharacters.first.id;
+
+    final character = kKokugoCharacters.firstWhere(
+      (c) => c.id == characterId,
+      orElse: () => kKokugoCharacters.first,
+    );
+    final state = charStates[character.id];
+    final lvMaxImage = kKokugoCharactersLvMax[character.id];
+    final displayImage =
+        (state?.isMaxLevel ?? false) && lvMaxImage != null ? lvMaxImage : character.imageAsset;
+    final level = state?.level ?? 1;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: (state?.hasSparkle ?? false)
+            ? Border.all(color: Colors.amber.shade400, width: 2)
+            : Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 6, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        children: [
+          Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: displayImage != null
+                    ? Image.asset(displayImage, fit: BoxFit.contain)
+                    : const Icon(Icons.pets, size: 40, color: kTextMuted),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: kPrimaryColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Lv.$level',
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              '${character.name}といっしょにがんばろう！',
+              style: const TextStyle(fontSize: 12, color: kTextDark, fontWeight: FontWeight.w600),
             ),
           ),
         ],

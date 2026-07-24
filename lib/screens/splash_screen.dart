@@ -210,6 +210,31 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       'ひらがなから読解・作文まで',
                       style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
+                    const SizedBox(height: 40),
+                    // 組織アイコン + 組織名
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            'assets/logos/company_app_icon.jpg',
+                            width: 24,
+                            height: 24,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Your Wish',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

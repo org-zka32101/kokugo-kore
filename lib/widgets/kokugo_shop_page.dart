@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' hide kAccentGreen, kTextDark, kTextMuted;
 import '../data/kokugo_characters.dart';
+import '../providers/character_provider.dart';
 import '../providers/purchased_items_provider.dart';
 import '../theme/app_theme.dart';
 
@@ -31,7 +32,7 @@ class KokugoShopPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -48,7 +49,6 @@ class KokugoShopPage extends StatelessWidget {
             unselectedLabelColor: Colors.white70,
             tabs: [
               Tab(icon: Icon(Icons.auto_awesome, size: 18), text: 'キャラ育成'),
-              Tab(icon: Icon(Icons.store, size: 18), text: '交換所'),
               Tab(icon: Icon(Icons.pets, size: 18), text: 'アバター'),
               Tab(icon: Icon(Icons.event, size: 18), text: '期間限定'),
             ],
@@ -57,7 +57,6 @@ class KokugoShopPage extends StatelessWidget {
         body: TabBarView(
           children: [
             _CharacterLevelUpTab(characters: characters),
-            _ExchangeTab(items: exchangeItems),
             _AvatarTab(avatars: coinUnlockAvatars),
             _SeasonalTab(seasonalItems: seasonalItems),
           ],
@@ -125,8 +124,7 @@ class _CharacterLevelUpTab extends ConsumerWidget {
             border: Border.all(color: Colors.amber.shade300),
           ),
           child: const Text(
-            '🪙 コインでキャラクターを育てよう！\n'
-            'Lv.MAX になるとLINEスタンプ無料引換券がもらえるよ✨',
+            '🪙 コインでキャラクターを育てよう！',
             style: TextStyle(fontSize: 12, height: 1.5),
           ),
         ),
@@ -299,6 +297,11 @@ class _KokugoLevelUpCard extends ConsumerWidget {
                 final error = await ref
                     .read(characterStateProvider.notifier)
                     .levelUp(character.id);
+                if (error == null) {
+                  await ref
+                      .read(featuredCharacterProvider.notifier)
+                      .setFeatured(character.id);
+                }
                 if (ctx.mounted) {
                   Navigator.pop(ctx);
                   if (error != null) {

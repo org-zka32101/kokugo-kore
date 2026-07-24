@@ -229,7 +229,7 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.library_books_outlined),
             title: const Text('小学コレ！国語'),
-            subtitle: const Text('Petit Works Apps'),
+            subtitle: const Text('Your Wish'),
           ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),

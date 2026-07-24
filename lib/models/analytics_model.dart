@@ -49,8 +49,6 @@ class MonthlyStats with _$MonthlyStats {
 
   factory MonthlyStats.fromJson(Map<String, dynamic> json) =>
       _$MonthlyStatsFromJson(json);
-
-  double get accuracyPercentage => accuracyRate * 100;
 }
 
 @freezed

@@ -28,7 +28,7 @@ class _PolicyContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _section('はじめに',
-            '小学コレ！国語（以下「本アプリ」）は、Petit Works Appsが提供する小学生向け国語学習アプリです。\n\n最終更新日：2026年6月15日'),
+            '小学コレ！国語（以下「本アプリ」）は、Your Wishが提供する小学生向け国語学習アプリです。\n\n最終更新日：2026年6月15日'),
         _h2('1. 収集する情報'),
         _h3('自動的に収集される情報'),
         _bullet('匿名ユーザーID：Firebase Authenticationによる匿名IDです。個人を特定する情報は含まれません。'),
@@ -60,7 +60,7 @@ class _PolicyContent extends StatelessWidget {
         _h2('7. 本ポリシーの変更'),
         _body('当社は本プライバシーポリシーを随時更新することがあります。重要な変更がある場合はアプリ内でお知らせします。'),
         _h2('8. お問い合わせ'),
-        _bullet('開発者：Petit Works Apps'),
+        _bullet('開発者：Your Wish'),
         _bullet('メール：funvestment1@gmail.com'),
         const SizedBox(height: 32),
         const Text(

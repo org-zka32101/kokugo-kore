@@ -46,6 +46,32 @@ Map<String, dynamic> _$$WeeklyStatsImplToJson(_$WeeklyStatsImpl instance) =>
       'dailyCounts': instance.dailyCounts,
     };
 
+_$MonthlyStatsImpl _$$MonthlyStatsImplFromJson(Map<String, dynamic> json) =>
+    _$MonthlyStatsImpl(
+      month: json['month'] as String,
+      totalQuestsCompleted: (json['totalQuestsCompleted'] as num).toInt(),
+      totalCorrectAnswers: (json['totalCorrectAnswers'] as num).toInt(),
+      totalAnswers: (json['totalAnswers'] as num).toInt(),
+      accuracyRate: (json['accuracyRate'] as num).toDouble(),
+      totalStudyMinutes: (json['totalStudyMinutes'] as num).toInt(),
+      totalCoinsEarned: (json['totalCoinsEarned'] as num).toInt(),
+      studyDaysCount: (json['studyDaysCount'] as num).toInt(),
+      categoryStats: json['categoryStats'] as Map<String, dynamic>,
+    );
+
+Map<String, dynamic> _$$MonthlyStatsImplToJson(_$MonthlyStatsImpl instance) =>
+    <String, dynamic>{
+      'month': instance.month,
+      'totalQuestsCompleted': instance.totalQuestsCompleted,
+      'totalCorrectAnswers': instance.totalCorrectAnswers,
+      'totalAnswers': instance.totalAnswers,
+      'accuracyRate': instance.accuracyRate,
+      'totalStudyMinutes': instance.totalStudyMinutes,
+      'totalCoinsEarned': instance.totalCoinsEarned,
+      'studyDaysCount': instance.studyDaysCount,
+      'categoryStats': instance.categoryStats,
+    };
+
 _$ProgressAnalyticsImpl _$$ProgressAnalyticsImplFromJson(
   Map<String, dynamic> json,
 ) => _$ProgressAnalyticsImpl(
