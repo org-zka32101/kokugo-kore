@@ -1,6 +1,7 @@
 name: shared_core
 description: "小学コレシリーズ共通パッケージ — models / providers / widgets / services / theme"
 version: 0.1.0
+publish_to: 'none'
 
 environment:
   sdk: ^3.11.5
