@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kokugo_kore/main.dart';
 import 'package:kokugo_kore/models/quest_model.dart';
-import 'package:kokugo_kore/models/badge_model.dart';
+import 'package:shared_core/shared_core.dart';
 import 'package:kokugo_kore/screens/splash_screen.dart';
 import 'package:kokugo_kore/screens/home_screen.dart';
 import 'package:kokugo_kore/screens/stage_select_screen.dart';
