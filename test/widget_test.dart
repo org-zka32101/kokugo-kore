@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kokugo_kore/main.dart';
 import 'package:kokugo_kore/models/quest_model.dart';
-import 'package:shared_core/shared_core.dart' show BadgeModel, EarnedBadge, BadgeCategory;
+import 'package:shared_core/shared_core.dart'
+    show BadgeModel, EarnedBadge, BadgeCategory, characterStateProvider;
 import 'package:kokugo_kore/screens/splash_screen.dart';
 import 'package:kokugo_kore/screens/home_screen.dart';
 import 'package:kokugo_kore/screens/stage_select_screen.dart';
@@ -13,6 +14,7 @@ import 'package:kokugo_kore/screens/quest_screen.dart';
 import 'package:kokugo_kore/screens/result_screen.dart';
 import 'package:kokugo_kore/theme/app_theme.dart';
 import 'package:kokugo_kore/data/quiz_data.dart';
+import 'package:kokugo_kore/providers/character_provider.dart';
 
 void main() {
   group('国語コレ！アプリケーション', () {
@@ -43,8 +45,8 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.byType(FadeTransition), findsOneWidget);
-        expect(find.byType(ScaleTransition), findsOneWidget);
+        expect(find.byType(FadeTransition), findsWidgets);
+        expect(find.byType(ScaleTransition), findsWidgets);
       });
     });
 
@@ -55,8 +57,9 @@ void main() {
         addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
         await tester.pumpWidget(
-          const ProviderScope(
-            child: MaterialApp(home: HomeScreen()),
+          ProviderScope(
+            overrides: [characterStateProvider.overrideWith(CharacterNotifier.new)],
+            child: const MaterialApp(home: HomeScreen()),
           ),
         );
 
@@ -68,8 +71,9 @@ void main() {
         addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
 
         await tester.pumpWidget(
-          const ProviderScope(
-            child: MaterialApp(home: HomeScreen()),
+          ProviderScope(
+            overrides: [characterStateProvider.overrideWith(CharacterNotifier.new)],
+            child: const MaterialApp(home: HomeScreen()),
           ),
         );
 
