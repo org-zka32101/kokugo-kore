@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   shared_core:
-    path: H:/マイドライブ/apps/shared_core
+    path: packages/shared_core
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^2.6.1
   shared_preferences: ^2.3.0
@@ -59,3 +59,11 @@ flutter:
     - assets/logos/
     - assets/images/
     - assets/backgrounds/
+
+# url_launcher(クロスプロモーション用)が引き込む最新の url_launcher_android は
+# androidx.core 1.17.0 / androidx.browser 1.9.0 を要求し AGP 8.9.1+ が必要になるが、
+# このプロジェクトは AGP 8.7.3。androidx を強制ダウングレードすると url_launcher_android
+# 自身が実際にビルド・テストされていないバージョンの上で動くことになり実行時リスクがあるため、
+# androidx.browser 1.5.0 のみを要求する古い url_launcher_android に固定して整合性を保つ。
+dependency_overrides:
+  url_launcher_android: 6.3.6
