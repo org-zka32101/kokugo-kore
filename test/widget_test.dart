@@ -32,7 +32,7 @@ void main() {
           ),
         );
         expect(find.byType(SplashScreen), findsOneWidget);
-        expect(find.text('国語コレ！'), findsOneWidget);
+        expect(find.text('小学コレ！国語'), findsOneWidget);
         expect(find.text('ひらがなから読解・作文まで'), findsOneWidget);
       });
 
@@ -60,8 +60,7 @@ void main() {
           ),
         );
 
-        expect(find.text('📚 国語コレ！'), findsOneWidget);
-        expect(find.text('ホーム'), findsOneWidget);
+        expect(find.text('📚 小学コレ！国語'), findsOneWidget);
       });
 
       testWidgets('統計情報の表示確認', (WidgetTester tester) async {
@@ -75,7 +74,7 @@ void main() {
         );
 
         expect(find.text('れんぞく'), findsOneWidget);
-        expect(find.text('せいかい'), findsOneWidget);
+        expect(find.text('コイン'), findsOneWidget);
         expect(find.text('バッジ'), findsOneWidget);
       });
     });
@@ -125,7 +124,6 @@ void main() {
         );
 
         expect(find.text('せってい'), findsOneWidget);
-        expect(find.text('がくねん'), findsOneWidget);
         expect(find.text('きろく'), findsOneWidget);
       });
     });

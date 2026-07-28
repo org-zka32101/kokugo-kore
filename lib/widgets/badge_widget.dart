@@ -57,33 +57,36 @@ class LockedBadgeWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade300),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ColorFiltered(
-            colorFilter: const ColorFilter.matrix([
-              0.2126, 0.7152, 0.0722, 0, 0,
-              0.2126, 0.7152, 0.0722, 0, 0,
-              0.2126, 0.7152, 0.0722, 0, 0,
-              0, 0, 0, 0.4, 0,
-            ]),
-            child: _BadgeIconImage(badgeId: badge.id, fallbackEmoji: badge.emoji, isLocked: true),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            badge.title,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade400,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ColorFiltered(
+              colorFilter: const ColorFilter.matrix([
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0, 0, 0, 0.4, 0,
+              ]),
+              child: _BadgeIconImage(badgeId: badge.id, fallbackEmoji: badge.emoji, isLocked: true),
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          const Icon(Icons.lock, size: 14, color: Colors.grey),
-        ],
+            const SizedBox(height: 6),
+            Text(
+              badge.title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade400,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            const Icon(Icons.lock, size: 14, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
