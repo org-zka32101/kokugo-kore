@@ -190,7 +190,7 @@ class ReadingAnalyticsNotifier extends StateNotifier<ReadingAnalytics?> {
       recommendations.add('「初級」レベルの記事から始めてみてください。');
     }
 
-    if (state!.difficultyDistribution['advanced'] == null || (state!.difficultyDistribution['advanced'] as int?) ?? 0 == 0) {
+    if (state!.difficultyDistribution['advanced'] == null || ((state!.difficultyDistribution['advanced'] as int?) ?? 0) == 0) {
       recommendations.add('難しい記事にも挑戦して、読解力を伸ばしましょう。');
     }
 
