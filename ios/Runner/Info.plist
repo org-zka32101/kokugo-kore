@@ -32,6 +32,8 @@
 	<string>お客様に合った広告を表示するために使用します。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>作成した内容を写真アプリに保存するために使用します。</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>作成した内容を写真アプリに保存するために使用します。</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
