@@ -20,7 +20,7 @@ import 'screens/quest_screen.dart';
 import 'screens/result_screen.dart';
 import 'screens/settings_screen.dart';
 import 'package:shared_core/shared_core.dart'
-    show characterStateProvider, coinProvider, CoinState, CoinNotifier, premiumProvider, PremiumState, PremiumNotifier, avatarProvider;
+    show characterStateProvider, coinProvider, CoinState, CoinNotifier, premiumProvider, PremiumState, PremiumNotifier, avatarProvider, CrossPromoService;
 import 'providers/character_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
@@ -71,6 +71,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await CrossPromoService.init();
   } catch (_) {}
 
   // AdMob 初期化

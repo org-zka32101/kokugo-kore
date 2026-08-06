@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_core/shared_core.dart' show CrossPromoSection;
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/drawing_settings_provider.dart';
@@ -249,6 +250,10 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('アプリの問題や機能提案をお知らせください', style: TextStyle(fontSize: 11)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
             onTap: () => _showFeedbackDialog(context),
+          ),
+          const CrossPromoSection(
+            currentAppId: 'com.petitworksapps.shougakukore.kokugo',
+            currentCategory: '小学コレ',
           ),
           const Divider(),
           Padding(
