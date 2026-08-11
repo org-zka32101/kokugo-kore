@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.petitworksapps.shougakukore.kokugo"
+    namespace = "com.yourwish.shougakukore.kokugo"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.petitworksapps.shougakukore.kokugo"
+        applicationId = "com.yourwish.shougakukore.kokugo"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

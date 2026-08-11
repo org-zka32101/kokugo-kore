@@ -252,7 +252,7 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _showFeedbackDialog(context),
           ),
           const CrossPromoSection(
-            currentAppId: 'com.petitworksapps.shougakukore.kokugo',
+            currentAppId: 'com.yourwish.shougakukore.kokugo',
             currentCategory: '小学コレ',
           ),
           const Divider(),

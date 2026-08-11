@@ -1,4 +1,4 @@
-﻿package com.petitworksapps.shougakukore.kokugo
+﻿package com.yourwish.shougakukore.kokugo
 
 import io.flutter.embedding.android.FlutterActivity
 
