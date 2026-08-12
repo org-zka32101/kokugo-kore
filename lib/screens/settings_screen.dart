@@ -245,6 +245,13 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => Navigator.of(context).pushNamed('/terms'),
           ),
           ListTile(
+            leading: const Icon(Icons.copyright_outlined),
+            title: const Text('オープンソースライセンス'),
+            subtitle: const Text('書き順データの提供元', style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
+            onTap: () => _showOpenSourceCredits(context),
+          ),
+          ListTile(
             leading: const Icon(Icons.bug_report_outlined),
             title: const Text('バグ報告・改善要望'),
             subtitle: const Text('アプリの問題や機能提案をお知らせください', style: TextStyle(fontSize: 11)),
@@ -342,6 +349,58 @@ class SettingsScreen extends ConsumerWidget {
                 emoji: '📖',
                 title: '読解力強化',
                 desc: '文章を読んで理解度クイズや要約訓練ができます。「まなぶ」メニューから読解力強化を選ぼう！',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('とじる'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOpenSourceCredits(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Text('📜', style: TextStyle(fontSize: 24)),
+            SizedBox(width: 8),
+            Text('オープンソースライセンス', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '「かきじゅん（書き順）」機能では、以下のオープンソースデータを利用しています。',
+                style: TextStyle(fontSize: 13, color: kTextDark, height: 1.4),
+              ),
+              SizedBox(height: 16),
+              Text('漢字の書き順データ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: kPrimaryColor)),
+              SizedBox(height: 4),
+              Text(
+                'KanjiVG（© Ulrich Apel and contributors）\n'
+                'ライセンス: Creative Commons 表示-継承 3.0\n'
+                'https://kanjivg.tagaini.net',
+                style: TextStyle(fontSize: 12, color: kTextMuted, height: 1.5),
+              ),
+              SizedBox(height: 16),
+              Text('ひらがな・カタカナの書き順データ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: kPrimaryColor)),
+              SizedBox(height: 4),
+              Text(
+                'AnimCJK（© FM-SH）\n'
+                'ライセンス: GNU Lesser General Public License v3以降\n'
+                'https://github.com/parsimonhi/animCJK',
+                style: TextStyle(fontSize: 12, color: kTextMuted, height: 1.5),
               ),
             ],
           ),

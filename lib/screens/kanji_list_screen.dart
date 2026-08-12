@@ -8,6 +8,7 @@ import '../providers/drawing_progress_provider.dart';
 import '../providers/sound_provider.dart';
 import '../screens/drawing_canvas_screen.dart';
 import '../theme/app_theme.dart';
+import '../widgets/stroke_order_view.dart';
 
 class KanjiListScreen extends ConsumerStatefulWidget {
   const KanjiListScreen({super.key});
@@ -139,7 +140,7 @@ class _MiruTab extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 13, fontWeight: FontWeight.bold, color: kPrimaryColor)),
               const SizedBox(height: 8),
-              _StrokeOrderWidget(kanji: item.kanji),
+              Center(child: StrokeOrderPanel(character: item.kanji)),
               const SizedBox(height: 12),
               // 使い方
               const Text('つかいかた',
@@ -488,91 +489,6 @@ class _KakuTab extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 書き順ウィジェット - Jisho.org の書き順画像を表示
-// ---------------------------------------------------------------------------
-
-class _StrokeOrderWidget extends StatefulWidget {
-  final String kanji;
-  const _StrokeOrderWidget({required this.kanji});
-
-  @override
-  State<_StrokeOrderWidget> createState() => _StrokeOrderWidgetState();
-}
-
-class _StrokeOrderWidgetState extends State<_StrokeOrderWidget> {
-  bool _loadFailed = false;
-
-  String get _strokeOrderUrl {
-    // KanjiVG 形式のURLでJisho.orgから書き順画像を取得
-    // 漢字のUnicodeコードポイントを5桁の16進数に変換
-    final codePoint = widget.kanji.runes.first;
-    final hex = codePoint.toRadixString(16).padLeft(5, '0');
-    return 'https://jisho.org/static/images/stroke_diagrams/${hex}_frames.png';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_loadFailed) {
-      // フォールバック: テキストで書き順情報を表示
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: kBgLight,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  widget.kanji,
-                  style: const TextStyle(
-                    fontSize: 48,
-                    color: kPrimaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    '書き順はオンラインで確認できます。\n「書き順　漢字」で検索してみよう！',
-                    style: TextStyle(fontSize: 12, color: kTextMuted),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        _strokeOrderUrl,
-        height: 80,
-        fit: BoxFit.contain,
-        alignment: Alignment.centerLeft,
-        loadingBuilder: (_, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return const SizedBox(
-            height: 80,
-            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-          );
-        },
-        errorBuilder: (_, __, ___) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) setState(() => _loadFailed = true);
-          });
-          return const SizedBox(height: 80);
-        },
-      ),
     );
   }
 }
