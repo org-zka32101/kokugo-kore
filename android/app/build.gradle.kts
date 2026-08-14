@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.petitworksapps.shougakukore.kokugo"
+    namespace = "com.yourwish.shougakukore.kokugo"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.petitworksapps.shougakukore.kokugo"
+        applicationId = "com.yourwish.shougakukore.kokugo"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -30,11 +30,14 @@ android {
     }
 
     signingConfigs {
+        // storePassword / keyPassword come from the KEYSTORE_PASSWORD / KEY_PASSWORD
+        // environment variables (set locally before a release build, or from
+        // GitHub Secrets in CI) — never hardcode them here. See CLAUDE.md.
         create("release") {
             storeFile = file("../keystore/release_new.jks")
-            storePassword = "12345678"
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
             keyAlias = "kokugo_release"
-            keyPassword = "12345678"
+            keyPassword = System.getenv("KEY_PASSWORD")
         }
     }
 

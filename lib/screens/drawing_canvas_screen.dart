@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/drawing_settings_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/stroke_order_view.dart';
 
 class DrawingCanvasScreen extends ConsumerStatefulWidget {
   final String character;   // answer character to write
@@ -198,12 +199,18 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: _showAnswer
-                        ? Text(
-                            widget.character,
-                            key: const ValueKey('shown'),
-                            style: const TextStyle(
-                                fontSize: 60, fontWeight: FontWeight.bold, color: kPrimaryColor),
-                          )
+                        ? (hasStrokeOrderData(widget.character)
+                            ? StrokeOrderView(
+                                key: const ValueKey('shown'),
+                                character: widget.character,
+                                cellSize: 60,
+                              )
+                            : Text(
+                                widget.character,
+                                key: const ValueKey('shown'),
+                                style: const TextStyle(
+                                    fontSize: 60, fontWeight: FontWeight.bold, color: kPrimaryColor),
+                              ))
                         : Container(
                             key: const ValueKey('hidden'),
                             width: 60,

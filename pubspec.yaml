@@ -29,6 +29,7 @@ dependencies:
   freezed_annotation: ^2.4.1
   json_annotation: ^4.9.0
   fl_chart: ^0.67.0
+  path_drawing: ^1.0.1 # SVG path 'd' string parsing for stroke-order playback
 
 dev_dependencies:
   flutter_test:

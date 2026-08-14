@@ -9,6 +9,7 @@ import '../providers/drawing_settings_provider.dart';
 import '../providers/sound_provider.dart';
 import '../screens/drawing_canvas_screen.dart';
 import '../theme/app_theme.dart';
+import '../widgets/stroke_order_view.dart';
 
 class KanaListScreen extends ConsumerWidget {
   final KanaType kanaType;
@@ -100,21 +101,70 @@ class _MiruTab extends ConsumerWidget {
       itemBuilder: (_, i) {
         final item = items[i];
         if (item.isPlaceholder) return const SizedBox.shrink();
+        final showStrokeOrder =
+            kanaType == KanaType.hiragana || kanaType == KanaType.katakana;
         return _MiruCard(
           item: item,
           kanaType: kanaType,
           onTap: () => ref.read(soundProvider.notifier).speak(item.kana),
+          onStrokeOrderTap: showStrokeOrder
+              ? () => _showStrokeOrderDialog(context, ref, item)
+              : null,
         );
       },
     );
   }
 }
 
+/// 書き順ダイアログ — かなの文字をタップして開く
+void _showStrokeOrderDialog(BuildContext context, WidgetRef ref, KanaItem item) {
+  ref.read(soundProvider.notifier).speak(item.kana);
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Row(
+        children: [
+          Text(
+            item.kana,
+            style: const TextStyle(
+                fontSize: 32, fontWeight: FontWeight.bold, color: kPrimaryColor),
+          ),
+          const SizedBox(width: 10),
+          Text(item.romaji, style: const TextStyle(fontSize: 14, color: kTextMuted)),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('かきじゅん（書き順）',
+              style: TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.bold, color: kPrimaryColor)),
+          const SizedBox(height: 8),
+          StrokeOrderPanel(character: item.kana),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('とじる'),
+        ),
+      ],
+    ),
+  );
+}
+
 class _MiruCard extends StatelessWidget {
   final KanaItem item;
   final KanaType kanaType;
   final VoidCallback onTap;
-  const _MiruCard({required this.item, required this.kanaType, required this.onTap});
+  final VoidCallback? onStrokeOrderTap;
+  const _MiruCard({
+    required this.item,
+    required this.kanaType,
+    required this.onTap,
+    this.onStrokeOrderTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,33 +172,50 @@ class _MiruCard extends StatelessWidget {
     final sub = kanaType == KanaType.romaji || kanaType == KanaType.alphabet
         ? item.reading
         : item.romaji;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
-          ],
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  top,
+                  style: TextStyle(
+                    fontSize: top.length > 3 ? 14 : (kanaType == KanaType.romaji ? 16 : 22),
+                    fontWeight: FontWeight.bold,
+                    color: kTextDark,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(sub, style: const TextStyle(fontSize: 9, color: kTextMuted)),
+                const Icon(Icons.volume_up, size: 10, color: kTextMuted),
+              ],
+            ),
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              top,
-              style: TextStyle(
-                fontSize: top.length > 3 ? 14 : (kanaType == KanaType.romaji ? 16 : 22),
-                fontWeight: FontWeight.bold,
-                color: kTextDark,
+        if (onStrokeOrderTap != null)
+          Positioned(
+            top: 2,
+            right: 2,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onStrokeOrderTap,
+              child: const Padding(
+                padding: EdgeInsets.all(3),
+                child: Icon(Icons.border_color, size: 11, color: kTextMuted),
               ),
             ),
-            const SizedBox(height: 2),
-            Text(sub, style: const TextStyle(fontSize: 9, color: kTextMuted)),
-            const Icon(Icons.volume_up, size: 10, color: kTextMuted),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 }

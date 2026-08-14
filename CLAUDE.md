@@ -12,8 +12,10 @@ subst K: "H:\マイドライブ\apps\kokugo-kore"
 
 ### 2. ビルド実行（K: ドライブから）
 
+リリース署名用のパスワードはリポジトリに含めず環境変数で渡す（`android/app/build.gradle.kts` 参照）。`KEYSTORE_PASSWORD` / `KEY_PASSWORD` は初回に設定しておけばセッション中は保持される。
+
 ```bash
-cd K:/ && JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" PATH="$JAVA_HOME/bin:$PATH" flutter build apk --release --no-pub
+cd K:/ && JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" PATH="$JAVA_HOME/bin:$PATH" KEYSTORE_PASSWORD="<release_new.jksのストアパスワード>" KEY_PASSWORD="<kokugo_releaseのキーパスワード>" flutter build apk --release --no-pub
 ```
 
 ### 3. APKの出力先
