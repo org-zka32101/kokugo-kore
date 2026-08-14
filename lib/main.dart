@@ -55,6 +55,7 @@ import 'screens/upgrade_screen.dart';
 import 'screens/vocabulary_screen.dart';
 import 'screens/writing_screen.dart';
 import 'theme/app_theme.dart';
+import 'widgets/premium_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -127,16 +128,40 @@ class KokugoKoreApp extends ConsumerWidget {
         '/terms': (context) => const PrivacyPolicyScreen(),
         '/shop': (context) => const ShopScreen(),
         '/learn': (context) => const LearnScreen(),
-        '/vocabulary': (context) => const VocabularyScreen(),
+        '/vocabulary': (context) => const PremiumGate(
+              featureName: 'ことば',
+              featureEmoji: '💬',
+              child: VocabularyScreen(),
+            ),
         '/writing': (context) => const WritingScreen(),
         '/kanji': (context) => const KanjiListScreen(),
-        '/proverb-quiz': (context) => const ProverbQuizScreen(),
-        '/idiom-quiz': (context) => const IdiomQuizScreen(),
+        '/proverb-quiz': (context) => const PremiumGate(
+              featureName: 'ことわざ',
+              featureEmoji: '🏮',
+              child: ProverbQuizScreen(),
+            ),
+        '/idiom-quiz': (context) => const PremiumGate(
+              featureName: '慣用句',
+              featureEmoji: '🏮',
+              child: IdiomQuizScreen(),
+            ),
         '/parent-dashboard': (context) => const ParentDashboardScreen(),
-        '/multiplayer': (context) => const MultiplayerMenuScreen(),
+        '/multiplayer': (context) => const PremiumGate(
+              featureName: 'マルチプレイ',
+              featureEmoji: '⚔️',
+              child: MultiplayerMenuScreen(),
+            ),
         '/friend-invitation': (context) => const FriendInvitationScreen(),
-        '/leaderboard': (context) => const LeaderboardScreen(),
-        '/reading': (context) => const ReadingMenuScreen(),
+        '/leaderboard': (context) => const PremiumGate(
+              featureName: 'マルチプレイ',
+              featureEmoji: '⚔️',
+              child: LeaderboardScreen(),
+            ),
+        '/reading': (context) => const PremiumGate(
+              featureName: '読解力強化',
+              featureEmoji: '📖',
+              child: ReadingMenuScreen(),
+            ),
         '/badges': (context) => const BadgeScreen(),
       },
       onGenerateRoute: (settings) {
@@ -160,7 +185,11 @@ class KokugoKoreApp extends ConsumerWidget {
         if (settings.name == '/kana') {
           final kanaType = settings.arguments as KanaType;
           return MaterialPageRoute(
-            builder: (_) => KanaListScreen(kanaType: kanaType),
+            builder: (_) => PremiumGate(
+              featureName: 'ひらがな・カタカナ',
+              featureEmoji: 'あ',
+              child: KanaListScreen(kanaType: kanaType),
+            ),
             settings: settings,
           );
         }
