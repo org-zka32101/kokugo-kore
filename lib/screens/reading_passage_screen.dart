@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/reading_passages_data.dart';
 import '../theme/app_theme.dart';
+import 'comprehension_quiz_screen.dart';
 
 class ReadingPassageScreen extends ConsumerStatefulWidget {
   final String passageId;
@@ -20,51 +22,6 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
   late ScrollController _scrollController;
   int _scrollPercentage = 0;
 
-  final String _content = '''
-ひらがなの歴史
-
-ひらがなは、日本語を書くために、中国の文字である漢字から生まれた独自の文字です。
-
-ひらがなが生まれた背景
-
-古い時代の日本では、文字がありませんでした。中国から漢字が伝わってくると、日本人はこの漢字を使って日本語を書くようになりました。
-
-しかし、漢字は複雑で、覚えるのに時間がかかります。そこで、人々は、漢字の一部を使って、もっと簡単に書ける文字を作ることにしました。これがひらがなです。
-
-ひらがなの誕生
-
-ひらがなは、9世紀ごろに誕生したと考えられています。最初に使ったのは、女性や一般の人々でした。当時、学問の世界では、漢文が使われ、ひらがなは「女文字」と呼ばれていました。
-
-ひらがなの特徴
-
-ひらがなには、いくつかの特徴があります。
-
-1. 書きやすい
-ひらがなは、漢字のように複雑な形をしていません。少ない線で書くことができます。
-
-2. 発音がはっきりしている
-ひらがなの文字は、それぞれ一つの音を表しています。
-
-3. 流れるような形
-ひらがなの文字は、丸みを帯びた形をしていて、流れるように見えます。
-
-ひらがなの活躍
-
-時代が進むと、ひらがなはもっと多くの場面で使われるようになりました。
-
-• 物語や詩を書くのに使われました
-• 手紙の文章で使われました
-• やがて、子どもの教育にも使われるようになりました
-
-現代のひらがな
-
-今では、ひらがなは日本語を書く時に、とても大切な役割をしています。
-
-子どもたちが学校で一番最初に習う文字は、ひらがなです。漢字を学ぶ時も、ひらがなで読み方を示します。
-
-ひらがなは、日本文化を代表する文字の一つになりました。
-''';
-
   @override
   void initState() {
     super.initState();
@@ -81,6 +38,7 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
   void _updateScrollPercentage() {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
+    if (maxScroll <= 0) return;
     setState(() {
       _scrollPercentage = ((currentScroll / maxScroll) * 100).toInt().clamp(0, 100);
     });
@@ -88,6 +46,17 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final passage = findPassage(widget.passageId);
+
+    if (passage == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('記事を読む'), backgroundColor: kPrimaryColor),
+        body: const Center(child: Text('記事が見つかりませんでした', style: TextStyle(color: kTextMuted))),
+      );
+    }
+
+    final minutes = (passage.estimatedReadingTimeSeconds / 60).round();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('記事を読む'),
@@ -96,15 +65,12 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
       ),
       body: Column(
         children: [
-          // プログレスバー
           LinearProgressIndicator(
             value: _scrollPercentage / 100,
             minHeight: 3,
             backgroundColor: Colors.grey.shade300,
             valueColor: const AlwaysStoppedAnimation<Color>(kPrimaryColor),
           ),
-
-          // スクロール可能なコンテンツ
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -112,57 +78,38 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // タイトル
                   Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    passage.title,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-
-                  // 記事情報
                   Row(
                     children: [
-                      Icon(Icons.schedule, size: 14, color: Colors.grey),
+                      const Icon(Icons.schedule, size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
-                      const Text('読む時間: 5分', style: TextStyle(fontSize: 11, color: kTextMuted)),
+                      Text('読む時間: $minutes分', style: const TextStyle(fontSize: 11, color: kTextMuted)),
                       const SizedBox(width: 16),
-                      Icon(Icons.trending_up, size: 14, color: Colors.green),
+                      const Icon(Icons.school, size: 14, color: Colors.green),
                       const SizedBox(width: 4),
-                      const Text('推奨学年: 小1-2', style: TextStyle(fontSize: 11, color: Colors.green)),
+                      Text('推奨学年: 小${passage.grade}年生〜', style: const TextStyle(fontSize: 11, color: Colors.green)),
                     ],
                   ),
                   const SizedBox(height: 24),
-
-                  // 本文
                   Text(
-                    _content,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 1.8,
-                      color: Colors.black87,
-                    ),
+                    passage.content.trim(),
+                    style: const TextStyle(fontSize: 14, height: 1.8, color: Colors.black87),
                   ),
                   const SizedBox(height: 24),
-
-                  // 読了ボタン
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _showCompletionDialog(),
+                      onPressed: () => _showCompletionDialog(passage.title),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: kPrimaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text(
-                        '読み終わった',
-                        style: TextStyle(color: Colors.white, fontSize: 14),
-                      ),
+                      child: const Text('読み終わった', style: TextStyle(color: Colors.white, fontSize: 14)),
                     ),
                   ),
                 ],
@@ -174,7 +121,7 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
     );
   }
 
-  void _showCompletionDialog() {
+  void _showCompletionDialog(String title) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -210,16 +157,17 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Navigate to comprehension_quiz_screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('理解度クイズに進みます')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ComprehensionQuizScreen(
+                    passageId: widget.passageId,
+                    passageTitle: title,
+                  ),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
-            child: const Text(
-              'クイズに答える',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: const Text('クイズに答える', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

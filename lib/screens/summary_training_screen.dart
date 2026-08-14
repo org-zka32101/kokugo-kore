@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/reading_passages_data.dart';
+import '../models/reading_passage_model.dart';
 import '../theme/app_theme.dart';
 
 class SummaryTrainingScreen extends ConsumerStatefulWidget {
@@ -20,31 +22,22 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int? _selectedSummaryIndex;
-  int? _selectedKeyword;
   bool _summaryAnswered = false;
-  bool _keywordAnswered = false;
+  int? _selectedExpression;
+  bool _expressionAnswered = false;
+  int _currentExpressionQ = 0;
+  int? _selectedStructureAnswer;
+  bool _structureAnswered = false;
 
-  final List<String> _summaryOptions = [
-    'ひらがなは9世紀ごろに誕生し、女性や一般の人々が使い始めた、漢字から生まれた日本語の文字である。',
-    'ひらがなは中国の漢字から生まれた複雑な文字で、現代でも学者しか使わない特別な文字である。',
-    'ひらがなは20世紀に政府が作った文字で、漢字の代わりとして使われるようになった。',
-    'ひらがなは子どもたちのために作られた文字で、大人は使わない簡単な文字である。',
-  ];
-  final int _correctSummaryIndex = 0;
+  late final SummaryQuestionSet? _summarySet = summaryFor(widget.passageId);
+  late final List<ExpressionQuestion> _expressionQuestions = expressionQuestionsFor(widget.passageId);
+  late final TextStructureAnalysis? _structure = structureFor(widget.passageId);
+  late final ComprehensionQuestion? _structureQuestion = _findStructureQuestion(widget.passageId);
 
-  final List<Map<String, dynamic>> _keywordQuestions = [
-    {
-      'text': '「女文字」とはどういう意味ですか？',
-      'choices': ['女性が好む文字', '女性が主に使っていた文字', '女性が作った文字', '女性にしか読めない文字'],
-      'correct': 1,
-    },
-    {
-      'text': '文章で「流れるような形」と言われるのはなぜですか？',
-      'choices': ['水のように青い', '丸みを帯びた形をしているから', '書くのが速いから', '長い線が多いから'],
-      'correct': 1,
-    },
-  ];
-  int _currentKeywordQ = 0;
+  static ComprehensionQuestion? _findStructureQuestion(String passageId) {
+    final matches = comprehensionQuestionsFor(passageId).where((q) => q.questionType == 'structure');
+    return matches.isEmpty ? null : matches.first;
+  }
 
   @override
   void initState() {
@@ -62,7 +55,7 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('読解力強化'),
+        title: Text(widget.passageTitle, overflow: TextOverflow.ellipsis),
         backgroundColor: kPrimaryColor,
         bottom: TabBar(
           controller: _tabController,
@@ -89,6 +82,10 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
 
   // ─── 要約タブ ──────────────────────────────
   Widget _buildSummaryTab() {
+    final set = _summarySet;
+    if (set == null) {
+      return const Center(child: Text('要約問題が見つかりませんでした', style: TextStyle(color: kTextMuted)));
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -96,9 +93,8 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
         children: [
           _buildSectionHeader('📝 要約問題', 'この記事の内容を正しく要約しているのはどれですか？'),
           const SizedBox(height: 20),
-
           if (!_summaryAnswered) ...[
-            ...List.generate(_summaryOptions.length, (i) => _buildSummaryOption(i)),
+            ...List.generate(set.summaryOptions.length, (i) => _buildSummaryOption(set, i)),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
@@ -113,14 +109,14 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
               ),
             ),
           ] else ...[
-            _buildSummaryResult(),
+            _buildSummaryResult(set),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildSummaryOption(int index) {
+  Widget _buildSummaryOption(SummaryQuestionSet set, int index) {
     final isSelected = _selectedSummaryIndex == index;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -130,10 +126,7 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: isSelected ? Colors.blue.shade50 : Colors.white,
-            border: Border.all(
-              color: isSelected ? kPrimaryColor : Colors.grey.shade300,
-              width: isSelected ? 2 : 1,
-            ),
+            border: Border.all(color: isSelected ? kPrimaryColor : Colors.grey.shade300, width: isSelected ? 2 : 1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -147,16 +140,12 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
-                  child: Text(
-                    String.fromCharCode(65 + index),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
+                  child: Text(String.fromCharCode(65 + index),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: Text(_summaryOptions[index], style: const TextStyle(fontSize: 13, height: 1.6)),
-              ),
+              Expanded(child: Text(set.summaryOptions[index], style: const TextStyle(fontSize: 13, height: 1.6))),
             ],
           ),
         ),
@@ -164,8 +153,9 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
     );
   }
 
-  Widget _buildSummaryResult() {
-    final isCorrect = _selectedSummaryIndex == _correctSummaryIndex;
+  Widget _buildSummaryResult(SummaryQuestionSet set) {
+    final isCorrect = _selectedSummaryIndex != null &&
+        set.summaryOptions[_selectedSummaryIndex!] == set.correctSummary;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -179,13 +169,11 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
           child: Row(
             children: [
               Text(isCorrect ? '✓' : '✗',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,
-                      color: isCorrect ? Colors.green : Colors.red)),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: isCorrect ? Colors.green : Colors.red)),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(isCorrect ? '正解です！上手に要約できています。' : '不正解です。記事全体の内容を確認しましょう。',
-                    style: TextStyle(fontSize: 13, color: isCorrect ? Colors.green : Colors.red,
-                        fontWeight: FontWeight.bold)),
+                    style: TextStyle(fontSize: 13, color: isCorrect ? Colors.green : Colors.red, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -200,11 +188,7 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300),
           ),
-          child: const Text(
-            '正しい要約は「誰が・いつ・何を・どのように」という4つの要素を含んでいます。\n'
-            'ひらがなは①漢字から生まれ、②9世紀ごろ誕生し、③女性や一般の人々が使い始め、④日本語を書く文字として広まりました。',
-            style: TextStyle(fontSize: 12, height: 1.7),
-          ),
+          child: Text(set.explanation, style: const TextStyle(fontSize: 12, height: 1.7)),
         ),
       ],
     );
@@ -212,11 +196,14 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
 
   // ─── 表現タブ ──────────────────────────────
   Widget _buildExpressionTab() {
-    if (_currentKeywordQ >= _keywordQuestions.length) {
+    if (_expressionQuestions.isEmpty) {
+      return const Center(child: Text('表現問題が見つかりませんでした', style: TextStyle(color: kTextMuted)));
+    }
+    if (_currentExpressionQ >= _expressionQuestions.length) {
       return _buildExpressionComplete();
     }
 
-    final q = _keywordQuestions[_currentKeywordQ];
+    final q = _expressionQuestions[_currentExpressionQ];
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -224,8 +211,6 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
         children: [
           _buildSectionHeader('🔑 表現・語彙問題', '文章中の言葉の意味を考えましょう。'),
           const SizedBox(height: 20),
-
-          // 問いの文章
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -233,29 +218,20 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: Colors.blue.shade200),
             ),
-            child: Text(q['text'] as String,
+            child: Text('「${q.phrase}」とはどういう意味ですか？',
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, height: 1.5)),
           ),
           const SizedBox(height: 20),
-
           ...List.generate(
-            (q['choices'] as List).length,
-            (i) => _buildKeywordOption(i, q['choices'][i] as String, q['correct'] as int),
+            q.meaningOptions.length,
+            (i) => _buildExpressionOption(q, i),
           ),
           const SizedBox(height: 20),
-
-          if (!_keywordAnswered)
+          if (!_expressionAnswered)
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _selectedKeyword != null
-                    ? () {
-                        if (_selectedKeyword == q['correct']) {
-                          // 正解
-                        }
-                        setState(() => _keywordAnswered = true);
-                      }
-                    : null,
+                onPressed: _selectedExpression != null ? () => setState(() => _expressionAnswered = true) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kPrimaryColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -264,38 +240,53 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
                 child: const Text('答える', style: TextStyle(color: Colors.white)),
               ),
             )
-          else
-            ElevatedButton(
-              onPressed: () => setState(() {
-                _currentKeywordQ++;
-                _selectedKeyword = null;
-                _keywordAnswered = false;
-              }),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          else ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300),
               ),
-              child: Text(
-                _currentKeywordQ < _keywordQuestions.length - 1 ? '次の問題へ' : '完了',
-                style: const TextStyle(color: Colors.white),
+              child: Text(q.contextExplanation, style: const TextStyle(fontSize: 12, height: 1.6, color: kTextMuted)),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => setState(() {
+                  _currentExpressionQ++;
+                  _selectedExpression = null;
+                  _expressionAnswered = false;
+                }),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPrimaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text(
+                  _currentExpressionQ < _expressionQuestions.length - 1 ? '次の問題へ' : '完了',
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
             ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildKeywordOption(int index, String text, int correctIndex) {
-    final isSelected = _selectedKeyword == index;
+  Widget _buildExpressionOption(ExpressionQuestion q, int index) {
+    final isSelected = _selectedExpression == index;
+    final correctIndex = q.meaningOptions.indexOf(q.correctMeaning);
     Color borderColor = Colors.grey.shade300;
     Color? bgColor;
 
-    if (_keywordAnswered) {
+    if (_expressionAnswered) {
       if (index == correctIndex) {
         borderColor = Colors.green;
         bgColor = Colors.green.shade50;
-      } else if (isSelected && index != correctIndex) {
+      } else if (isSelected) {
         borderColor = Colors.red;
         bgColor = Colors.red.shade50;
       }
@@ -307,7 +298,7 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: GestureDetector(
-        onTap: _keywordAnswered ? null : () => setState(() => _selectedKeyword = index),
+        onTap: _expressionAnswered ? null : () => setState(() => _selectedExpression = index),
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -320,18 +311,15 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
               Container(
                 width: 28,
                 height: 28,
-                decoration: BoxDecoration(
-                  color: borderColor,
-                  borderRadius: BorderRadius.circular(6),
-                ),
+                decoration: BoxDecoration(color: borderColor, borderRadius: BorderRadius.circular(6)),
                 child: Center(
                   child: Text(String.fromCharCode(65 + index),
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
-              if (_keywordAnswered && index == correctIndex)
+              Expanded(child: Text(q.meaningOptions[index], style: const TextStyle(fontSize: 13))),
+              if (_expressionAnswered && index == correctIndex)
                 const Icon(Icons.check_circle, color: Colors.green, size: 18),
             ],
           ),
@@ -355,9 +343,9 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => setState(() {
-                _currentKeywordQ = 0;
-                _selectedKeyword = null;
-                _keywordAnswered = false;
+                _currentExpressionQ = 0;
+                _selectedExpression = null;
+                _expressionAnswered = false;
               }),
               style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
               child: const Text('もう一度', style: TextStyle(color: Colors.white)),
@@ -370,6 +358,10 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
 
   // ─── 構造タブ ──────────────────────────────
   Widget _buildStructureTab() {
+    final structure = _structure;
+    if (structure == null) {
+      return const Center(child: Text('構造分析が見つかりませんでした', style: TextStyle(color: kTextMuted)));
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -377,27 +369,33 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
         children: [
           _buildSectionHeader('🗺️ 文章構造の分析', '記事がどんな構成で書かれているかを確認しましょう。'),
           const SizedBox(height: 20),
-
-          // 構造図
-          _buildStructureMap(),
+          _buildStructureMap(structure),
+          const SizedBox(height: 20),
+          _buildHighlightBox('🎯 もっとも大切な部分', structure.climax, Colors.orange),
+          const SizedBox(height: 10),
+          _buildHighlightBox('✅ まとめ・結論', structure.resolution, Colors.teal),
           const SizedBox(height: 24),
-
-          // 段落ごとの役割
           const Text('各段落の役割', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          _buildParagraphRoles(),
-          const SizedBox(height: 24),
-
-          // まとめ問題
-          const Text('構造確認問題', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          _buildStructureQuestion(),
+          _buildParagraphRoles(structure),
+          if (structure.characterDescriptions.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            const Text('登場人物のタイプ', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            _buildCharacterDescriptions(structure),
+          ],
+          if (_structureQuestion != null) ...[
+            const SizedBox(height: 24),
+            const Text('構造確認問題', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            _buildStructureQuestion(_structureQuestion!),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildStructureMap() {
+  Widget _buildStructureMap(TextStructureAnalysis structure) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -407,24 +405,20 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
       ),
       child: Column(
         children: [
-          _buildStructureNode('🌟 導入', 'ひらがなとは何か？', Colors.blue),
-          _buildStructureArrow(),
-          _buildStructureNode('📖 背景', 'なぜ生まれたか？', Colors.purple),
-          _buildStructureArrow(),
-          _buildStructureNode('🌱 誕生', 'いつ・誰が使い始めたか？', Colors.orange),
-          _buildStructureArrow(),
-          _buildStructureNode('✨ 特徴', 'どんな文字か？', Colors.green),
-          _buildStructureArrow(),
-          _buildStructureNode('📝 活用', 'どこで使われたか？', Colors.teal),
-          _buildStructureArrow(),
-          _buildStructureNode('🎯 まとめ', '現代のひらがな', Colors.red),
+          for (int i = 0; i < structure.mainPoints.length; i++) ...[
+            if (i > 0) _buildStructureArrow(),
+            _buildStructureNode(i + 1, structure.mainPoints[i]),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildStructureNode(String title, String content, Color color) {
+  Widget _buildStructureNode(int index, String content) {
+    const colors = [Colors.blue, Colors.purple, Colors.orange, Colors.green, Colors.teal, Colors.red];
+    final color = colors[(index - 1) % colors.length];
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: color.withAlpha(25),
@@ -433,8 +427,15 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
       ),
       child: Row(
         children: [
-          Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(width: 12),
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: Center(
+              child: Text('$index', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(child: Text(content, style: const TextStyle(fontSize: 12, color: kTextMuted))),
         ],
       ),
@@ -448,49 +449,86 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
     );
   }
 
-  Widget _buildParagraphRoles() {
-    final roles = [
-      ('第1段落', '話題提示', '何について書くか示す'),
-      ('第2-3段落', '根拠・理由', '誕生の背景を説明する'),
-      ('第4段落', '詳細説明', '特徴を具体的に説明する'),
-      ('第5段落', '展開', '活用場面を列挙する'),
-      ('第6段落', 'まとめ', '現代における役割を述べる'),
-    ];
-
-    return Column(
-      children: roles.map((r) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 70,
-                child: Text(r.$1, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                decoration: BoxDecoration(
-                  color: kPrimaryColor.withAlpha(25),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(r.$2, style: const TextStyle(fontSize: 10, color: kPrimaryColor, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(width: 8),
-              Expanded(child: Text(r.$3, style: const TextStyle(fontSize: 11, color: kTextMuted))),
-            ],
-          ),
-        ),
-      )).toList(),
+  Widget _buildHighlightBox(String label, String content, MaterialColor color) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color.shade800)),
+          const SizedBox(height: 4),
+          Text(content, style: const TextStyle(fontSize: 12, height: 1.5)),
+        ],
+      ),
     );
   }
 
-  Widget _buildStructureQuestion() {
+  Widget _buildParagraphRoles(TextStructureAnalysis structure) {
+    return Column(
+      children: structure.paragraphs.asMap().entries.map((e) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor.withAlpha(25),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text('${e.key + 1}', style: const TextStyle(fontSize: 10, color: kPrimaryColor, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(e.value, style: const TextStyle(fontSize: 11, color: kTextMuted, height: 1.5))),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildCharacterDescriptions(TextStructureAnalysis structure) {
+    return Column(
+      children: structure.characterDescriptions.entries.map((e) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.purple.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.purple.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(e.key, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
+                const SizedBox(height: 2),
+                Text(e.value, style: const TextStyle(fontSize: 11, color: kTextMuted)),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildStructureQuestion(ComprehensionQuestion question) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -501,41 +539,63 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'この記事の文章構成を表す言葉はどれですか？',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
+          Text(question.questionText, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          ...['起承転結', '問題提起→説明→まとめ', '時系列順', '比較対比'].asMap().entries.map(
-            (e) => Padding(
+          ...question.choices.asMap().entries.map((e) {
+            final isSelected = _selectedStructureAnswer == e.key;
+            final isCorrectChoice = e.value == question.correctAnswer;
+            Color borderColor = Colors.purple.shade200;
+            Color bg = Colors.white;
+            if (_structureAnswered) {
+              if (isCorrectChoice) {
+                borderColor = Colors.green;
+                bg = Colors.green.shade50;
+              } else if (isSelected) {
+                borderColor = Colors.red;
+                bg = Colors.red.shade50;
+              }
+            }
+            return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: GestureDetector(
-                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.value == '問題提起→説明→まとめ' ? '✓ 正解です！' : '✗ もう一度考えてみましょう')),
-                ),
+                onTap: _structureAnswered
+                    ? null
+                    : () => setState(() {
+                          _selectedStructureAnswer = e.key;
+                          _structureAnswered = true;
+                        }),
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: bg,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.purple.shade200),
+                    border: Border.all(color: borderColor, width: isSelected ? 2 : 1),
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 24, height: 24,
+                        width: 24,
+                        height: 24,
                         decoration: BoxDecoration(color: Colors.purple.shade100, borderRadius: BorderRadius.circular(4)),
-                        child: Center(child: Text(String.fromCharCode(65 + e.key),
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple.shade700))),
+                        child: Center(
+                          child: Text(String.fromCharCode(65 + e.key),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
+                        ),
                       ),
                       const SizedBox(width: 10),
-                      Text(e.value, style: const TextStyle(fontSize: 12)),
+                      Expanded(child: Text(e.value, style: const TextStyle(fontSize: 12))),
+                      if (_structureAnswered && isCorrectChoice)
+                        const Icon(Icons.check_circle, color: Colors.green, size: 16),
                     ],
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          }),
+          if (_structureAnswered) ...[
+            const SizedBox(height: 8),
+            Text(question.explanation, style: const TextStyle(fontSize: 11, color: kTextMuted, height: 1.5)),
+          ],
         ],
       ),
     );
