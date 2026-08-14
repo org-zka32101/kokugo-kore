@@ -12,6 +12,7 @@ import '../providers/profile_provider.dart';
 import '../providers/purchased_items_provider.dart';
 import '../providers/profile_avatar_provider.dart';
 import 'package:shared_core/models/avatar_model.dart';
+import 'package:shared_core/widgets/avatar_widget.dart';
 import '../theme/app_theme.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../data/kokugo_characters.dart';
@@ -139,16 +140,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final charStates = ref.watch(characterStateProvider);
     final purchased = ref.watch(purchasedItemsProvider);
     final profileAvatarState = ref.watch(profileAvatarProvider);
-    final profileAvatarEmoji = currentProfile != null
-        ? () {
-            final selectedId = profileAvatarState.getSelectedAvatar(currentProfile.id);
-            final avatar = allAvatars.firstWhere(
-              (a) => a.id == selectedId,
-              orElse: () => allAvatars.first,
-            );
-            return avatar.emoji;
-          }()
-        : '😊';
+    final profileAvatar = currentProfile != null
+        ? allAvatars.firstWhere(
+            (a) => a.id == profileAvatarState.getSelectedAvatar(currentProfile.id),
+            orElse: () => allAvatars.first,
+          )
+        : null;
 
     // テーマ背景色
     final bgColors = purchased.selectedBgId != null
@@ -216,10 +213,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          profileAvatarEmoji,
-                          style: const TextStyle(fontSize: 13),
-                        ),
+                        profileAvatar != null
+                            ? AvatarImage(avatar: profileAvatar, size: 16)
+                            : const Text('😊', style: TextStyle(fontSize: 13)),
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(

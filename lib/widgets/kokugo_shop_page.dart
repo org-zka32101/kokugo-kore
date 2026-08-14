@@ -523,7 +523,7 @@ class _AvatarTab extends ConsumerWidget {
                       border: Border.all(color: Colors.green.shade400, width: 2),
                     ),
                     child: Center(
-                      child: Text(avatar.emoji, style: const TextStyle(fontSize: 32)),
+                      child: AvatarImage(avatar: avatar, size: 44),
                     ),
                   );
                 },
@@ -572,10 +572,7 @@ class _AvatarTab extends ConsumerWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Opacity(
-                        opacity: 0.4,
-                        child: Text(avatar.emoji, style: const TextStyle(fontSize: 32)),
-                      ),
+                      AvatarImage(avatar: avatar, size: 44, opacity: 0.4),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -610,7 +607,7 @@ class _AvatarTab extends ConsumerWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(avatar.emoji, style: const TextStyle(fontSize: 48)),
+            AvatarImage(avatar: avatar, size: 64),
             const SizedBox(height: 12),
             Text('${avatar.name}をゲットします\n$cost コイン必要です',
                 textAlign: TextAlign.center),
