@@ -147,3 +147,16 @@ class PremiumNotifier extends Notifier<PremiumState> {
 
 final premiumProvider =
     NotifierProvider<PremiumNotifier, PremiumState>(PremiumNotifier.new);
+
+/// Google Playから取得した実際の商品情報（価格は端末の地域・税設定に応じて
+/// ストア側でローカライズされた文字列）。取得失敗時はnullを返し、呼び出し側で
+/// フォールバック表示にする。
+final premiumProductsProvider =
+    FutureProvider<Map<String, ProductDetails>>((ref) async {
+  final available = await InAppPurchase.instance.isAvailable();
+  if (!available) return {};
+
+  final response = await InAppPurchase.instance
+      .queryProductDetails({kProductIdMonthly, kProductIdYearly});
+  return {for (final p in response.productDetails) p.id: p};
+});

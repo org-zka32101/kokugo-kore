@@ -3,6 +3,9 @@
     <!-- ネットワーク権限（Firebase・課金） -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Google Play Billing（in_app_purchase_android は自身のマニフェストで
+         この権限を宣言しないため、アプリ側での宣言が必須） -->
+    <uses-permission android:name="com.android.vending.BILLING"/>
 
     <application
         android:label="小学コレ！国語"

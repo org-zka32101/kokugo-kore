@@ -4,6 +4,7 @@ import '../providers/profile_provider.dart';
 import '../providers/profile_avatar_provider.dart';
 import 'package:shared_core/models/avatar_model.dart';
 import 'package:shared_core/providers/avatar_provider.dart';
+import 'package:shared_core/widgets/avatar_widget.dart';
 import '../theme/app_theme.dart';
 
 class ProfileSelectionScreen extends ConsumerStatefulWidget {
@@ -63,14 +64,10 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Center(
-                      child: Text(
-                        avatar.emoji,
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: isUnlocked ? null : Colors.black26,
-                        ),
-                      ),
+                    child: AvatarImage(
+                      avatar: avatar,
+                      size: 48,
+                      opacity: isUnlocked ? 1.0 : 0.4,
                     ),
                   ),
                   if (!isUnlocked)
@@ -160,14 +157,10 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                                   width: selected ? 2 : 1,
                                 ),
                               ),
-                              child: Center(
-                                child: Text(
-                                  avatar.emoji,
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    color: isUnlocked ? null : Colors.black26,
-                                  ),
-                                ),
+                              child: AvatarImage(
+                                avatar: avatar,
+                                size: 44,
+                                opacity: isUnlocked ? 1.0 : 0.4,
                               ),
                             ),
                             if (!isUnlocked)
@@ -268,7 +261,7 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: kPrimaryColor.withAlpha(30),
-                      child: Text(avatarModel.emoji, style: const TextStyle(fontSize: 22)),
+                      child: AvatarImage(avatar: avatarModel, size: 40),
                     ),
                     title: Text(profile.name),
                     subtitle: Text('${profile.grade}年生'),

@@ -1,6 +1,39 @@
 import 'package:flutter/material.dart';
 import '../models/avatar_model.dart';
 
+/// Renders an avatar's illustrated icon, cropped to a circle. Falls back to
+/// the emoji if the image asset can't be loaded for some reason.
+class AvatarImage extends StatelessWidget {
+  final AvatarModel avatar;
+  final double size;
+  final double opacity;
+
+  const AvatarImage({
+    super.key,
+    required this.avatar,
+    required this.size,
+    this.opacity = 1.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: Opacity(
+        opacity: opacity,
+        child: Image.asset(
+          avatar.imageAsset,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Center(
+            child: Text(avatar.emoji, style: TextStyle(fontSize: size * 0.5)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class AvatarWidget extends StatelessWidget {
   final AvatarModel avatar;
   final double size;
@@ -37,12 +70,7 @@ class AvatarWidget extends StatelessWidget {
             ),
           ],
         ),
-        child: Center(
-          child: Text(
-            avatar.emoji,
-            style: TextStyle(fontSize: size * 0.5),
-          ),
-        ),
+        child: AvatarImage(avatar: avatar, size: size),
       ),
     );
   }
@@ -86,19 +114,14 @@ class LockedAvatarWidget extends StatelessWidget {
                 ),
               ],
             ),
-            child: Center(
-              child: ColorFiltered(
-                colorFilter: const ColorFilter.matrix([
-                  0.2126, 0.7152, 0.0722, 0, 0,
-                  0.2126, 0.7152, 0.0722, 0, 0,
-                  0.2126, 0.7152, 0.0722, 0, 0,
-                  0, 0, 0, 0.4, 0,
-                ]),
-                child: Text(
-                  avatar.emoji,
-                  style: TextStyle(fontSize: size * 0.5),
-                ),
-              ),
+            child: ColorFiltered(
+              colorFilter: const ColorFilter.matrix([
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0, 0, 0, 0.4, 0,
+              ]),
+              child: AvatarImage(avatar: avatar, size: size),
             ),
           ),
           Positioned(

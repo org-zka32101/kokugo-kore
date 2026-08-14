@@ -89,6 +89,13 @@ final List<_StudyItem> _studyItems = [
     args: {'type': 'reading'},
   ),
   _StudyItem(
+    emoji: '📖',
+    title: '読解力強化',
+    subtitle: 'きじをよんで理解度クイズ・要約・表現をきたえよう',
+    color: const Color(0xFF16A085),
+    route: '/reading',
+  ),
+  _StudyItem(
     emoji: '💬',
     title: 'ことば（語彙）',
     subtitle: 'ことばのいみをクイズでおぼえよう',
