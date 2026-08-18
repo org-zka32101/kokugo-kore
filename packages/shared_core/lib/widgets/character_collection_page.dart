@@ -263,11 +263,12 @@ class _CharacterCard extends StatelessWidget {
             Stack(
               alignment: Alignment.topRight,
               children: [
-                if (character.imageAsset != null)
+                if (character.imageAssetForLevel(state.level) != null)
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: Image.asset(character.imageAsset!,
+                    child: Image.asset(
+                        character.imageAssetForLevel(state.level)!,
                         fit: BoxFit.contain),
                   )
                 else
@@ -366,11 +367,12 @@ class _CharacterDetailSheet extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  if (character.imageAsset != null)
+                  if (character.imageAssetForLevel(state.level) != null)
                     SizedBox(
                       width: 100,
                       height: 100,
-                      child: Image.asset(character.imageAsset!,
+                      child: Image.asset(
+                          character.imageAssetForLevel(state.level)!,
                           fit: BoxFit.contain),
                     )
                   else
