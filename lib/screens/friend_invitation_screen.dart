@@ -36,7 +36,8 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
         title: const Text('友人と対戦'),
         backgroundColor: kPrimaryColor,
       ),
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           // 検索バー
           Padding(
@@ -82,6 +83,7 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
             ),
           ),
         ],
+        ),
       ),
     );
   }

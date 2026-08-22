@@ -37,19 +37,21 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
         backgroundColor: kPrimaryColor,
         automaticallyImplyLeading: false,
       ),
-      body: Column(
-        children: [
-          // スコアボード
-          _buildScoreboard(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // スコアボード
+            _buildScoreboard(),
 
-          // ラウンドプログレス
-          _buildRoundProgress(),
+            // ラウンドプログレス
+            _buildRoundProgress(),
 
-          // クイズコンテンツ
-          Expanded(
-            child: _buildQuizContent(),
-          ),
-        ],
+            // クイズコンテンツ
+            Expanded(
+              child: _buildQuizContent(),
+            ),
+          ],
+        ),
       ),
     );
   }

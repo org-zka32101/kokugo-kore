@@ -1253,7 +1253,8 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen>
         backgroundColor: const Color(0xFFE67E22),
         automaticallyImplyLeading: false,
       ),
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           _buildProgressBar(progress, _currentIndex + 1, total),
           Expanded(
@@ -1301,6 +1302,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen>
             ),
           ),
         ],
+        ),
       ),
     );
   }

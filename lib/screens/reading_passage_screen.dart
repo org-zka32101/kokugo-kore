@@ -63,7 +63,8 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
         backgroundColor: kPrimaryColor,
         elevation: 0,
       ),
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           LinearProgressIndicator(
             value: _scrollPercentage / 100,
@@ -117,6 +118,7 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
