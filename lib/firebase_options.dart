@@ -17,6 +17,10 @@ class DefaultFirebaseOptions {
     }
   }
 
+  // TODO: web/iOSアプリを「kore1」プロジェクトに登録し、正しい値に更新すること。
+  // 現状は旧プロジェクト（petit-works-education）の値のまま残っている。
+  // Androidと違いこの2つはまだ利用されていないため緊急ではないが、
+  // Firebase Web SDK/iOSでこのアプリを動かす前に必ず修正が必要。
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCBwPBEXptIW_8wl0_hWtZhpSJcuod00Eg',
     appId: '1:492221061005:web:0c9d94f157252096c88fc4',
@@ -26,11 +30,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCBwPBEXptIW_8wl0_hWtZhpSJcuod00Eg',
-    appId: '1:492221061005:android:0c9d94f157252096c88fc4',
-    messagingSenderId: '492221061005',
-    projectId: 'petit-works-education',
-    storageBucket: 'petit-works-education.firebasestorage.app',
+    apiKey: 'AIzaSyCjpHo46GeJzN_TMINl1eaMNJet3QFXr_U',
+    appId: '1:906257233334:android:2e17f224a0f8a7e41ffd17',
+    messagingSenderId: '906257233334',
+    projectId: 'kore1-6b58e',
+    storageBucket: 'kore1-6b58e.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
