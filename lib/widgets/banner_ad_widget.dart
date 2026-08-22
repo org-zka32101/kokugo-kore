@@ -22,7 +22,7 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
   void initState() {
     super.initState();
     final premium = ref.read(premiumProvider);
-    if (!premium.isPremium) {
+    if (!premium.isPremium && !premium.isTrialActive) {
       _loadBanner();
     }
   }
@@ -33,6 +33,11 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
         if (mounted) setState(() => _isLoaded = true);
       },
       onFailed: () {
+        // ad_service.dart の onAdFailedToLoad が既にこの broken ad を
+        // dispose 済みなので、参照を破棄しておく（mounted判定に関わらず）。
+        // これをしないと、この後 dispose() が同じインスタンスを二重に
+        // dispose してクラッシュ/エラーログの原因になる。
+        _bannerAd = null;
         if (mounted) setState(() => _isLoaded = false);
       },
     );
@@ -49,7 +54,7 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
   @override
   Widget build(BuildContext context) {
     final premium = ref.watch(premiumProvider);
-    if (premium.isPremium || !_isLoaded || _bannerAd == null) {
+    if (premium.isPremium || premium.isTrialActive || !_isLoaded || _bannerAd == null) {
       return const SizedBox.shrink();
     }
     return Container(

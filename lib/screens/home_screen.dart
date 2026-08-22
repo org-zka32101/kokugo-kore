@@ -34,16 +34,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkFirstLaunchIntro();
-      _checkDailyBonus();
-      _checkForUpdate();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _runStartupDialogs());
+  }
+
+  /// 初回起動時に表示しうる複数のダイアログ（デイリーボーナス・アプリ紹介・
+  /// アップデート通知）が同時に積み重なって出ないよう、1つずつ順番に
+  /// 表示して閉じられるのを待ってから次を出す。
+  Future<void> _runStartupDialogs() async {
+    await _checkDailyBonus();
+    if (!mounted) return;
+    await _checkFirstLaunchIntro();
+    if (!mounted) return;
+    await _checkForUpdate();
   }
 
   /// 初回インストール後、最初にホーム画面に来たときだけアプリの使い方を説明する。
   /// 同じ内容は設定画面の「このアプリの使い方」からいつでも再表示できる。
-  void _checkFirstLaunchIntro() async {
+  Future<void> _checkFirstLaunchIntro() async {
     final prefs = await SharedPreferences.getInstance();
     final hasSeenIntro = prefs.getBool('has_seen_app_intro') ?? false;
     if (hasSeenIntro) return;
@@ -52,16 +59,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     await showAppIntroDialog(context);
   }
 
-  void _checkForUpdate() async {
-    const currentVersion = '1.3.0';
+  Future<void> _checkForUpdate() async {
+    const currentVersion = '1.4.0';
     final prefs = await SharedPreferences.getInstance();
     final lastSeen = prefs.getString('last_seen_version');
     if (lastSeen != currentVersion) {
       await prefs.setString('last_seen_version', currentVersion);
       if (!mounted) return;
-      await Future.delayed(const Duration(milliseconds: 800));
-      if (!mounted) return;
-      showDialog(
+      await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -70,7 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Text('🎉', style: TextStyle(fontSize: 28)),
               SizedBox(width: 8),
               Flexible(
-                child: Text('v1.3.0 にアップデート！',
+                child: Text('v1.4.0 にアップデート！',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ],
@@ -83,16 +88,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Text('✨ 新機能',
                     style: TextStyle(fontWeight: FontWeight.bold, color: kPrimaryColor)),
                 SizedBox(height: 6),
-                Text('• 親向けダッシュボード追加'),
-                Text('• マルチプレイ（友達バトル）追加'),
-                Text('• 読解力強化トレーニング追加'),
+                Text('• 読解力強化トレーニングを追加'),
+                Text('• アバターアイコンを一新'),
+                Text('• 書き順アニメーション表示を追加'),
                 SizedBox(height: 12),
                 Text('🔧 改善',
                     style: TextStyle(fontWeight: FontWeight.bold, color: kPrimaryColor)),
                 SizedBox(height: 6),
-                Text('• クイズコンテンツを180問に拡充'),
-                Text('• キャラクター・バッジ表示改善'),
-                Text('• ショップ交換所に購入機能追加'),
+                Text('• アプリ内課金の価格表示・エラー表示を改善'),
+                Text('• キャラクターのレベル別イラスト表示に対応'),
+                Text('• アプリ名を「小学コレ！国語」に変更'),
               ],
             ),
           ),
@@ -113,23 +118,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // タイマー終了検知（ref.listen はbuildの外でできないのでdidChangeDependenciesで監視）
   }
 
-  void _checkDailyBonus() {
+  Future<void> _checkDailyBonus() {
     final bonus = ref.read(dailyBonusProvider);
-    if (!bonus.claimedToday && bonus.todayBonus > 0) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => DailyBonusDialog(
-          streak: bonus.bonusStreak + 1,
-          bonusCoins: bonus.todayBonus,
-          onClaim: () async {
-            final coins = await ref.read(dailyBonusProvider.notifier).claim();
-            await ref.read(coinProvider.notifier).addCoins(coins);
-            if (mounted) Navigator.of(context).pop();
-          },
-        ),
-      );
-    }
+    if (bonus.claimedToday || bonus.todayBonus <= 0) return Future.value();
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => DailyBonusDialog(
+        streak: bonus.bonusStreak + 1,
+        bonusCoins: bonus.todayBonus,
+        onClaim: () async {
+          final coins = await ref.read(dailyBonusProvider.notifier).claim();
+          await ref.read(coinProvider.notifier).addCoins(coins);
+          if (mounted) Navigator.of(context).pop();
+        },
+      ),
+    );
   }
 
   void _handleTimerExpired() {

@@ -284,43 +284,54 @@ class _KokugoLevelUpCard extends ConsumerWidget {
   }
 
   void _showLevelUpDialog(BuildContext context, WidgetRef ref, int nextLevel, int cost) {
+    // StatefulBuilderのbuilder関数はrebuildのたびに再実行されるため、
+    // busyフラグはbuilderの外（showDialog呼び出しのスコープ）に置く必要がある。
+    var busy = false;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('${character.name} をレベルアップ？'),
-        content: Text('Lv.$nextLevel に上げるのに $cost コイン必要です'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('キャンセル')),
-          ElevatedButton(
-              onPressed: () async {
-                final error = await ref
-                    .read(characterStateProvider.notifier)
-                    .levelUp(character.id);
-                if (error == null) {
-                  await ref
-                      .read(featuredCharacterProvider.notifier)
-                      .setFeatured(character.id);
-                }
-                if (ctx.mounted) {
-                  Navigator.pop(ctx);
-                  if (error != null) {
-                    ScaffoldMessenger.of(ctx).showSnackBar(
-                      SnackBar(content: Text(error)),
-                    );
-                  }
-                }
-                if (error == null && context.mounted) {
-                  await showCharacterLevelUpDialog(
-                    context,
-                    character: character,
-                    newLevel: nextLevel,
-                  );
-                }
-              },
-              child: const Text('アップグレード')),
-        ],
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return AlertDialog(
+            title: Text('${character.name} をレベルアップ？'),
+            content: Text('Lv.$nextLevel に上げるのに $cost コイン必要です'),
+            actions: [
+              TextButton(
+                  onPressed: busy ? null : () => Navigator.pop(ctx),
+                  child: const Text('キャンセル')),
+              ElevatedButton(
+                  // 連打による二重課金（コインの二重消費）を防ぐガード。
+                  onPressed: busy
+                      ? null
+                      : () async {
+                          setDialogState(() => busy = true);
+                          final error = await ref
+                              .read(characterStateProvider.notifier)
+                              .levelUp(character.id);
+                          if (error == null) {
+                            await ref
+                                .read(featuredCharacterProvider.notifier)
+                                .setFeatured(character.id);
+                          }
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                            if (error != null) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                SnackBar(content: Text(error)),
+                              );
+                            }
+                          }
+                          if (error == null && context.mounted) {
+                            await showCharacterLevelUpDialog(
+                              context,
+                              character: character,
+                              newLevel: nextLevel,
+                            );
+                          }
+                        },
+                  child: const Text('アップグレード')),
+            ],
+          );
+        },
       ),
     );
   }
@@ -388,15 +399,22 @@ class _ExchangeTab extends ConsumerWidget {
   }
 
   void _confirmPurchase(BuildContext context, WidgetRef ref, AppShopItem item) {
+    // 連打による二重課金（コインの二重消費）を防ぐガード
+    // （builderの外に置き、StatefulBuilderのrebuildで初期化されないようにする）。
+    var busy = false;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
         title: Text('${item.name} を購入？'),
         content: Text('${item.description}\n\n${item.coinCost}コインを使います。'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('キャンセル')),
+          TextButton(onPressed: busy ? null : () => Navigator.pop(ctx), child: const Text('キャンセル')),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: busy
+                ? null
+                : () async {
+              setDialogState(() => busy = true);
               final ok = await ref.read(coinProvider.notifier).spendCoins(item.coinCost);
               if (ok) {
                 await ref.read(purchasedItemsProvider.notifier).purchase(item.id);
@@ -412,6 +430,7 @@ class _ExchangeTab extends ConsumerWidget {
             child: const Text('購入する'),
           ),
         ],
+        ),
       ),
     );
   }
@@ -608,9 +627,12 @@ class _AvatarTab extends ConsumerWidget {
 
   void _confirmUnlock(BuildContext context, WidgetRef ref, AvatarModel avatar) {
     final cost = avatar.coinCost ?? 0;
+    // 連打による二重課金（コインの二重消費）を防ぐガード。
+    var busy = false;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
         title: Text('${avatar.name} をゲット？'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -623,11 +645,14 @@ class _AvatarTab extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: busy ? null : () => Navigator.pop(ctx),
             child: const Text('キャンセル'),
           ),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: busy
+                ? null
+                : () async {
+              setDialogState(() => busy = true);
               final ok = await ref.read(coinProvider.notifier).spendCoins(cost);
               if (ok && ctx.mounted) {
                 await ref.read(avatarProvider.notifier).unlockWithCoins(avatar.id);
@@ -651,6 +676,7 @@ class _AvatarTab extends ConsumerWidget {
             child: const Text('ゲットする'),
           ),
         ],
+        ),
       ),
     );
   }

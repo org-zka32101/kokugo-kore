@@ -18,17 +18,41 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
     final premium = ref.watch(premiumProvider);
     final products = ref.watch(premiumProductsProvider);
 
-    // 購入ストリームが実際に isPremium を true にした時点で画面を閉じる
-    // （buyNonConsumable の戻り値は「リクエストを開始できたか」でしかないため）。
-    ref.listen<PremiumState>(premiumProvider, (previous, next) {
-      if (_purchasing && !(previous?.isPremium ?? false) && next.isPremium) {
-        setState(() => _purchasing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('プレミアムプランへようこそ！🎉')),
-        );
-        Navigator.of(context).pop();
-      }
-    });
+    // 既にプレミアムなら、この画面に来ても購入導線は出さない
+    // （復元直後や設定バナー経由での再訪時に、二重購入を誘発しないため）。
+    if (premium.isPremium) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('プレミアムプラン'), backgroundColor: kPrimaryColor),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('✨', style: TextStyle(fontSize: 48)),
+                const SizedBox(height: 16),
+                const Text(
+                  'すでにプレミアムプランです',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'すべての機能をお楽しみいただけます。',
+                  style: TextStyle(color: kTextMuted, fontSize: 13),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('もどる'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -53,11 +77,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
             ),
             const SizedBox(height: 16),
             TextButton(
-              onPressed: _purchasing ? null : () async {
-                setState(() => _purchasing = true);
-                await ref.read(premiumProvider.notifier).restorePurchases();
-                if (mounted) setState(() => _purchasing = false);
-              },
+              onPressed: _purchasing ? null : _restore,
               child: const Text('購入を復元する', style: TextStyle(color: kTextMuted)),
             ),
             const SizedBox(height: 8),
@@ -77,19 +97,30 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
     setState(() => _purchasing = true);
     final result = await fn();
     if (!mounted) return;
-    if (!result.launched) {
-      // リクエスト自体が起動できなかった → エラーを表示して終了。
-      setState(() => _purchasing = false);
+    setState(() => _purchasing = false);
+    if (result.success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.errorMessage ?? '購入処理を開始できませんでした。')),
+        const SnackBar(content: Text('プレミアムプランへようこそ！🎉')),
       );
-      return;
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.errorMessage ?? '購入処理に失敗しました。')),
+      );
     }
-    // リクエストは起動できたが、購入完了はまだ。ここではポップせず、
-    // build() の ref.listen が isPremium の変化を検知してから画面を閉じる。
+  }
+
+  Future<void> _restore() async {
+    setState(() => _purchasing = true);
+    final restored = await ref.read(premiumProvider.notifier).restorePurchases();
+    if (!mounted) return;
+    setState(() => _purchasing = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('購入処理中です…')),
+      SnackBar(
+        content: Text(restored ? '購入を復元しました！🎉' : '復元できる購入が見つかりませんでした。'),
+      ),
     );
+    if (restored) Navigator.of(context).pop();
   }
 }
 

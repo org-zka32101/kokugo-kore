@@ -62,16 +62,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await Future.delayed(const Duration(milliseconds: 1600));
     if (!mounted) return;
 
-    // バージョンアップ時にお知らせを表示（初回インストールは除く）
-    const currentVersion = '1.1.0';
-    final prefs = await SharedPreferences.getInstance();
-    final lastVersion = prefs.getString('app_last_version');
-    if (lastVersion != null && lastVersion != currentVersion) {
-      if (mounted) await _showWhatsNew(context, currentVersion);
-    }
-    await prefs.setString('app_last_version', currentVersion);
+    // アップデート通知は home_screen.dart の _checkForUpdate に一本化済み
+    // （ここに以前あった別バージョンの重複した仕組みは削除した）。
 
-    if (!mounted) return;
     final profiles = ref.read(profileProvider).profiles;
     final currentProfile = ref.read(profileProvider).currentProfileId;
 
@@ -80,62 +73,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     } else {
       Navigator.of(context).pushReplacementNamed('/home');
     }
-  }
-
-  Future<void> _showWhatsNew(BuildContext context, String version) async {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Column(
-          children: [
-            const Text('🎉', style: TextStyle(fontSize: 40)),
-            const SizedBox(height: 8),
-            const Text(
-              'アップデートしました！',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              'v$version',
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-          ],
-        ),
-        content: const SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _WhatsNewItem('ことわざ・慣用句が各50問以上に増加'),
-              _WhatsNewItem('ことばクイズが200語以上に増加'),
-              _WhatsNewItem('各クイズが10問ラウンド制に変更'),
-              _WhatsNewItem('選択肢の位置がランダムになりました'),
-              _WhatsNewItem('漢字おぼえるタブを改善'),
-              _WhatsNewItem('せってい画面にアプリの使い方を追加'),
-            ],
-          ),
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(ctx),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text(
-                'はじめる！',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -234,27 +171,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _WhatsNewItem extends StatelessWidget {
-  final String text;
-  const _WhatsNewItem(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('✅ ', style: TextStyle(fontSize: 13)),
-          Expanded(
-            child: Text(text, style: const TextStyle(fontSize: 13, height: 1.4)),
-          ),
-        ],
       ),
     );
   }

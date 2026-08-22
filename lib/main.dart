@@ -19,7 +19,7 @@ import 'screens/quest_screen.dart';
 import 'screens/result_screen.dart';
 import 'screens/settings_screen.dart';
 import 'package:shared_core/shared_core.dart'
-    show characterStateProvider, coinProvider, CoinState, CoinNotifier, premiumProvider, PremiumState, PremiumNotifier, avatarProvider, CrossPromoService;
+    show characterStateProvider, coinProvider, CoinState, CoinNotifier, avatarProvider, CrossPromoService;
 import 'providers/character_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';

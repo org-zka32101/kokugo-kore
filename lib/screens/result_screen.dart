@@ -26,6 +26,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   late ConfettiController _confetti;
   List<BadgeModel> _newBadges = [];
   bool _saving = true;
+  bool _saveStarted = false;
 
   @override
   void initState() {
@@ -35,60 +36,74 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Future<void> _saveResult() async {
+    // 何らかの理由で二重に呼ばれても、進捗/コイン/バッジを二重に記録しない。
+    if (_saveStarted) return;
+    _saveStarted = true;
+
     final r = widget.result;
     final s = widget.stage;
     final isKanji = s.quizType == QuizType.primary;
 
-    await ref.read(progressProvider.notifier).recordResult(
-      grade: s.grade,
-      stageNumber: s.stageNumber,
-      correct: r.correctCount,
-      total: r.totalCount,
-      isKanji: isKanji,
-      isPerfect: r.isPerfect,
-    );
+    try {
+      await ref.read(progressProvider.notifier).recordResult(
+        grade: s.grade,
+        stageNumber: s.stageNumber,
+        correct: r.correctCount,
+        total: r.totalCount,
+        isKanji: isKanji,
+        isPerfect: r.isPerfect,
+      );
 
-    final progress = ref.read(progressProvider);
-    final newBadges = await ref.read(badgeProvider.notifier).checkAndAward(
-      streakDays: progress.streakDays,
-      totalKanjiCorrect: progress.totalKanjiCorrect,
-      totalReadingCorrect: progress.totalReadingCorrect,
-      maxStageCleared: progress.maxStageCleared,
-      perfectStageCount: progress.perfectStageCount,
-      justPerfect: r.isPerfect,
-    );
+      // アダプティブ記録
+      await ref.read(adaptiveProvider.notifier).recordAttempt(
+        grade: s.grade,
+        stageNumber: s.stageNumber,
+        correct: r.correctCount,
+        total: r.totalCount,
+      );
 
-    // アダプティブ記録
-    await ref.read(adaptiveProvider.notifier).recordAttempt(
-      grade: s.grade,
-      stageNumber: s.stageNumber,
-      correct: r.correctCount,
-      total: r.totalCount,
-    );
+      // Earn coins based on score
+      if (r.isPassed) {
+        final percentage = r.correctCount / r.totalCount;
+        final coins = percentage >= 1.0 ? 30 : percentage >= 0.8 ? 20 : 10;
+        await ref.read(coinProvider.notifier).addCoins(coins);
+      }
 
-    // Earn coins based on score
-    if (r.isPassed) {
-      final percentage = r.correctCount / r.totalCount;
-      final coins = percentage >= 1.0 ? 30 : percentage >= 0.8 ? 20 : 10;
-      await ref.read(coinProvider.notifier).addCoins(coins);
-    }
+      // Check if any characters unlock based on new progress
+      // （checkUnlocks 自体は新規解放キャラを返さないので、前後の状態を比較して検出する）
+      final beforeUnlocked = ref.read(characterStateProvider);
+      final progress = ref.read(progressProvider);
+      await ref
+          .read(characterStateProvider.notifier)
+          .checkUnlocks(progress.clearedStageIds.length);
+      final afterUnlocked = ref.read(characterStateProvider);
 
-    // Check if any characters unlock based on new progress
-    // （checkUnlocks 自体は新規解放キャラを返さないので、前後の状態を比較して検出する）
-    final beforeUnlocked = ref.read(characterStateProvider);
-    final updatedProgress = ref.read(progressProvider);
-    await ref
-        .read(characterStateProvider.notifier)
-        .checkUnlocks(updatedProgress.clearedStageIds.length);
-    final afterUnlocked = ref.read(characterStateProvider);
+      final newlyUnlocked = kKokugoCharacters.where((c) {
+        final wasUnlocked = beforeUnlocked[c.id]?.isUnlocked ?? false;
+        final isUnlocked = afterUnlocked[c.id]?.isUnlocked ?? false;
+        return isUnlocked && !wasUnlocked;
+      }).toList();
 
-    final newlyUnlocked = kKokugoCharacters.where((c) {
-      final wasUnlocked = beforeUnlocked[c.id]?.isUnlocked ?? false;
-      final isUnlocked = afterUnlocked[c.id]?.isUnlocked ?? false;
-      return isUnlocked && !wasUnlocked;
-    }).toList();
+      final unlockedCount =
+          kKokugoCharacters.where((c) => afterUnlocked[c.id]?.isUnlocked ?? false).length;
+      final hasMaxLevel =
+          afterUnlocked.values.any((cs) => cs.isMaxLevel);
 
-    if (mounted) {
+      final newBadges = await ref.read(badgeProvider.notifier).checkAndAward(
+        streakDays: progress.streakDays,
+        totalKanjiCorrect: progress.totalKanjiCorrect,
+        totalReadingCorrect: progress.totalReadingCorrect,
+        maxStageCleared: progress.maxStageCleared,
+        perfectStageCount: progress.perfectStageCount,
+        justPerfect: r.isPerfect,
+        totalCorrect: progress.totalCorrect,
+        clearedStageCount: progress.clearedStageIds.length,
+        currentPerfectStreak: progress.currentPerfectStreak,
+        unlockedCharacterCount: unlockedCount,
+        hasMaxLevelCharacter: hasMaxLevel,
+      );
+
+      if (!mounted) return;
       setState(() {
         _newBadges = newBadges;
         _saving = false;
@@ -98,6 +113,10 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         if (!mounted) break;
         await showCharacterUnlockDialog(context, character);
       }
+    } catch (e) {
+      // 保存の途中で失敗しても（例：画面が破棄された）、少なくとも
+      // スピナーが永久に回り続ける状態は避ける。
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -158,10 +177,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                          '/stages',
-                          (route) => route.settings.name == '/home',
-                        ),
+                        // 保存処理が終わるまでは画面遷移させない（遷移すると
+                        // このStateが破棄され、進捗/コイン/バッジ保存が
+                        // 途中で止まってしまうため）。
+                        onPressed: _saving
+                            ? null
+                            : () => Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/stages',
+                                  (route) => route.settings.name == '/home',
+                                ),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: kPrimaryColor),
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -173,10 +197,12 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                          '/home',
-                          (route) => false,
-                        ),
+                        onPressed: _saving
+                            ? null
+                            : () => Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/home',
+                                  (route) => false,
+                                ),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),

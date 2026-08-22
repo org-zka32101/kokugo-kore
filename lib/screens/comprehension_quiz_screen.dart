@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/reading_passages_data.dart';
 import '../models/reading_passage_model.dart';
+import '../providers/coin_provider.dart';
 import '../theme/app_theme.dart';
 import 'summary_training_screen.dart';
 
@@ -32,6 +33,7 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
   int _correctCount = 0;
   String? _selectedAnswer;
   bool _answered = false;
+  bool _rewarded = false;
 
   late final List<ComprehensionQuestion> _quiz =
       comprehensionQuestionsFor(widget.passageId);
@@ -305,7 +307,7 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
                     const Divider(),
                     _buildResultRow('正答率', '$accuracy%'),
                     const Divider(),
-                    _buildResultRow('獲得ポイント', '${_correctCount * 10}pt'),
+                    _buildResultRow('獲得コイン', '${_correctCount * 10}コイン'),
                   ],
                 ),
               ),
@@ -372,5 +374,12 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
       _selectedAnswer = null;
       _answered = false;
     });
+    // 「獲得ポイント」表示は以前、実際のコイン残高には一切反映されない
+    // 見せかけの数字だった。ここでクイズ完了の瞬間（一度だけ）に本当に
+    // コインを付与する。
+    if (_currentQuestion >= _quiz.length && !_rewarded) {
+      _rewarded = true;
+      ref.read(coinProvider.notifier).addCoins(_correctCount * 10);
+    }
   }
 }

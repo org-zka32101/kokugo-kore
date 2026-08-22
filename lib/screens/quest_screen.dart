@@ -4,7 +4,9 @@ import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../data/kokugo_characters.dart';
 import '../models/quest_model.dart';
 import '../providers/character_provider.dart';
+import '../providers/premium_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/premium_gate.dart';
 
 class QuestScreen extends ConsumerStatefulWidget {
   final Stage stage;
@@ -20,6 +22,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
   int? _selectedAnswer;
   bool _answered = false;
   int _correctCount = 0;
+  bool _finishing = false;
   late DateTime _startTime;
   late AnimationController _feedbackCtrl;
   late Animation<double> _feedbackAnim;
@@ -63,6 +66,10 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
       });
       _feedbackCtrl.reset();
     } else {
+      // 最後の問題の「つぎへ」を連打しても、結果画面への遷移（＝進捗保存）が
+      // 二重に始まらないようにする。
+      if (_finishing) return;
+      _finishing = true;
       final elapsed = DateTime.now().difference(_startTime);
       final result = QuestResult(
         correctCount: _correctCount,
@@ -78,6 +85,14 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
 
   @override
   Widget build(BuildContext context) {
+    // 呼び出し元（おまかせミッション・スマートメニュー等）がステージのロック状態を
+    // 事前にチェックしそびれていても、ここで最終的にブロックする
+    // （StageCardのタップガードだけに頼らない防御的チェック）。
+    final premium = ref.watch(premiumProvider);
+    if (!premium.canAccessStage(widget.stage.stageNumber)) {
+      return const PremiumLockedScreen(featureName: 'このステージ', featureEmoji: '📖');
+    }
+
     final total = widget.stage.questions.length;
     final progress = (_currentIndex + (_answered ? 1 : 0)) / total;
 
@@ -212,7 +227,10 @@ class _FeaturedCharacterBanner extends ConsumerWidget {
     final unlockedIds = kKokugoCharacters
         .where((c) => charStates[c.id]?.isUnlocked ?? false)
         .map((c) => c.id);
-    final characterId = featuredId ?? unlockedIds.firstOrNull ?? kKokugoCharacters.first.id;
+    // featuredIdも解放済みキャラもまだ無ければ（例：最初のステージクリア前）、
+    // 未解放キャラをあたかも育成中であるかのように表示しない。
+    final characterId = featuredId ?? unlockedIds.firstOrNull;
+    if (characterId == null) return const SizedBox.shrink();
 
     final character = kKokugoCharacters.firstWhere(
       (c) => c.id == characterId,
