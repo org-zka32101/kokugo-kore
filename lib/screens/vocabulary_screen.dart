@@ -1221,7 +1221,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen>
     } else {
       setState(() => _finished = true);
       final premium = ref.read(premiumProvider);
-      if (!premium.isPremium) AdService.showInterstitial();
+      if (!premium.isPremium && !premium.isTrialActive) AdService.showInterstitial();
     }
   }
 

@@ -16,9 +16,19 @@ import '../theme/app_theme.dart';
 import '../widgets/app_intro_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const _appVersion = '1.3.0';
+const _appVersion = '1.4.0';
 
 const _changelog = <String, List<String>>{
+  '1.4.0': [
+    'アプリ名を「小学コレ！国語」に変更',
+    '読解力強化トレーニングを実際の記事・クイズと接続',
+    'アバターアイコンを一新',
+    'キャラクターのレベル別イラスト表示に対応',
+    'キャラゲット・レベルアップ時の演出を追加',
+    'アプリ内課金の価格表示・エラー表示を改善',
+    '書き順アニメーション表示を追加（ひらがな・カタカナ・漢字）',
+    '初回起動時の説明画面を追加',
+  ],
   '1.3.0': [
     '親向けダッシュボード追加（学習分析・進捗グラフ・ペース推奨）',
     'マルチプレイ追加（友達バトル・リアルタイム対戦・リーダーボード）',

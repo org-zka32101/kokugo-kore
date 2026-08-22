@@ -526,7 +526,7 @@ class _IdiomQuizScreenState extends ConsumerState<IdiomQuizScreen>
     } else {
       setState(() => _finished = true);
       final premium = ref.read(premiumProvider);
-      if (!premium.isPremium) AdService.showInterstitial();
+      if (!premium.isPremium && !premium.isTrialActive) AdService.showInterstitial();
     }
   }
 

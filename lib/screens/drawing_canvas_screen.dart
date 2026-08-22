@@ -27,6 +27,11 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
   List<Offset>? _currentStroke;
   int? _score;
   bool _showAnswer = false;
+  // _strokes は同一インスタンスを add/clear で書き換えているため、
+  // CustomPainter.shouldRepaint が参照比較（!=）だけでは変化を検知できない
+  // （clear() 後、新しいストロークが始まるまで画面が消えずに残るバグの原因だった）。
+  // 変更のたびにインクリメントし、それをペインター側の比較に使う。
+  int _strokesVersion = 0;
 
   static const double _canvasW = 280;
   static const double _canvasH = 280;
@@ -38,6 +43,7 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
         _strokes.clear();
         _currentStroke = null;
         _score = null;
+        _strokesVersion++;
       });
 
   void _onPanStart(DragStartDetails d) =>
@@ -55,6 +61,7 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
       setState(() {
         _strokes.add(List.from(_currentStroke!));
         _currentStroke = null;
+        _strokesVersion++;
       });
     }
   }
@@ -246,7 +253,9 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
                     child: CustomPaint(
                       size: const Size(_canvasW, _canvasH),
                       painter: _StrokePainter(
-                          strokes: _strokes, currentStroke: _currentStroke),
+                          strokes: _strokes,
+                          currentStroke: _currentStroke,
+                          version: _strokesVersion),
                     ),
                   ),
                 ),
@@ -364,8 +373,13 @@ class _ScoreDisplay extends StatelessWidget {
 class _StrokePainter extends CustomPainter {
   final List<List<Offset>> strokes;
   final List<Offset>? currentStroke;
+  final int version;
 
-  const _StrokePainter({required this.strokes, required this.currentStroke});
+  const _StrokePainter({
+    required this.strokes,
+    required this.currentStroke,
+    required this.version,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -403,5 +417,5 @@ class _StrokePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_StrokePainter old) =>
-      old.strokes != strokes || old.currentStroke != currentStroke;
+      old.version != version || old.currentStroke != currentStroke;
 }

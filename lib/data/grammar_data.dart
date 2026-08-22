@@ -538,7 +538,7 @@ const okuriganaItems = <GenericQuizItem>[
   GenericQuizItem(
     highlight: '走□',
     question: '「走□」の正しい送りがなは？',
-    choices: ['走い', '走く', '走る', '走い'],
+    choices: ['走い', '走く', '走る', '走した'],
     correctIndex: 2,
     explanation: '「走る（はしる）」が正しい送りがなです。',
     grade: 3,
@@ -578,7 +578,7 @@ const okuriganaItems = <GenericQuizItem>[
   GenericQuizItem(
     highlight: '受□□',
     question: '「受□□（う）」の正しい送りがなは？',
-    choices: ['受ける', '受る', '受iru', '受ける'],
+    choices: ['受ける', '受る', '受iru', '受けた'],
     correctIndex: 0,
     explanation: '「受ける（うける）」が正しい。',
     grade: 4,
@@ -910,7 +910,7 @@ const romajiItems = <GenericQuizItem>[
   GenericQuizItem(
     highlight: 'てんぷら',
     question: '「てんぷら（天ぷら）」のローマ字表記は？',
-    choices: ['tenpura', 'tenpla', 'tempura', 'tenpla'],
+    choices: ['tenpura', 'tenpla', 'tempura', 'denpura'],
     correctIndex: 0,
     explanation: '「て」はte、「ん」はn、「ぷ」はpu、「ら」はra → tenpuraです。',
     grade: 3,

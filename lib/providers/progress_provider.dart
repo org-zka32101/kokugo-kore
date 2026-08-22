@@ -9,6 +9,7 @@ const _totalKanjiKey = 'total_kanji_correct';
 const _totalReadingKey = 'total_reading_correct';
 const _maxClearedKey = 'max_stage_cleared';
 const _perfectStageKey = 'perfect_stage_count';
+const _perfectStreakKey = 'current_perfect_streak';
 
 class LearningProgress {
   final Set<String> clearedStageIds;
@@ -19,6 +20,7 @@ class LearningProgress {
   final int totalReadingCorrect;
   final int maxStageCleared;
   final int perfectStageCount;
+  final int currentPerfectStreak;
 
   const LearningProgress({
     required this.clearedStageIds,
@@ -29,6 +31,7 @@ class LearningProgress {
     required this.totalReadingCorrect,
     required this.maxStageCleared,
     required this.perfectStageCount,
+    this.currentPerfectStreak = 0,
   });
 
   LearningProgress copyWith({
@@ -40,6 +43,7 @@ class LearningProgress {
     int? totalReadingCorrect,
     int? maxStageCleared,
     int? perfectStageCount,
+    int? currentPerfectStreak,
   }) {
     return LearningProgress(
       clearedStageIds: clearedStageIds ?? this.clearedStageIds,
@@ -50,6 +54,7 @@ class LearningProgress {
       totalReadingCorrect: totalReadingCorrect ?? this.totalReadingCorrect,
       maxStageCleared: maxStageCleared ?? this.maxStageCleared,
       perfectStageCount: perfectStageCount ?? this.perfectStageCount,
+      currentPerfectStreak: currentPerfectStreak ?? this.currentPerfectStreak,
     );
   }
 
@@ -65,6 +70,7 @@ class LearningProgress {
     totalReadingCorrect: 0,
     maxStageCleared: 0,
     perfectStageCount: 0,
+    currentPerfectStreak: 0,
   );
 }
 
@@ -92,6 +98,7 @@ class ProgressNotifier extends Notifier<LearningProgress> {
       totalReadingCorrect: prefs.getInt(_totalReadingKey) ?? 0,
       maxStageCleared: prefs.getInt(_maxClearedKey) ?? 0,
       perfectStageCount: prefs.getInt(_perfectStageKey) ?? 0,
+      currentPerfectStreak: prefs.getInt(_perfectStreakKey) ?? 0,
     );
   }
 
@@ -105,10 +112,14 @@ class ProgressNotifier extends Notifier<LearningProgress> {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final stageId = 'g${grade}_s$stageNumber';
+    // 既にクリア済みのステージの再プレイかどうか。再プレイでは正解数などの
+    // 累計カウンター（バッジ判定や保護者レポートに使う）は二重加算しない。
+    final isFirstClear = !state.clearedStageIds.contains(stageId);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // ストリーク更新
+    // ストリーク更新（端末の時計が巻き戻った場合は「同日扱い」にして
+    // ストリークを不当にリセットしない）
     int streak = state.streakDays;
     final lastStudy = state.lastStudyDate;
     if (lastStudy == null) {
@@ -116,8 +127,8 @@ class ProgressNotifier extends Notifier<LearningProgress> {
     } else {
       final lastDay = DateTime(lastStudy.year, lastStudy.month, lastStudy.day);
       final diff = today.difference(lastDay).inDays;
-      if (diff == 0) {
-        // 同日は変化なし
+      if (diff <= 0) {
+        // 同日、または時計が巻き戻った場合は変化なし
       } else if (diff == 1) {
         streak += 1;
       } else {
@@ -126,11 +137,12 @@ class ProgressNotifier extends Notifier<LearningProgress> {
     }
 
     final newCleared = {...state.clearedStageIds, stageId};
-    final newTotal = state.totalCorrect + correct;
-    final newKanji = state.totalKanjiCorrect + (isKanji ? correct : 0);
-    final newReading = state.totalReadingCorrect + (isKanji ? 0 : correct);
+    final newTotal = state.totalCorrect + (isFirstClear ? correct : 0);
+    final newKanji = state.totalKanjiCorrect + (isFirstClear && isKanji ? correct : 0);
+    final newReading = state.totalReadingCorrect + (isFirstClear && !isKanji ? correct : 0);
     final newMax = stageNumber > state.maxStageCleared ? stageNumber : state.maxStageCleared;
-    final newPerfect = isPerfect ? state.perfectStageCount + 1 : state.perfectStageCount;
+    final newPerfect = (isFirstClear && isPerfect) ? state.perfectStageCount + 1 : state.perfectStageCount;
+    final newPerfectStreak = isPerfect ? state.currentPerfectStreak + 1 : 0;
 
     await prefs.setBool('$_clearedPrefix$stageId', true);
     await prefs.setInt(_streakKey, streak);
@@ -140,6 +152,7 @@ class ProgressNotifier extends Notifier<LearningProgress> {
     await prefs.setInt(_totalReadingKey, newReading);
     await prefs.setInt(_maxClearedKey, newMax);
     await prefs.setInt(_perfectStageKey, newPerfect);
+    await prefs.setInt(_perfectStreakKey, newPerfectStreak);
 
     state = state.copyWith(
       clearedStageIds: newCleared,
@@ -150,6 +163,7 @@ class ProgressNotifier extends Notifier<LearningProgress> {
       totalReadingCorrect: newReading,
       maxStageCleared: newMax,
       perfectStageCount: newPerfect,
+      currentPerfectStreak: newPerfectStreak,
     );
   }
 
@@ -164,7 +178,8 @@ class ProgressNotifier extends Notifier<LearningProgress> {
             k == _totalKanjiKey ||
             k == _totalReadingKey ||
             k == _maxClearedKey ||
-            k == _perfectStageKey)
+            k == _perfectStageKey ||
+            k == _perfectStreakKey)
         .toList();
     for (final k in keysToRemove) {
       await prefs.remove(k);

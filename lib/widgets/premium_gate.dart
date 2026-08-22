@@ -31,14 +31,14 @@ class PremiumGate extends ConsumerWidget {
     if (premium.isPremium || premium.isTrialActive) {
       return child;
     }
-    return _LockedScreen(featureName: featureName, featureEmoji: featureEmoji);
+    return PremiumLockedScreen(featureName: featureName, featureEmoji: featureEmoji);
   }
 }
 
-class _LockedScreen extends StatelessWidget {
+class PremiumLockedScreen extends StatelessWidget {
   final String featureName;
   final String featureEmoji;
-  const _LockedScreen({required this.featureName, required this.featureEmoji});
+  const PremiumLockedScreen({super.key, required this.featureName, required this.featureEmoji});
 
   @override
   Widget build(BuildContext context) {

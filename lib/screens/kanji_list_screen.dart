@@ -282,14 +282,14 @@ class _OboeeruTab extends ConsumerWidget {
         mainAxisSpacing: 8,
       ),
       itemCount: items.length,
-      itemBuilder: (_, i) => _MemorizeCard(item: items[i]),
+      itemBuilder: (_, i) => _MemorizeCard(key: ValueKey(items[i].kanji), item: items[i]),
     );
   }
 }
 
 class _MemorizeCard extends ConsumerStatefulWidget {
   final KanjiItem item;
-  const _MemorizeCard({required this.item});
+  const _MemorizeCard({super.key, required this.item});
 
   @override
   ConsumerState<_MemorizeCard> createState() => _MemorizeCardState();
