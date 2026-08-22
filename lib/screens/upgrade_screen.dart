@@ -18,6 +18,18 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
     final premium = ref.watch(premiumProvider);
     final products = ref.watch(premiumProductsProvider);
 
+    // 購入ストリームが実際に isPremium を true にした時点で画面を閉じる
+    // （buyNonConsumable の戻り値は「リクエストを開始できたか」でしかないため）。
+    ref.listen<PremiumState>(premiumProvider, (previous, next) {
+      if (_purchasing && !(previous?.isPremium ?? false) && next.isPremium) {
+        setState(() => _purchasing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('プレミアムプランへようこそ！🎉')),
+        );
+        Navigator.of(context).pop();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('プレミアムプラン'),
@@ -61,13 +73,23 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
     );
   }
 
-  Future<void> _buy(Future<bool> Function() fn) async {
+  Future<void> _buy(Future<PurchaseAttemptResult> Function() fn) async {
     setState(() => _purchasing = true);
-    final ok = await fn();
-    if (mounted) {
+    final result = await fn();
+    if (!mounted) return;
+    if (!result.launched) {
+      // リクエスト自体が起動できなかった → エラーを表示して終了。
       setState(() => _purchasing = false);
-      if (ok) Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.errorMessage ?? '購入処理を開始できませんでした。')),
+      );
+      return;
     }
+    // リクエストは起動できたが、購入完了はまだ。ここではポップせず、
+    // build() の ref.listen が isPremium の変化を検知してから画面を閉じる。
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('購入処理中です…')),
+    );
   }
 }
 
@@ -94,7 +116,7 @@ class _HeroSection extends StatelessWidget {
           const Text('⭐', style: TextStyle(fontSize: 48)),
           const SizedBox(height: 12),
           const Text(
-            '国語コレ！プレミアム',
+            '小学コレ！国語 プレミアム',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 8),
@@ -180,6 +202,7 @@ class _PlanCards extends StatelessWidget {
           // Google Playが返す price を必ず優先する。
           price: monthlyPrice ?? '¥300 / 月（目安）',
           onTap: purchasing ? null : onMonthly,
+          showLoading: purchasing,
         ),
         const SizedBox(height: 12),
         _PlanCard(
@@ -187,6 +210,7 @@ class _PlanCards extends StatelessWidget {
           price: yearlyPrice ?? '¥2,400 / 年（目安）',
           badge: 'おトク',
           onTap: purchasing ? null : onYearly,
+          showLoading: purchasing,
         ),
       ],
     );
@@ -198,12 +222,14 @@ class _PlanCard extends StatelessWidget {
   final String price;
   final String? badge;
   final VoidCallback? onTap;
+  final bool showLoading;
 
   const _PlanCard({
     required this.title,
     required this.price,
     required this.onTap,
     this.badge,
+    this.showLoading = false,
   });
 
   @override
@@ -252,7 +278,14 @@ class _PlanCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, color: kTextMuted),
+                if (showLoading)
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  const Icon(Icons.arrow_forward_ios, color: kTextMuted),
               ],
             ),
           ),

@@ -5,6 +5,7 @@ import '../data/kokugo_characters.dart';
 import '../providers/character_provider.dart';
 import '../providers/purchased_items_provider.dart';
 import '../theme/app_theme.dart';
+import 'character_unlock_dialog.dart';
 
 String _currentSeason() {
   final m = DateTime.now().month;
@@ -309,6 +310,13 @@ class _KokugoLevelUpCard extends ConsumerWidget {
                       SnackBar(content: Text(error)),
                     );
                   }
+                }
+                if (error == null && context.mounted) {
+                  await showCharacterLevelUpDialog(
+                    context,
+                    character: character,
+                    newLevel: nextLevel,
+                  );
                 }
               },
               child: const Text('アップグレード')),

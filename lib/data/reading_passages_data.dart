@@ -8,7 +8,7 @@ const List<ReadingPassage> readingPassages = [
   ReadingPassage(
     passageId: 'hiragana_history',
     title: 'ひらがなの歴史',
-    author: '国語コレ！編集部',
+    author: '小学コレ！国語 編集部',
     grade: 1,
     difficulty: 'basic',
     estimatedReadingTimeSeconds: 300,
@@ -63,7 +63,7 @@ const List<ReadingPassage> readingPassages = [
   ReadingPassage(
     passageId: 'mukashibanashi',
     title: 'むかし話の力',
-    author: '国語コレ！編集部',
+    author: '小学コレ！国語 編集部',
     grade: 2,
     difficulty: 'basic',
     estimatedReadingTimeSeconds: 360,
@@ -95,7 +95,7 @@ const List<ReadingPassage> readingPassages = [
   ReadingPassage(
     passageId: 'kanji_origin',
     title: '漢字の成り立ち',
-    author: '国語コレ！編集部',
+    author: '小学コレ！国語 編集部',
     grade: 3,
     difficulty: 'standard',
     estimatedReadingTimeSeconds: 480,
@@ -135,7 +135,7 @@ const List<ReadingPassage> readingPassages = [
   ReadingPassage(
     passageId: 'reading_effect',
     title: '読書の効果',
-    author: '国語コレ！編集部',
+    author: '小学コレ！国語 編集部',
     grade: 4,
     difficulty: 'standard',
     estimatedReadingTimeSeconds: 420,
@@ -171,7 +171,7 @@ const List<ReadingPassage> readingPassages = [
   ReadingPassage(
     passageId: 'language_culture',
     title: '言葉と文化',
-    author: '国語コレ！編集部',
+    author: '小学コレ！国語 編集部',
     grade: 5,
     difficulty: 'advanced',
     estimatedReadingTimeSeconds: 600,
@@ -203,7 +203,7 @@ const List<ReadingPassage> readingPassages = [
   ReadingPassage(
     passageId: 'media_literacy',
     title: '情報を読み解く',
-    author: '国語コレ！編集部',
+    author: '小学コレ！国語 編集部',
     grade: 6,
     difficulty: 'advanced',
     estimatedReadingTimeSeconds: 720,

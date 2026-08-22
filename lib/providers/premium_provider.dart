@@ -14,6 +14,22 @@ const kProductIdYearly = 'kokugo_kore_yearly_2400';
 /// 無料で遊べる最大ステージ番号
 const kFreeStageLimit = 3;
 
+/// 購入試行の結果。`launched: true` は購入リクエストが起動できたことを意味するだけで、
+/// 実際の課金完了（PurchaseStatus.purchased）はまだ確定していない点に注意。
+/// 完了通知は premiumProvider の状態（isPremium）を通じて別途届く。
+class PurchaseAttemptResult {
+  final bool launched;
+  final String? errorMessage;
+
+  const PurchaseAttemptResult._(this.launched, this.errorMessage);
+
+  factory PurchaseAttemptResult.launched() =>
+      const PurchaseAttemptResult._(true, null);
+
+  factory PurchaseAttemptResult.failure(String message) =>
+      PurchaseAttemptResult._(false, message);
+}
+
 class PremiumState {
   final bool isPremium;
   final bool isTrialActive;
@@ -112,26 +128,40 @@ class PremiumNotifier extends Notifier<PremiumState> {
   }
 
   /// 月額プランを購入
-  Future<bool> purchaseMonthly() => _purchase(kProductIdMonthly);
+  Future<PurchaseAttemptResult> purchaseMonthly() => _purchase(kProductIdMonthly);
 
   /// 年額プランを購入
-  Future<bool> purchaseYearly() => _purchase(kProductIdYearly);
+  Future<PurchaseAttemptResult> purchaseYearly() => _purchase(kProductIdYearly);
 
-  Future<bool> _purchase(String productId) async {
+  Future<PurchaseAttemptResult> _purchase(String productId) async {
     try {
       final available = await InAppPurchase.instance.isAvailable();
-      if (!available) return false;
+      if (!available) {
+        return PurchaseAttemptResult.failure(
+          '購入機能が利用できません。Google Playストアアプリにログインしているか確認してください。',
+        );
+      }
 
-      final response = await InAppPurchase.instance
-          .queryProductDetails({productId});
-      if (response.productDetails.isEmpty) return false;
+      final response =
+          await InAppPurchase.instance.queryProductDetails({productId});
+      if (response.productDetails.isEmpty) {
+        return PurchaseAttemptResult.failure(
+          '商品情報を取得できませんでした（$productId）。Play Console側の商品設定・審査状況、'
+          'またはこのビルドの署名がストア掲載と一致しているかを確認してください。',
+        );
+      }
 
       final param = PurchaseParam(
         productDetails: response.productDetails.first,
       );
-      return InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
-    } catch (_) {
-      return false;
+      final launched =
+          await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
+      if (!launched) {
+        return PurchaseAttemptResult.failure('購入処理を開始できませんでした。もう一度お試しください。');
+      }
+      return PurchaseAttemptResult.launched();
+    } catch (e) {
+      return PurchaseAttemptResult.failure('購入処理でエラーが発生しました: $e');
     }
   }
 

@@ -46,7 +46,16 @@ jobs:
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: flutter build apk --release
+          # AdMob本番IDが未設定の場合、ad_service.dart / AndroidManifest.xml は
+          # Googleの公式テストIDのままビルドされる（アプリは動くが広告収益は発生しない）。
+          ADMOB_APP_ID_ANDROID: ${{ secrets.ADMOB_APP_ID_ANDROID }}
+          ADMOB_BANNER_ID: ${{ secrets.ADMOB_BANNER_ID }}
+          ADMOB_INTERSTITIAL_ID: ${{ secrets.ADMOB_INTERSTITIAL_ID }}
+        run: |
+          DART_DEFINES=()
+          [ -n "$ADMOB_BANNER_ID" ] && DART_DEFINES+=(--dart-define=ADMOB_BANNER_ID="$ADMOB_BANNER_ID")
+          [ -n "$ADMOB_INTERSTITIAL_ID" ] && DART_DEFINES+=(--dart-define=ADMOB_INTERSTITIAL_ID="$ADMOB_INTERSTITIAL_ID")
+          flutter build apk --release "${DART_DEFINES[@]}"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -59,7 +68,14 @@ jobs:
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: flutter build appbundle --release
+          ADMOB_APP_ID_ANDROID: ${{ secrets.ADMOB_APP_ID_ANDROID }}
+          ADMOB_BANNER_ID: ${{ secrets.ADMOB_BANNER_ID }}
+          ADMOB_INTERSTITIAL_ID: ${{ secrets.ADMOB_INTERSTITIAL_ID }}
+        run: |
+          DART_DEFINES=()
+          [ -n "$ADMOB_BANNER_ID" ] && DART_DEFINES+=(--dart-define=ADMOB_BANNER_ID="$ADMOB_BANNER_ID")
+          [ -n "$ADMOB_INTERSTITIAL_ID" ] && DART_DEFINES+=(--dart-define=ADMOB_INTERSTITIAL_ID="$ADMOB_INTERSTITIAL_ID")
+          flutter build appbundle --release "${DART_DEFINES[@]}"
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4

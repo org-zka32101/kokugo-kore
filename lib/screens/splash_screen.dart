@@ -9,7 +9,6 @@ import '../providers/learning_timer_provider.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/drawing_settings_provider.dart';
 import '../providers/vocab_mastery_provider.dart';
-import '../providers/grade_provider.dart';
 import '../providers/premium_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/progress_provider.dart';
@@ -47,7 +46,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Future<void> _load() async {
     await Future.wait([
       ref.read(profileProvider.notifier).load(),
-      ref.read(gradeProvider.notifier).load(),
       ref.read(progressProvider.notifier).load(),
       ref.read(badgeProvider.notifier).load(),
       ref.read(coinProvider.notifier).load(),
@@ -77,15 +75,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final profiles = ref.read(profileProvider).profiles;
     final currentProfile = ref.read(profileProvider).currentProfileId;
 
-    if (profiles.isEmpty) {
-      Navigator.of(context).pushReplacementNamed('/profile-selection');
-    } else if (currentProfile == null) {
+    if (profiles.isEmpty || currentProfile == null) {
       Navigator.of(context).pushReplacementNamed('/profile-selection');
     } else {
-      final isFirst = ref.read(gradeProvider.notifier).isFirstLaunch;
-      Navigator.of(context).pushReplacementNamed(
-        isFirst ? '/onboarding' : '/home',
-      );
+      Navigator.of(context).pushReplacementNamed('/home');
     }
   }
 
@@ -216,20 +209,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                           child: Image.asset(
                             'assets/logos/company_app_icon.jpg',
-                            width: 24,
-                            height: 24,
+                            width: 40,
+                            height: 40,
                             fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
                         const Text(
                           'Your Wish',
                           style: TextStyle(
                             color: Colors.white70,
-                            fontSize: 13,
+                            fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

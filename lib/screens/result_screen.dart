@@ -8,7 +8,9 @@ import '../providers/progress_provider.dart';
 import '../providers/badge_provider.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../providers/coin_provider.dart';
+import '../data/kokugo_characters.dart';
 import '../theme/app_theme.dart';
+import '../widgets/character_unlock_dialog.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final QuestResult result;
@@ -72,10 +74,19 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
     }
 
     // Check if any characters unlock based on new progress
+    // （checkUnlocks 自体は新規解放キャラを返さないので、前後の状態を比較して検出する）
+    final beforeUnlocked = ref.read(characterStateProvider);
     final updatedProgress = ref.read(progressProvider);
     await ref
         .read(characterStateProvider.notifier)
         .checkUnlocks(updatedProgress.clearedStageIds.length);
+    final afterUnlocked = ref.read(characterStateProvider);
+
+    final newlyUnlocked = kKokugoCharacters.where((c) {
+      final wasUnlocked = beforeUnlocked[c.id]?.isUnlocked ?? false;
+      final isUnlocked = afterUnlocked[c.id]?.isUnlocked ?? false;
+      return isUnlocked && !wasUnlocked;
+    }).toList();
 
     if (mounted) {
       setState(() {
@@ -83,6 +94,10 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         _saving = false;
       });
       if (r.isPassed) _confetti.play();
+      for (final character in newlyUnlocked) {
+        if (!mounted) break;
+        await showCharacterUnlockDialog(context, character);
+      }
     }
   }
 
