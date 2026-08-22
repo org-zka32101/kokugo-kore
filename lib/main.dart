@@ -12,7 +12,6 @@ import 'screens/idiom_quiz_screen.dart';
 import 'screens/kanji_list_screen.dart';
 import 'screens/kana_list_screen.dart';
 import 'screens/learn_screen.dart';
-import 'screens/onboarding_screen.dart';
 import 'screens/privacy_policy_screen.dart';
 import 'screens/proverb_quiz_screen.dart';
 import 'screens/profile_selection_screen.dart';
@@ -106,7 +105,6 @@ class KokugoKoreApp extends ConsumerWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
-        '/onboarding': (context) => const OnboardingScreen(),
         '/profile-selection': (context) => const ProfileSelectionScreen(),
         '/home': (context) => const RootShell(),
         '/stages': (context) => const StageSelectScreen(),

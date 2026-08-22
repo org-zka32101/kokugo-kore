@@ -37,10 +37,11 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!-- AdMob App ID (テスト用ID) -->
+        <!-- AdMob App ID。デフォルトはテスト用ID。本番IDは build.gradle.kts の
+             manifestPlaceholders["admobAppId"]（環境変数 ADMOB_APP_ID_ANDROID）で上書きする -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="${admobAppId}"/>
     </application>
 
     <queries>

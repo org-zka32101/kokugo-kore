@@ -13,6 +13,7 @@ import '../providers/coin_provider.dart';
 import '../providers/referral_provider.dart';
 import '../providers/purchased_items_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_intro_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _appVersion = '1.3.0';
@@ -219,6 +220,14 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('このアプリの使い方'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
             onTap: () => _showUsageGuide(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.celebration_outlined),
+            title: const Text('アプリの紹介をもう一度見る'),
+            subtitle: const Text('初回起動時に表示された説明',
+                style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
+            onTap: () => showAppIntroDialog(context),
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),

@@ -16,6 +16,7 @@ import 'package:shared_core/widgets/avatar_widget.dart';
 import '../theme/app_theme.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../data/kokugo_characters.dart';
+import '../widgets/app_intro_dialog.dart';
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
@@ -34,9 +35,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstLaunchIntro();
       _checkDailyBonus();
       _checkForUpdate();
     });
+  }
+
+  /// 初回インストール後、最初にホーム画面に来たときだけアプリの使い方を説明する。
+  /// 同じ内容は設定画面の「このアプリの使い方」からいつでも再表示できる。
+  void _checkFirstLaunchIntro() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenIntro = prefs.getBool('has_seen_app_intro') ?? false;
+    if (hasSeenIntro) return;
+    await prefs.setBool('has_seen_app_intro', true);
+    if (!mounted) return;
+    await showAppIntroDialog(context);
   }
 
   void _checkForUpdate() async {

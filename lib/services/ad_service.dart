@@ -1,13 +1,24 @@
 // lib/services/ad_service.dart
-// AdMob 広告管理サービス（テスト用ID使用）
+// AdMob 広告管理サービス
 
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-/// テスト用広告ユニットID（本番時は実際のIDに差し替え）
+/// 広告ユニットID。
+///
+/// デフォルトはGoogle公式のテスト用ID。本番の実IDは、ビルド時に
+/// `--dart-define=ADMOB_BANNER_ID=...` `--dart-define=ADMOB_INTERSTITIAL_ID=...`
+/// を渡すことで上書きできる（deploy.yml参照。GitHub Secretsが未設定の場合は
+/// このデフォルト値＝テストIDのままビルドされる）。
 class AdIds {
-  static const String bannerAndroid = 'ca-app-pub-3940256099942544/6300978111';
-  static const String interstitialAndroid = 'ca-app-pub-3940256099942544/1033173712';
+  static const String bannerAndroid = String.fromEnvironment(
+    'ADMOB_BANNER_ID',
+    defaultValue: 'ca-app-pub-3940256099942544/6300978111', // Google公式テストID
+  );
+  static const String interstitialAndroid = String.fromEnvironment(
+    'ADMOB_INTERSTITIAL_ID',
+    defaultValue: 'ca-app-pub-3940256099942544/1033173712', // Google公式テストID
+  );
 
   static String get banner => bannerAndroid;
   static String get interstitial => interstitialAndroid;

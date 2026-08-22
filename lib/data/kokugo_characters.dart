@@ -5,7 +5,7 @@ import 'package:shared_core/shared_core.dart';
 const List<BaseCharacter> kKokugoCharacters = [
   // ── Tier 1（基礎・小1-2年相当）4体 ─────────────────────────────────
   BaseCharacter(
-    id: 'honhon', name: 'ホンホン', emoji: '📖', tier: 1, unlockAt: 0,
+    id: 'honhon', name: 'ホンホン', emoji: '📖', tier: 1, unlockAt: 1,
     subject: '読書の基本',
     backstory: 'ホンホンは本（ほん）が大好き（だいすき）な妖精（ようせい）。\n'
         '世界中（せかいじゅう）の物語（ものがたり）を知っていて、\n'
