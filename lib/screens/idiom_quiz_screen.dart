@@ -556,7 +556,8 @@ class _IdiomQuizScreenState extends ConsumerState<IdiomQuizScreen>
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           _buildProgressBar(progress, _currentIndex + 1, total),
           Expanded(
@@ -602,6 +603,7 @@ class _IdiomQuizScreenState extends ConsumerState<IdiomQuizScreen>
             ),
           ),
         ],
+        ),
       ),
     );
   }

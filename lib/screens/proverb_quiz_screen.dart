@@ -555,7 +555,8 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           _buildProgressBar(progress, _currentIndex + 1, total),
           Expanded(
@@ -601,6 +602,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
             ),
           ),
         ],
+        ),
       ),
     );
   }

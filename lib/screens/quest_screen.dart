@@ -123,7 +123,8 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
           },
         ),
       ),
-      body: Column(
+      body: SafeArea(
+        child: Column(
         children: [
           _ProgressBar(progress: progress, current: _currentIndex + 1, total: total),
           const _FeaturedCharacterBanner(),
@@ -172,6 +173,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
             ),
           ),
         ],
+        ),
       ),
     );
   }

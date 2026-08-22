@@ -55,11 +55,13 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
         title: const Text('理解度クイズ'),
         backgroundColor: kPrimaryColor,
       ),
-      body: Column(
-        children: [
-          _buildProgressBar(),
-          Expanded(child: _buildQuizContent()),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildProgressBar(),
+            Expanded(child: _buildQuizContent()),
+          ],
+        ),
       ),
     );
   }
