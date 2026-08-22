@@ -12,7 +12,7 @@
 	<string>Apple Distribution</string>
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>com.yourwish.kokugo</key>
+		<key>com.yourwish.shougakukore.kokugo</key>
 		<string>小学コレ！国語</string>
 	</dict>
 	<key>uploadSymbols</key>
