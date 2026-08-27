@@ -2,9 +2,11 @@
 // Study menu: grid of learning activities
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/kana_data.dart';
 import '../theme/app_theme.dart';
 import '../widgets/banner_ad_widget.dart';
+import '../providers/premium_provider.dart';
 
 class _StudyItem {
   final String emoji;
@@ -13,6 +15,7 @@ class _StudyItem {
   final Color color;
   final String route;
   final Object? args;
+  final bool isPremium;
 
   const _StudyItem({
     required this.emoji,
@@ -21,6 +24,7 @@ class _StudyItem {
     required this.color,
     required this.route,
     this.args,
+    this.isPremium = false,
   });
 }
 
@@ -71,6 +75,7 @@ final List<_StudyItem> _studyItems = [
     subtitle: '漢字を みる・おぼえる・かく',
     color: kPrimaryColor,
     route: '/kanji',
+    isPremium: true,
   ),
   _StudyItem(
     emoji: '🔤',
@@ -136,6 +141,7 @@ final List<_StudyItem> _studyItems = [
     subtitle: 'おなじよみでちがうかんじのことば',
     color: const Color(0xFF2980B9),
     route: '/homophone-quiz',
+    isPremium: true,
   ),
   _StudyItem(
     emoji: '📖',
@@ -143,6 +149,7 @@ final List<_StudyItem> _studyItems = [
     subtitle: 'じょし・ひんし・おくりがな・ローマ字',
     color: const Color(0xFF2C3E50),
     route: '/grammar-quiz',
+    isPremium: true,
   ),
   _StudyItem(
     emoji: '🔑',
@@ -150,6 +157,7 @@ final List<_StudyItem> _studyItems = [
     subtitle: 'かんじのなりたちをまなぼう',
     color: const Color(0xFFC0392B),
     route: '/bushu-quiz',
+    isPremium: true,
   ),
   _StudyItem(
     emoji: '🌸',
@@ -157,6 +165,7 @@ final List<_StudyItem> _studyItems = [
     subtitle: 'きご・五七五・ひゃくにんいっしゅ',
     color: const Color(0xFFE91E8C),
     route: '/haiku-quiz',
+    isPremium: true,
   ),
 ];
 
@@ -270,6 +279,17 @@ class _StudyCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (item.isPremium) ...[
+              const SizedBox(width: 8),
+              Tooltip(
+                message: 'プレミアム機能',
+                child: Icon(
+                  Icons.lock_outline,
+                  color: Colors.amber.shade700,
+                  size: 20,
+                ),
+              ),
+            ],
           ],
         ),
       ),
