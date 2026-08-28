@@ -2,7 +2,7 @@ name: kokugo_kore
 description: "小学コレ！国語 - ひらがなから読解・作文まで"
 publish_to: 'none'
 
-version: 1.4.0+14
+version: 1.4.0+15
 
 environment:
   sdk: ^3.11.5
