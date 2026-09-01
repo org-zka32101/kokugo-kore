@@ -4,6 +4,7 @@ import 'package:shared_core/shared_core.dart' hide kAccentGreen, kTextDark, kTex
 import '../data/kokugo_characters.dart';
 import '../providers/character_provider.dart';
 import '../providers/purchased_items_provider.dart';
+import '../providers/avatar_unlock_provider.dart';
 import '../theme/app_theme.dart';
 import 'character_unlock_dialog.dart';
 
@@ -500,12 +501,12 @@ class _AvatarTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unlockedIds = ref.watch(avatarProvider).unlockedIds;
+    final avatarUnlock = ref.watch(avatarUnlockProvider);
     final coins = ref.watch(coinProvider).totalCoins;
 
     // Separate locked and unlocked avatars
-    final unlocked = avatars.where((a) => unlockedIds.contains(a.id)).toList();
-    final locked = avatars.where((a) => !unlockedIds.contains(a.id)).toList();
+    final unlocked = avatars.where((a) => avatarUnlock[a.id] ?? false).toList();
+    final locked = avatars.where((a) => !(avatarUnlock[a.id] ?? false)).toList();
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -655,6 +656,9 @@ class _AvatarTab extends ConsumerWidget {
               setDialogState(() => busy = true);
               final ok = await ref.read(coinProvider.notifier).spendCoins(cost);
               if (ok && ctx.mounted) {
+                // ローカルの購入アイテム追跡に追加
+                await ref.read(purchasedItemsProvider.notifier).purchase(avatar.id);
+                // shared_core の avatarProvider にも通知（共存性のため）
                 await ref.read(avatarProvider.notifier).unlockWithCoins(avatar.id);
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(ctx).showSnackBar(

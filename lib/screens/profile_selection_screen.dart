@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/profile_provider.dart';
 import '../providers/profile_avatar_provider.dart';
+import '../providers/avatar_unlock_provider.dart';
 import 'package:shared_core/models/avatar_model.dart';
-import 'package:shared_core/providers/avatar_provider.dart';
 import 'package:shared_core/widgets/avatar_widget.dart';
 import '../theme/app_theme.dart';
 
@@ -32,16 +32,17 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
   }
 
   void _showAvatarChangeDialog(String profileId) {
-    final avatarState = ref.read(avatarProvider);
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('アイコンを変更'),
-        content: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: allAvatars.map((avatar) {
-            final isUnlocked = avatarState.isUnlocked(avatar.id);
+      builder: (ctx) => Consumer(
+        builder: (ctx, ref, _) => AlertDialog(
+          title: const Text('アイコンを変更'),
+          content: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: allAvatars.map((avatar) {
+              final avatarUnlock = ref.read(avatarUnlockProvider);
+              final isUnlocked = avatarUnlock[avatar.id] ?? false;
             return GestureDetector(
               onTap: isUnlocked
                   ? () async {
@@ -81,12 +82,13 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
             );
           }).toList(),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('とじる'),
-          ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('とじる'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -125,13 +127,13 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                 const Text('アイコンを選ぼう',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Builder(builder: (_) {
-                  final avatarState = ref.read(avatarProvider);
+                Builder(builder: (context) {
                   return Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: allAvatars.map((avatar) {
-                      final isUnlocked = avatarState.isUnlocked(avatar.id);
+                      final avatarUnlock = ref.read(avatarUnlockProvider);
+                      final isUnlocked = avatarUnlock[avatar.id] ?? false;
                       final selected = _selectedAvatarId == avatar.id;
                       return GestureDetector(
                         onTap: isUnlocked
