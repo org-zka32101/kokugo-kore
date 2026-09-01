@@ -395,6 +395,17 @@ class BadgeNotifier extends Notifier<BadgeState> {
 
     return newBadges;
   }
+
+  /// 複数のバッジチェック結果をマージ
+  List<BadgeModel> _mergeBadgeResults(List<List<BadgeModel>> results) {
+    final merged = <String, BadgeModel>{};
+    for (final badgeList in results) {
+      for (final badge in badgeList) {
+        merged[badge.id] = badge; // 重複排除
+      }
+    }
+    return merged.values.toList();
+  }
 }
 
 final badgeProvider = NotifierProvider<BadgeNotifier, BadgeState>(BadgeNotifier.new);
