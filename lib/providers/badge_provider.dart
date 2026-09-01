@@ -4,6 +4,8 @@ import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_reward_model.dart';
 import '../models/badge_progress_model.dart';
 import 'badge_definitions.dart';
+import 'badge_time_definitions.dart';
+import 'study_habit_provider.dart';
 
 const _earnedPrefix = 'badge_earned_';
 
@@ -405,6 +407,74 @@ class BadgeNotifier extends Notifier<BadgeState> {
       }
     }
     return merged.values.toList();
+  }
+
+  /// Phase 3+ 時間帯別バッジの獲得チェック
+  Future<List<BadgeModel>> checkTimeBadges({
+    required DateTime studyTime,
+    required int questionCount,
+    required Map<String, int> timeSlotCounts,
+    required int weekendQuestions,
+    required List<DateTime> lastSevenDays,
+    required Map<String, int> dailyQuestionCounts,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    for (final badgeId in timeBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      bool earned = false;
+
+      switch (badgeId) {
+        case 'early_bird':
+          earned = TimeBadgeUnlockChecker.checkEarlyBird(studyTime);
+          break;
+        case 'night_owl':
+          earned = TimeBadgeUnlockChecker.checkNightOwl(studyTime);
+          break;
+        case 'afternoon_champion':
+          earned = TimeBadgeUnlockChecker.checkAfternoonChampion(studyTime);
+          break;
+        case 'consistent_learner':
+          earned = TimeBadgeUnlockChecker.checkConsistentLearner(
+            timeSlotCounts: timeSlotCounts,
+          );
+          break;
+        case 'weekend_warrior':
+          earned = TimeBadgeUnlockChecker.checkWeekendWarrior(
+            studyTime: studyTime,
+            questionCount: weekendQuestions,
+          );
+          break;
+        case 'daily_grind':
+          earned = TimeBadgeUnlockChecker.checkDailyGrind(
+            lastSevenDays: lastSevenDays,
+            dailyQuestionCounts: dailyQuestionCounts,
+          );
+          break;
+      }
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
   }
 }
 

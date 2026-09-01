@@ -7,6 +7,8 @@ import '../providers/adaptive_provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/badge_provider.dart';
 import '../providers/badge_metrics_provider.dart';
+import '../providers/study_habit_provider.dart';
+import '../providers/badge_time_definitions.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../providers/coin_provider.dart';
 import '../data/kokugo_characters.dart';
@@ -128,7 +130,48 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         totalCoins: coinState.totalCoins,
       );
 
-      final allNewBadges = [...newBadges, ...challengeBadges, ...milestoneBadges];
+      // Phase 3+ 学習習慣を記録
+      final habitProvider = ref.read(studyHabitProvider.notifier);
+      await habitProvider.recordStudySession(
+        questionCount: r.correctCount,
+        studyTime: DateTime.now(),
+      );
+
+      // 週末の問題数を追跡
+      if (DateTime.now().weekday == DateTime.saturday ||
+          DateTime.now().weekday == DateTime.sunday) {
+        await habitProvider.addWeekendQuestions(r.totalCount);
+      }
+
+      // 今日の問題数を追跡
+      await habitProvider.addTodayQuestions(r.totalCount);
+
+      // Phase 3+ 時間帯別バッジチェック
+      final habitState = ref.read(studyHabitProvider);
+      final timeSlotCounts = <String, int>{};
+      for (final slot in TimeSlot.values) {
+        timeSlotCounts[slot.name] = habitState.getTimeSlotCount(slot);
+      }
+
+      final weekendQuestionsCount = await habitProvider.getWeekendQuestionCount();
+      final lastSevenDays = habitProvider.getLastSevenDays();
+      final dailyQuestionCounts = await habitProvider.getLastSevenDaysCounts();
+
+      final timeBadges = await ref.read(badgeProvider.notifier).checkTimeBadges(
+        studyTime: DateTime.now(),
+        questionCount: r.totalCount,
+        timeSlotCounts: timeSlotCounts,
+        weekendQuestions: weekendQuestionsCount,
+        lastSevenDays: lastSevenDays,
+        dailyQuestionCounts: dailyQuestionCounts,
+      );
+
+      final allNewBadges = [
+        ...newBadges,
+        ...challengeBadges,
+        ...milestoneBadges,
+        ...timeBadges,
+      ];
 
       if (!mounted) return;
       setState(() {
