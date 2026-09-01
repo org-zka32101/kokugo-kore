@@ -5,6 +5,7 @@ import '../providers/badge_provider.dart';
 import '../models/badge_progress_model.dart';
 import '../theme/app_theme.dart';
 import '../widgets/badge_widget.dart';
+import '../widgets/badge_collection_challenges.dart';
 
 enum BadgeFilterType {
   all('すべて'),
@@ -57,45 +58,68 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen> {
         title: const Text('バッジコレクション'),
         backgroundColor: kPrimaryColor,
       ),
-      body: Column(
-        children: [
-          _BadgeHeader(earned: earnedCount, total: totalCount),
-          // フィルタ・ソートボタン
-          _FilterSortBar(
-            filter: _filter,
-            sort: _sort,
-            onFilterChanged: (f) => setState(() => _filter = f),
-            onSortChanged: (s) => setState(() => _sort = s),
+      body: CustomScrollView(
+        slivers: [
+          // ヘッダー
+          SliverToBoxAdapter(
+            child: _BadgeHeader(earned: earnedCount, total: totalCount),
           ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
+
+          // バッジコレクション統計
+          SliverToBoxAdapter(
+            child: BadgeCollectionStats(),
+          ),
+
+          // バッジコレクションチャレンジ
+          SliverToBoxAdapter(
+            child: BadgeCollectionChallenges(),
+          ),
+
+          // フィルタ・ソートボタン
+          SliverToBoxAdapter(
+            child: _FilterSortBar(
+              filter: _filter,
+              sort: _sort,
+              onFilterChanged: (f) => setState(() => _filter = f),
+              onSortChanged: (s) => setState(() => _sort = s),
+            ),
+          ),
+
+          // バッジグリッド
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 childAspectRatio: 0.9,
               ),
-              itemCount: displayBadges.length,
-              itemBuilder: (context, i) {
-                final badge = displayBadges[i];
-                final isEarned = earnedIds.contains(badge.id);
+              delegate: SliverChildBuilderDelegate(
+                (context, i) {
+                  final badge = displayBadges[i];
+                  final isEarned = earnedIds.contains(badge.id);
 
-                if (isEarned) {
-                  final earned = badgeState.earnedBadges
-                      .firstWhere((e) => e.badge.id == badge.id);
+                  if (isEarned) {
+                    final earned = badgeState.earnedBadges
+                        .firstWhere((e) => e.badge.id == badge.id);
+                    return GestureDetector(
+                      onTap: () => _showBadgeDetail(context, earned, badgeState),
+                      child: BadgeWidget(earnedBadge: earned),
+                    );
+                  }
                   return GestureDetector(
-                    onTap: () => _showBadgeDetail(context, earned, badgeState),
-                    child: BadgeWidget(earnedBadge: earned),
+                    onTap: () => _showLockedDetail(context, badge, badgeState),
+                    child: LockedBadgeWidget(badge: badge),
                   );
-                }
-                return GestureDetector(
-                  onTap: () => _showLockedDetail(context, badge, badgeState),
-                  child: LockedBadgeWidget(badge: badge),
-                );
-              },
+                },
+                childCount: displayBadges.length,
+              ),
             ),
           ),
+
+          // 下余白
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       ),
     );
