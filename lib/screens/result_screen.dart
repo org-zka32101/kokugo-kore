@@ -14,6 +14,7 @@ import '../providers/coin_provider.dart';
 import '../data/kokugo_characters.dart';
 import '../theme/app_theme.dart';
 import '../widgets/character_unlock_dialog.dart';
+import '../widgets/badge_achievement_notification.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final QuestResult result;
@@ -182,6 +183,12 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
       for (final character in newlyUnlocked) {
         if (!mounted) break;
         await showCharacterUnlockDialog(context, character);
+      }
+
+      // 新規バッジ獲得時は通知を表示
+      if (allNewBadges.isNotEmpty) {
+        if (!mounted) break;
+        await showBadgeAchievementDialog(context, allNewBadges);
       }
     } catch (e) {
       // 保存の途中で失敗しても（例：画面が破棄された）、少なくとも
