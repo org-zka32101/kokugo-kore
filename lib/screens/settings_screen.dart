@@ -12,6 +12,7 @@ import '../providers/profile_provider.dart';
 import '../providers/coin_provider.dart';
 import '../providers/referral_provider.dart';
 import '../providers/purchased_items_provider.dart';
+import '../providers/leaderboard_privacy_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_intro_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -203,6 +204,9 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
           _SectionHeader(title: 'ともコレ'),
           const _TomoKoreSection(),
+          const Divider(),
+          _SectionHeader(title: 'ランキング設定'),
+          const _LeaderboardPrivacySection(),
           const Divider(),
           _SectionHeader(title: 'バトル設定'),
           const _BattleSettingsSection(),
@@ -869,6 +873,69 @@ class _SectionHeader extends StatelessWidget {
           letterSpacing: 0.5,
         ),
       ),
+    );
+  }
+}
+
+class _LeaderboardPrivacySection extends ConsumerWidget {
+  const _LeaderboardPrivacySection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final privacy = ref.watch(leaderboardPrivacyProvider);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SwitchListTile(
+                secondary: const Text('👤', style: TextStyle(fontSize: 20)),
+                title: const Text('名前をランキングに表示'),
+                subtitle: const Text(
+                  'オンにするとランキングであなたの名前が表示されます',
+                  style: TextStyle(fontSize: 11),
+                ),
+                value: privacy.showNameInLeaderboard,
+                onChanged: (_) =>
+                    ref.read(leaderboardPrivacyProvider.notifier).toggleNameVisibility(),
+                activeColor: kPrimaryColor,
+              ),
+              if (!privacy.showNameInLeaderboard)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(56, 8, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.blue.shade200,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.blue.shade600, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'あなたの順位は常に見ることができます。',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
