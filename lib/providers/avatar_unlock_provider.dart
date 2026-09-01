@@ -37,8 +37,8 @@ class AvatarUnlockNotifier extends StateNotifier<Map<String, bool>> {
     }
 
     // 有料アバターはショップで購入している場合のみアンロック
-    final purchasedItems = ref.read(purchasedItemsProvider);
-    return purchasedItems.isOwned(avatarId);
+    final purchasedItemsState = ref.read(purchasedItemsProvider);
+    return purchasedItemsState.ownedItemIds.contains(avatarId);
   }
 
   /// 全アバターのアンロック状態を更新
