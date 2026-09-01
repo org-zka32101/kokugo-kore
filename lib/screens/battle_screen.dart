@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/battle_provider.dart';
+import '../providers/badge_provider.dart';
+import '../providers/badge_metrics_provider.dart';
 import '../theme/app_theme.dart';
 
 class BattleScreen extends ConsumerStatefulWidget {
@@ -385,7 +387,24 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
     }
   }
 
-  void _showBattleResult() {
+  void _showBattleResult() async {
+    final playerWon = _playerScore > _opponentScore;
+
+    // 勝利時はマルチプレイ勝利数を増やしてバッジをチェック
+    if (playerWon) {
+      await ref.read(badgeMetricsProvider.notifier).incrementMultiplayerWins();
+
+      // Phase 2+ 社交バッジチェック
+      final metricsState = ref.read(badgeMetricsProvider);
+      await ref.read(badgeProvider.notifier).checkSocialBadges(
+        friendInviteCount: metricsState.friendInvites,
+        multiplayerWins: metricsState.multiplayerWins,
+        isTopTenRanker: metricsState.isTopTenRanker,
+      );
+    }
+
+    if (!mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -397,7 +416,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
           children: [
             const SizedBox(height: 8),
             Text(
-              _playerScore > _opponentScore ? '🎉 勝利！' : _playerScore == _opponentScore ? '🤝 同点' : '😢 敗北',
+              playerWon ? '🎉 勝利！' : _playerScore == _opponentScore ? '🤝 同点' : '😢 敗北',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),

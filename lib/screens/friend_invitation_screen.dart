@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/friend_provider.dart';
+import '../providers/badge_provider.dart';
+import '../providers/badge_metrics_provider.dart';
 import '../theme/app_theme.dart';
 
 class FriendInvitationScreen extends ConsumerStatefulWidget {
@@ -258,16 +260,41 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('招待リクエストを送信しました')),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
+            child: Consumer(
+              builder: (context, ref, child) => ElevatedButton(
+                onPressed: () async {
+                  // 招待数を増やす
+                  await ref.read(badgeMetricsProvider.notifier).incrementFriendInvites();
+
+                  // Phase 2+ 社交バッジチェック
+                  final metricsState = ref.read(badgeMetricsProvider);
+                  final socialBadges = await ref.read(badgeProvider.notifier).checkSocialBadges(
+                    friendInviteCount: metricsState.friendInvites,
+                    multiplayerWins: metricsState.multiplayerWins,
+                    isTopTenRanker: metricsState.isTopTenRanker,
+                  );
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('招待リクエストを送信しました')),
+                  );
+
+                  // 新規バッジ取得時は表示
+                  if (socialBadges.isNotEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('🎉 ${socialBadges.map((b) => b.title).join(', ')} を獲得しました！'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPrimaryColor,
+                ),
+                child: const Text('招待を送る'),
               ),
-              child: const Text('招待を送る'),
             ),
           ),
           const SizedBox(height: 24),
