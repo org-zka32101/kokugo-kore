@@ -6,6 +6,7 @@ import 'package:shared_core/models/badge_model.dart';
 import '../providers/adaptive_provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/badge_provider.dart';
+import '../providers/badge_metrics_provider.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../providers/coin_provider.dart';
 import '../data/kokugo_characters.dart';
@@ -115,11 +116,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
       );
 
       // Phase 2+ マイルストーンバッジチェック
-      // TODO: learningMinutesの実際の追跡を実装（現在はプレースホルダー）
       final coinState = ref.read(coinProvider);
-      const learningMinutes = 0; // TODO: 学習時間の累積トラッキング実装
+      final metricsState = ref.read(badgeMetricsProvider);
+
+      // 今回のセッションの学習時間を追加（経過時間を秒で記録）
+      final sessionDuration = r.elapsed.inSeconds;
+      await ref.read(badgeMetricsProvider.notifier).addLearningTime(sessionDuration);
+
       final milestoneBadges = await ref.read(badgeProvider.notifier).checkMilestoneBadges(
-        learningMinutes: learningMinutes,
+        learningMinutes: metricsState.learningMinutes + (sessionDuration ~/ 60),
         totalCoins: coinState.totalCoins,
       );
 
