@@ -50,6 +50,7 @@ import 'screens/haiku_quiz_screen.dart';
 import 'screens/upgrade_screen.dart';
 import 'screens/vocabulary_screen.dart';
 import 'screens/writing_screen.dart';
+import 'providers/avatar_unlock_provider.dart';
 import 'theme/app_theme.dart';
 import 'widgets/premium_gate.dart';
 
@@ -238,6 +239,8 @@ class _RootShellState extends ConsumerState<RootShell> {
       await ref.read(purchasedItemsProvider.notifier).load();
       await ref.read(profileAvatarProvider.notifier).load();
       await ref.read(avatarProvider.notifier).load();
+      // Refresh avatar unlock status after purchased items are loaded
+      ref.read(avatarUnlockProvider.notifier).refreshUnlockStatus();
       // Check character unlocks with loaded progress
       final progress = ref.read(progressProvider);
       await ref
