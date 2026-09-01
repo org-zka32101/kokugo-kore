@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
+import '../providers/leaderboard_privacy_provider.dart';
 
 class LeaderboardScreen extends ConsumerStatefulWidget {
   const LeaderboardScreen({super.key});
@@ -17,6 +18,10 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // Load privacy settings
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(leaderboardPrivacyProvider.notifier).load();
+    });
   }
 
   @override
@@ -27,6 +32,8 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final privacy = ref.watch(leaderboardPrivacyProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ランキング'),
@@ -46,16 +53,16 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildGlobalLeaderboard(),
-          _buildGradeLeaderboard(),
-          _buildFriendLeaderboard(),
+          _buildGlobalLeaderboard(privacy),
+          _buildGradeLeaderboard(privacy),
+          _buildFriendLeaderboard(privacy),
         ],
       ),
     );
   }
 
   /// グローバルランキング
-  Widget _buildGlobalLeaderboard() {
+  Widget _buildGlobalLeaderboard(LeaderboardPrivacyState privacy) {
     final rankings = [
       ('1位', '太郎', '小1', 4850, 95, true),
       ('2位', '花子', '小2', 4720, 92, false),
@@ -69,11 +76,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
       ('10位', '八郎', '小1', 3500, 75, false),
     ];
 
-    return _buildLeaderboardList(rankings, showYourRank: true);
+    return _buildLeaderboardList(rankings, showYourRank: true, privacy: privacy);
   }
 
   /// 学年別ランキング
-  Widget _buildGradeLeaderboard() {
+  Widget _buildGradeLeaderboard(LeaderboardPrivacyState privacy) {
     final rankings = [
       ('1位', '太郎', '小1', 4850, 95, true),
       ('2位', '次郎', '小1', 4650, 90, false),
@@ -98,7 +105,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
           ),
         ),
         Expanded(
-          child: _buildLeaderboardList(rankings, showYourRank: true),
+          child: _buildLeaderboardList(rankings, showYourRank: true, privacy: privacy),
         ),
       ],
     );
@@ -123,7 +130,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
   }
 
   /// 友人ランキング
-  Widget _buildFriendLeaderboard() {
+  Widget _buildFriendLeaderboard(LeaderboardPrivacyState privacy) {
     final rankings = [
       ('1位', '太郎', '小1', 4850, 95, false),
       ('2位', '花子', '小2', 4720, 92, false),
@@ -135,13 +142,14 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
       ('8位', '六郎', '小4', 3700, 85, false),
     ];
 
-    return _buildLeaderboardList(rankings, showYourRank: true);
+    return _buildLeaderboardList(rankings, showYourRank: true, privacy: privacy);
   }
 
   /// ランキングリスト
   Widget _buildLeaderboardList(
     List<(String, String, String, int, int, bool)> rankings, {
     required bool showYourRank,
+    required LeaderboardPrivacyState privacy,
   }) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -149,6 +157,13 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
       itemBuilder: (context, index) {
         final (rank, name, grade, score, accuracy, isYou) = rankings[index];
         final rankNum = index + 1;
+
+        // プライバシー設定に基づいて表示名を決定
+        // 自分またはプライバシーがオフの場合は実名を表示
+        // プライバシーがオンで他人の場合は匿名表示
+        final displayName = (isYou || privacy.showNameInLeaderboard)
+            ? name
+            : 'ユーザー #${rankNum.toString().padLeft(3, '0')}';
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -176,7 +191,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
                       Row(
                         children: [
                           Text(
-                            name,
+                            displayName,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
