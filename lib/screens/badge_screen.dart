@@ -6,6 +6,7 @@ import '../models/badge_progress_model.dart';
 import '../theme/app_theme.dart';
 import '../widgets/badge_widget.dart';
 import '../widgets/badge_collection_challenges.dart';
+import '../widgets/badge_set_bonus_display.dart';
 
 enum BadgeFilterType {
   all('すべて'),
@@ -73,6 +74,11 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen> {
           // バッジコレクションチャレンジ
           SliverToBoxAdapter(
             child: BadgeCollectionChallenges(),
+          ),
+
+          // バッジセットボーナス
+          SliverToBoxAdapter(
+            child: BadgeSetBonusDisplay(),
           ),
 
           // フィルタ・ソートボタン
