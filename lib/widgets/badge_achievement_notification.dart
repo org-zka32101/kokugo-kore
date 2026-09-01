@@ -2,19 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:shared_core/models/badge_model.dart';
 import 'dart:math' as math;
 import '../theme/app_theme.dart';
+import '../models/badge_set_bonus_model.dart';
 
 /// バッジ獲得の通知ウィジェット（高度なアニメーション＆エフェクト付き）
 class BadgeAchievementNotification extends StatefulWidget {
-  final List<BadgeModel> badges;
+  final List<BadgeModel>? badges;
+  final BadgeSetBonus? setBonus;
+  final int? setBonusCoins;
   final Duration displayDuration;
   final VoidCallback? onDismiss;
 
   const BadgeAchievementNotification({
     super.key,
-    required this.badges,
+    this.badges,
+    this.setBonus,
+    this.setBonusCoins,
     this.displayDuration = const Duration(seconds: 4),
     this.onDismiss,
   });
+
+  // バッジ獲得通知用のコンストラクタ
+  factory BadgeAchievementNotification.forBadges(
+    List<BadgeModel> badges, {
+    Duration displayDuration = const Duration(seconds: 4),
+    VoidCallback? onDismiss,
+  }) {
+    return BadgeAchievementNotification(
+      badges: badges,
+      displayDuration: displayDuration,
+      onDismiss: onDismiss,
+    );
+  }
+
+  // セットボーナス獲得通知用のコンストラクタ
+  factory BadgeAchievementNotification.forSetBonus(
+    BadgeSetBonus setBonus,
+    int coinsEarned, {
+    Duration displayDuration = const Duration(seconds: 5),
+    VoidCallback? onDismiss,
+  }) {
+    return BadgeAchievementNotification(
+      setBonus: setBonus,
+      setBonusCoins: coinsEarned,
+      displayDuration: displayDuration,
+      onDismiss: onDismiss,
+    );
+  }
 
   @override
   State<BadgeAchievementNotification> createState() =>
@@ -127,15 +160,23 @@ class _BadgeAchievementNotificationState
   }
 
   Widget _buildAchievementCard() {
-    if (widget.badges.isEmpty) return const SizedBox.shrink();
+    // セットボーナス獲得の場合
+    if (widget.setBonus != null) {
+      return _buildAchievementCardWithEffects(
+        _buildSetBonusCard(widget.setBonus!, widget.setBonusCoins ?? 0),
+        particleColor: Colors.amber,
+      );
+    }
+
+    if (widget.badges?.isEmpty ?? true) return const SizedBox.shrink();
 
     // 複数バッジの場合
-    if (widget.badges.length > 1) {
+    if (widget.badges!.length > 1) {
       return _buildAchievementCardWithEffects(_buildMultipleBadgesCard());
     }
 
     // 単一バッジの場合
-    final badge = widget.badges.first;
+    final badge = widget.badges!.first;
     return _buildAchievementCardWithEffects(_buildSingleBadgeCard(badge));
   }
 
@@ -397,7 +438,127 @@ class _BadgeAchievementNotificationState
     );
   }
 
-  Widget _buildAchievementCardWithEffects(Widget card) {
+  Widget _buildSetBonusCard(BadgeSetBonus setBonus, int coins) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.amber.shade600.withAlpha(240),
+            Colors.orange.shade500.withAlpha(200),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withAlpha(150),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // タイトル
+            const Text(
+              '🏆 セットボーナス完成！',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // セットアイコンと名前
+            Column(
+              children: [
+                Text(
+                  setBonus.emoji,
+                  style: const TextStyle(fontSize: 56),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  setBonus.title,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  setBonus.rewardDescription,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white70,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // コイン獲得表示
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(220),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.card_giftcard, color: Colors.amber, size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    '+$coins コイン獲得！',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 閉じるボタン
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  widget.onDismiss?.call();
+                },
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'すごい！',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAchievementCardWithEffects(Widget card, {Color? particleColor}) {
     return Stack(
       children: [
         // パーティクル背景
@@ -408,7 +569,7 @@ class _BadgeAchievementNotificationState
               return CustomPaint(
                 painter: ParticlePainter(
                   progress: _particleController.value,
-                  primaryColor: kPrimaryColor,
+                  primaryColor: particleColor ?? kPrimaryColor,
                 ),
               );
             },
@@ -488,8 +649,33 @@ Future<void> showBadgeAchievementDialog(
     builder: (context) => Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      child: BadgeAchievementNotification(
-        badges: badges,
+      child: BadgeAchievementNotification.forBadges(
+        badges,
+        displayDuration: displayDuration,
+        onDismiss: onDismiss,
+      ),
+    ),
+  );
+}
+
+/// セットボーナス獲得通知を表示するヘルパー関数
+Future<void> showSetBonusAchievementDialog(
+  BuildContext context,
+  BadgeSetBonus setBonus,
+  int coinsEarned, {
+  Duration displayDuration = const Duration(seconds: 5),
+  VoidCallback? onDismiss,
+}) {
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black.withAlpha(100),
+    builder: (context) => Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: BadgeAchievementNotification.forSetBonus(
+        setBonus,
+        coinsEarned,
         displayDuration: displayDuration,
         onDismiss: onDismiss,
       ),

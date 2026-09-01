@@ -3,15 +3,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_reward_model.dart';
 import '../models/badge_progress_model.dart';
+import '../models/badge_set_bonus_model.dart';
 import 'badge_definitions.dart';
 import 'badge_time_definitions.dart';
 import 'study_habit_provider.dart';
 
 const _earnedPrefix = 'badge_earned_';
+const _completedSetBonusPrefix = 'set_bonus_completed_';
 
 class BadgeState {
   final List<EarnedBadge> earnedBadges;
   final List<BadgeModel> newlyEarned; // 直近で獲得したバッジ（表示後クリア）
+  final List<BadgeSetBonus> newlyCompletedSetBonuses; // 直近で完成したセットボーナス（表示後クリア）
   final Map<String, BadgeProgress> progress; // バッジ進捗情報
   final Map<String, BadgeReward> rewards; // バッジ報酬情報
   final Map<String, BadgeRarity> rarities; // バッジレアリティ情報
@@ -19,6 +22,7 @@ class BadgeState {
   const BadgeState({
     required this.earnedBadges,
     required this.newlyEarned,
+    this.newlyCompletedSetBonuses = const [],
     this.progress = const {},
     this.rewards = const {},
     this.rarities = const {},
@@ -27,6 +31,7 @@ class BadgeState {
   static const empty = BadgeState(
     earnedBadges: [],
     newlyEarned: [],
+    newlyCompletedSetBonuses: [],
     progress: {},
     rewards: {},
     rarities: {},
@@ -69,6 +74,7 @@ class BadgeState {
   BadgeState copyWith({
     List<EarnedBadge>? earnedBadges,
     List<BadgeModel>? newlyEarned,
+    List<BadgeSetBonus>? newlyCompletedSetBonuses,
     Map<String, BadgeProgress>? progress,
     Map<String, BadgeReward>? rewards,
     Map<String, BadgeRarity>? rarities,
@@ -76,6 +82,8 @@ class BadgeState {
       BadgeState(
         earnedBadges: earnedBadges ?? this.earnedBadges,
         newlyEarned: newlyEarned ?? this.newlyEarned,
+        newlyCompletedSetBonuses:
+            newlyCompletedSetBonuses ?? this.newlyCompletedSetBonuses,
         progress: progress ?? this.progress,
         rewards: rewards ?? this.rewards,
         rarities: rarities ?? this.rarities,
@@ -475,6 +483,47 @@ class BadgeNotifier extends Notifier<BadgeState> {
     }
 
     return newBadges;
+  }
+
+  /// セットボーナスの完成をチェック
+  Future<List<BadgeSetBonus>> checkSetBonuses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final earnedIds = state.earnedBadges.map((e) => e.badge.id).toSet();
+
+    // 既に完成済みのセットボーナスを取得
+    final completedSetIds = <String>{};
+    for (final setId in badgeSetBonuses.keys) {
+      if (prefs.getBool('$_completedSetBonusPrefix$setId') ?? false) {
+        completedSetIds.add(setId);
+      }
+    }
+
+    // 新しく完成したセットボーナスをチェック
+    final newlyCompleted = <BadgeSetBonus>[];
+    for (final entry in badgeSetBonuses.entries) {
+      final setId = entry.key;
+      final set = entry.value;
+
+      // 既に完成済みならスキップ
+      if (completedSetIds.contains(setId)) continue;
+
+      // セット完成をチェック
+      if (set.isCompleted(earnedIds)) {
+        await prefs.setBool('$_completedSetBonusPrefix$setId', true);
+        newlyCompleted.add(set);
+      }
+    }
+
+    if (newlyCompleted.isNotEmpty) {
+      state = state.copyWith(newlyCompletedSetBonuses: newlyCompleted);
+    }
+
+    return newlyCompleted;
+  }
+
+  /// 新規獲得セットボーナスをクリア
+  void clearNewlyCompletedSetBonuses() {
+    state = state.copyWith(newlyCompletedSetBonuses: []);
   }
 }
 
