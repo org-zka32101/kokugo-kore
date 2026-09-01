@@ -103,9 +103,31 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         hasMaxLevelCharacter: hasMaxLevel,
       );
 
+      // Phase 2+ チャレンジバッジチェック
+      final updatedProgress = ref.read(progressProvider);
+      final totalStages = 48; // 6年×8ステージ（全ステージ数）
+      final allStageCleared = updatedProgress.clearedStageIds.length == totalStages;
+      final challengeBadges = await ref.read(badgeProvider.notifier).checkChallengeBadges(
+        perfectDays: updatedProgress.currentPerfectStreak > 0 ? updatedProgress.currentPerfectStreak : 0,
+        allStageCleared: allStageCleared,
+        speedrunAchieved: false, // TODO: スピードラン達成の判定ロジック追加（クリアタイム < 2分）
+        nonStopAchieved: updatedProgress.currentPerfectStreak >= 20, // 連続20問正答
+      );
+
+      // Phase 2+ マイルストーンバッジチェック
+      // TODO: learningMinutesの実際の追跡を実装（現在はプレースホルダー）
+      final coinState = ref.read(coinProvider);
+      const learningMinutes = 0; // TODO: 学習時間の累積トラッキング実装
+      final milestoneBadges = await ref.read(badgeProvider.notifier).checkMilestoneBadges(
+        learningMinutes: learningMinutes,
+        totalCoins: coinState.totalCoins,
+      );
+
+      final allNewBadges = [...newBadges, ...challengeBadges, ...milestoneBadges];
+
       if (!mounted) return;
       setState(() {
-        _newBadges = newBadges;
+        _newBadges = allNewBadges;
         _saving = false;
       });
       if (r.isPassed) _confetti.play();
