@@ -1,23 +1,81 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/models/badge_model.dart';
+import '../models/badge_reward_model.dart';
+import '../models/badge_progress_model.dart';
 
 const _earnedPrefix = 'badge_earned_';
 
 class BadgeState {
   final List<EarnedBadge> earnedBadges;
   final List<BadgeModel> newlyEarned; // 直近で獲得したバッジ（表示後クリア）
+  final Map<String, BadgeProgress> progress; // バッジ進捗情報
+  final Map<String, BadgeReward> rewards; // バッジ報酬情報
+  final Map<String, BadgeRarity> rarities; // バッジレアリティ情報
 
-  const BadgeState({required this.earnedBadges, required this.newlyEarned});
-  static const empty = BadgeState(earnedBadges: [], newlyEarned: []);
+  const BadgeState({
+    required this.earnedBadges,
+    required this.newlyEarned,
+    this.progress = const {},
+    this.rewards = const {},
+    this.rarities = const {},
+  });
+
+  static const empty = BadgeState(
+    earnedBadges: [],
+    newlyEarned: [],
+    progress: {},
+    rewards: {},
+    rarities: {},
+  );
+
+  /// 特定のバッジの進捗を取得
+  BadgeProgress? getProgress(String badgeId) => progress[badgeId];
+
+  /// 特定のバッジの報酬を取得
+  BadgeReward? getReward(String badgeId) => rewards[badgeId];
+
+  /// 特定のバッジのレアリティを取得
+  BadgeRarity? getRarity(String badgeId) => rarities[badgeId];
+
+  /// 進捗中のバッジ一覧を取得（獲得率が0%超100%未満）
+  List<BadgeProgress> getProgressingBadges() {
+    return progress.values
+        .where((p) => p.progressPercent > 0 && p.progressPercent < 1.0)
+        .toList()
+      ..sort((a, b) => b.progressPercent.compareTo(a.progressPercent));
+  }
+
+  /// 特定のレアリティのバッジ数
+  int getBadgeCountByRarity(BadgeRarity rarity) {
+    return rarities.values.where((r) => r == rarity).length;
+  }
+
+  /// 獲得済みのバッジ内訳（レアリティ別）
+  Map<BadgeRarity, int> getEarnedCountByRarity() {
+    final result = <BadgeRarity, int>{};
+    for (final badge in earnedBadges) {
+      final rarity = rarities[badge.badge.id];
+      if (rarity != null) {
+        result[rarity] = (result[rarity] ?? 0) + 1;
+      }
+    }
+    return result;
+  }
 
   BadgeState copyWith({
     List<EarnedBadge>? earnedBadges,
     List<BadgeModel>? newlyEarned,
+    Map<String, BadgeProgress>? progress,
+    Map<String, BadgeReward>? rewards,
+    Map<String, BadgeRarity>? rarities,
   }) =>
       BadgeState(
         earnedBadges: earnedBadges ?? this.earnedBadges,
         newlyEarned: newlyEarned ?? this.newlyEarned,
+        progress: progress ?? this.progress,
+        rewards: rewards ?? this.rewards,
+        rarities: rarities ?? this.rarities,
       );
 }
 
@@ -117,6 +175,66 @@ class BadgeNotifier extends Notifier<BadgeState> {
 
   void clearNewlyEarned() {
     state = state.copyWith(newlyEarned: []);
+  }
+
+  /// バッジ報酬情報を設定
+  void setRewards(Map<String, BadgeReward> rewards) {
+    state = state.copyWith(rewards: rewards);
+  }
+
+  /// 特定のバッジに報酬を設定
+  void setReward(String badgeId, BadgeReward reward) {
+    final updated = Map<String, BadgeReward>.from(state.rewards);
+    updated[badgeId] = reward;
+    state = state.copyWith(rewards: updated);
+  }
+
+  /// バッジレアリティ情報を設定
+  void setRarities(Map<String, BadgeRarity> rarities) {
+    state = state.copyWith(rarities: rarities);
+  }
+
+  /// 特定のバッジにレアリティを設定
+  void setRarity(String badgeId, BadgeRarity rarity) {
+    final updated = Map<String, BadgeRarity>.from(state.rarities);
+    updated[badgeId] = rarity;
+    state = state.copyWith(rarities: updated);
+  }
+
+  /// バッジ進捗を更新
+  void updateProgress(String badgeId, int currentValue) {
+    final updated = Map<String, BadgeProgress>.from(state.progress);
+    final existing = updated[badgeId];
+
+    if (existing != null) {
+      updated[badgeId] = existing.updateProgress(currentValue);
+    } else {
+      // 進捗情報が存在しない場合は新規作成
+      updated[badgeId] = BadgeProgress(
+        badgeId: badgeId,
+        currentValue: currentValue,
+        targetValue: currentValue, // 仮の値
+        description: badgeId,
+      );
+    }
+
+    state = state.copyWith(progress: updated);
+  }
+
+  /// バッジ進捗を設定（詳細情報付き）
+  void setProgress(BadgeProgress progress) {
+    final updated = Map<String, BadgeProgress>.from(state.progress);
+    updated[progress.badgeId] = progress;
+    state = state.copyWith(progress: updated);
+  }
+
+  /// 複数のバッジ進捗を一括設定
+  void setProgressBatch(List<BadgeProgress> progressList) {
+    final updated = Map<String, BadgeProgress>.from(state.progress);
+    for (final p in progressList) {
+      updated[p.badgeId] = p;
+    }
+    state = state.copyWith(progress: updated);
   }
 }
 
