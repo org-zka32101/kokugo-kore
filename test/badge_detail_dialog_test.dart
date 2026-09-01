@@ -157,6 +157,31 @@ void main() {
       expect(find.byIcon(Icons.share), findsOneWidget);
     });
 
+    testWidgets('BadgeDetailDialog share button copies to clipboard',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: BadgeDetailDialog(
+                badge: testBadge,
+                isAcquired: true,
+                acquiredAt: DateTime.now(),
+                relatedSetBonuses: [],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // 共有ボタンをタップ
+      await tester.tap(find.text('共有'));
+      await tester.pumpAndSettle();
+
+      // クリップボードコピーのSnackBarが表示される
+      expect(find.text('バッジ情報をコピーしました'), findsOneWidget);
+    });
+
     testWidgets('BadgeDetailDialog dark mode support',
         (WidgetTester tester) async {
       await tester.pumpWidget(

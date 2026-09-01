@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/badge_model.dart';
 import '../providers/badge_provider.dart';
 import '../providers/badge_acquisition_history_provider.dart';
 
@@ -45,15 +46,21 @@ class BadgeDebugUtils {
       throw Exception('Debug mode only');
     }
 
+    // SharedPreferences からデータを削除
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('earned_badges');
+    await prefs.remove('completed_set_bonuses');
 
-    final badgeNotifier = ref.read(badgeProvider.notifier);
-    badgeNotifier.resetBadges();
-
-    // 履歴もクリア
+    // 獲得履歴をクリア（先に実行）
     final historyNotifier = ref.read(badgeAcquisitionHistoryProvider.notifier);
     await historyNotifier.clearHistory();
+
+    // バッジプロバイダーの状態をリセット
+    final badgeNotifier = ref.read(badgeProvider.notifier);
+    badgeNotifier.state = const BadgeState(
+      earnedBadges: [],
+      newlyCompletedSetBonuses: [],
+    );
 
     debugPrint('✅ All badges reset');
   }

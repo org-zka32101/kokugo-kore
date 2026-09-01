@@ -87,7 +87,7 @@ void main() {
       expect(find.byType(CustomPaint), findsOneWidget);
     });
 
-    testWidgets('SetBonusCompletionScreen callback is invoked',
+    testWidgets('SetBonusCompletionScreen auto-closes after 5 seconds',
         (WidgetTester tester) async {
       bool callbackInvoked = false;
 
@@ -103,12 +103,20 @@ void main() {
         ),
       );
 
-      // 5秒待機（スクリーンの自動close タイマー）
-      // テストでは全アニメーションが完了するまで待機
-      await tester.pumpAndSettle();
+      // スクリーンが表示されることを確認
+      expect(find.byType(SetBonusCompletionScreen), findsOneWidget);
 
-      // コールバックが呼ばれるか、またはスクリーンが閉じられることを確認
-      // (自動close は5秒後なのでテストタイムアウトの対象外)
+      // 5秒タイマーを待機（実際にはテスト用に段階的に進める）
+      // 1秒経過
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(SetBonusCompletionScreen), findsOneWidget);
+
+      // 5秒まで進める
+      await tester.pump(const Duration(seconds: 4));
+
+      // スクリーンが閉じられたことを確認（コールバック呼び出し）
+      // または Navigator.pop が呼ばれたことを確認
+      expect(callbackInvoked || find.byType(SetBonusCompletionScreen).evaluate().isEmpty, isTrue);
     });
 
     testWidgets('SetBonusCompletionScreen disposes resources',

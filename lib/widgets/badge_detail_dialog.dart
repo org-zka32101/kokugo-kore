@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_set_bonus_model.dart';
 import '../theme/app_theme.dart';
@@ -161,7 +162,7 @@ class BadgeDetailDialog extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: _shareBadge,
+                          onPressed: () => _shareBadge(context),
                           icon: const Icon(Icons.share),
                           label: const Text('共有'),
                           style: ElevatedButton.styleFrom(
@@ -323,7 +324,7 @@ class BadgeDetailDialog extends StatelessWidget {
     return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  void _shareBadge() {
+  void _shareBadge(BuildContext context) {
     // バッジ情報を共有
     final shareText = '''
 🎉 バッジ「${badge.title}」を獲得しました！${badge.emoji}
@@ -334,23 +335,20 @@ class BadgeDetailDialog extends StatelessWidget {
 ''';
 
     try {
-      // Share package を使用（オプション実装）
-      // Share.share(
-      //   shareText,
-      //   subject: 'バッジ獲得のお知らせ',
-      // );
+      // クリップボードにコピー
+      final data = ClipboardData(text: shareText);
+      await Clipboard.setData(data);
 
-      // Fallback: テキストをコピーボードにコピー
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('バッジ情報をコピーしました'),
-          duration: const Duration(seconds: 2),
+          duration: Duration(seconds: 2),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('共有に失敗しました'),
+          content: Text('共有に失敗しました: $e'),
           backgroundColor: Colors.red,
         ),
       );
