@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_reward_model.dart';
 import '../models/badge_progress_model.dart';
+import 'badge_definitions.dart';
 
 const _earnedPrefix = 'badge_earned_';
 
@@ -95,7 +96,38 @@ class BadgeNotifier extends Notifier<BadgeState> {
         }
       }
     }
+
+    // Initialize badge metadata (Phase 2+)
+    _initializeBadgeMetadata();
+
     state = BadgeState(earnedBadges: earned, newlyEarned: []);
+  }
+
+  /// バッジメタデータを初期化（レアリティ・報酬）
+  void _initializeBadgeMetadata() {
+    final definitions = getAllNewBadgeDefinitions();
+    final rarities = <String, BadgeRarity>{};
+    final rewards = <String, BadgeReward>{};
+
+    // 既存バッジのデフォルトレアリティ
+    for (final badge in allBadges) {
+      if (!definitions.containsKey(badge.id)) {
+        // 既存バッジはcommonをデフォルト
+        rarities[badge.id] = BadgeRarity.common;
+        // 既存バッジの報酬は null（後で個別に設定可能）
+      }
+    }
+
+    // 新規バッジのメタデータ
+    for (final entry in definitions.entries) {
+      rarities[entry.key] = entry.value.rarity;
+      rewards[entry.key] = entry.value.reward;
+    }
+
+    state = state.copyWith(
+      rarities: rarities,
+      rewards: rewards,
+    );
   }
 
   Future<List<BadgeModel>> checkAndAward({
@@ -235,6 +267,133 @@ class BadgeNotifier extends Notifier<BadgeState> {
       updated[p.badgeId] = p;
     }
     state = state.copyWith(progress: updated);
+  }
+
+  /// Phase 2+ チャレンジバッジの獲得チェック
+  Future<List<BadgeModel>> checkChallengeBadges({
+    required int perfectDays,
+    required bool allStageCleared,
+    required bool speedrunAchieved,
+    required bool nonStopAchieved,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    final definitions = getAllNewBadgeDefinitions();
+
+    // チャレンジバッジチェック
+    for (final badgeId in challengeBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      final earned = BadgeUnlockChecker.checkChallengeBadge(
+        badgeId: badgeId,
+        perfectDays: perfectDays,
+        allStageClear: allStageCleared ? 1 : 0,
+        speedrunCount: speedrunAchieved ? 1 : 0,
+        nonStopCount: nonStopAchieved ? 1 : 0,
+      );
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    // ローカルステート更新
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
+  }
+
+  /// Phase 2+ 社交バッジの獲得チェック
+  Future<List<BadgeModel>> checkSocialBadges({
+    required int friendInviteCount,
+    required int multiplayerWins,
+    required bool isTopTenRanker,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    for (final badgeId in socialBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      final earned = BadgeUnlockChecker.checkSocialBadge(
+        badgeId: badgeId,
+        friendInviteCount: friendInviteCount,
+        multiplayerWins: multiplayerWins,
+        isTopTenRanker: isTopTenRanker,
+      );
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
+  }
+
+  /// Phase 2+ マイルストーンバッジの獲得チェック
+  Future<List<BadgeModel>> checkMilestoneBadges({
+    required int learningMinutes,
+    required int totalCoins,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    for (final badgeId in milestoneBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      final earned = BadgeUnlockChecker.checkMilestoneBadge(
+        badgeId: badgeId,
+        learningMinutes: learningMinutes,
+        totalCoins: totalCoins,
+      );
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
   }
 }
 
