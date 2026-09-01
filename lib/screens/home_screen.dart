@@ -20,6 +20,7 @@ import '../widgets/app_intro_dialog.dart';
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
+import '../widgets/badge_progress_tracker.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -367,6 +368,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               badgeCount: badges.earnedBadges.length,
               coinCount: coins.totalCoins,
               onBadgeTap: () => Navigator.pushNamed(context, '/badges'),
+            ),
+          ),
+          // バッジ進捗トラッカー
+          SliverToBoxAdapter(
+            child: BadgeProgressTracker(
+              onViewMore: () => Navigator.pushNamed(context, '/badges'),
             ),
           ),
           const SliverToBoxAdapter(

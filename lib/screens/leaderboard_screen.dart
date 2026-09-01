@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
 import '../providers/leaderboard_privacy_provider.dart';
+import '../providers/leaderboard_rank_provider.dart';
+import '../providers/badge_provider.dart';
+import '../providers/badge_metrics_provider.dart';
 
 class LeaderboardScreen extends ConsumerStatefulWidget {
   const LeaderboardScreen({super.key});
@@ -18,9 +21,25 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    // Load privacy settings
+    // Load privacy settings and check leaderboard status
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(leaderboardPrivacyProvider.notifier).load();
+
+      // Firebaseからユーザーのランキング順位を取得
+      final userRankInfo =
+          await ref.read(leaderboardRankProvider.notifier).fetchUserRank();
+
+      if (userRankInfo?.isTopTenRanker ?? false) {
+        await ref.read(badgeMetricsProvider.notifier).setTopTenRanker(true);
+
+        // 社交バッジをチェック
+        final metricsState = ref.read(badgeMetricsProvider);
+        await ref.read(badgeProvider.notifier).checkSocialBadges(
+          friendInviteCount: metricsState.friendInvites,
+          multiplayerWins: metricsState.multiplayerWins,
+          isTopTenRanker: metricsState.isTopTenRanker,
+        );
+      }
     });
   }
 
@@ -61,22 +80,46 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     );
   }
 
-  /// グローバルランキング
+  /// グローバルランキング（Firebaseから取得）
   Widget _buildGlobalLeaderboard(LeaderboardPrivacyState privacy) {
-    final rankings = [
-      ('1位', '太郎', '小1', 4850, 95, true),
-      ('2位', '花子', '小2', 4720, 92, false),
-      ('3位', '次郎', '小1', 4650, 90, false),
-      ('4位', 'あなた', '小1', 4200, 85, true), // 自分
-      ('5位', '三郎', '小3', 4100, 88, false),
-      ('6位', '四郎', '小2', 3950, 82, false),
-      ('7位', '五郎', '小1', 3850, 80, false),
-      ('8位', '六郎', '小4', 3700, 85, false),
-      ('9位', '七郎', '小2', 3600, 78, false),
-      ('10位', '八郎', '小1', 3500, 75, false),
-    ];
+    return FutureBuilder<List<UserRankInfo>>(
+      future: ref.read(leaderboardRankProvider.notifier).fetchTopTenRankers(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
 
-    return _buildLeaderboardList(rankings, showYourRank: true, privacy: privacy);
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'ランキングデータを取得できません',
+                  style: TextStyle(color: kTextMuted),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {});
+                  },
+                  child: const Text('再度読み込む'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final topTenRankers = snapshot.data!;
+        return _buildLeaderboardListWithRankers(
+          topTenRankers,
+          showYourRank: true,
+          privacy: privacy,
+        );
+      },
+    );
   }
 
   /// 学年別ランキング
@@ -313,6 +356,106 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
                 ),
               ),
       ),
+    );
+  }
+
+  /// UserRankInfoからランキングリストを構築
+  Widget _buildLeaderboardListWithRankers(
+    List<UserRankInfo> rankers, {
+    required bool showYourRank,
+    required LeaderboardPrivacyState privacy,
+  }) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: rankers.length,
+      itemBuilder: (context, index) {
+        final ranker = rankers[index];
+        final isYou = ranker.isCurrentUser;
+
+        // プライバシー設定に基づいて表示名を決定
+        final displayName = (isYou || privacy.showNameInLeaderboard)
+            ? ranker.userName
+            : 'ユーザー #${ranker.rank.toString().padLeft(3, '0')}';
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isYou ? Colors.blue.shade50 : Colors.white,
+              border: Border.all(
+                color: isYou ? kPrimaryColor : Colors.grey.shade300,
+                width: isYou ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                // ランク
+                _buildRankBadge(ranker.rank),
+                const SizedBox(width: 12),
+
+                // ユーザー情報
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            displayName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (isYou) ...[
+                            const SizedBox(width: 6),
+                            const Chip(
+                              label: Text('あなた',
+                                  style:
+                                      TextStyle(fontSize: 10, color: Colors.white)),
+                              backgroundColor: kPrimaryColor,
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'スコア: ${ranker.score} • 正答率: ${(ranker.accuracy * 100).toStringAsFixed(1)}%',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: kTextMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // TOP10バッジ
+                if (ranker.isTopTenRanker)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade100,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      '🏆 TOP10',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.amber,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

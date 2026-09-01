@@ -1,23 +1,92 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/models/badge_model.dart';
+import '../models/badge_reward_model.dart';
+import '../models/badge_progress_model.dart';
+import '../models/badge_set_bonus_model.dart';
+import 'badge_definitions.dart';
+import 'badge_time_definitions.dart';
+import 'study_habit_provider.dart';
 
 const _earnedPrefix = 'badge_earned_';
+const _completedSetBonusPrefix = 'set_bonus_completed_';
 
 class BadgeState {
   final List<EarnedBadge> earnedBadges;
   final List<BadgeModel> newlyEarned; // 直近で獲得したバッジ（表示後クリア）
+  final List<BadgeSetBonus> newlyCompletedSetBonuses; // 直近で完成したセットボーナス（表示後クリア）
+  final Map<String, BadgeProgress> progress; // バッジ進捗情報
+  final Map<String, BadgeReward> rewards; // バッジ報酬情報
+  final Map<String, BadgeRarity> rarities; // バッジレアリティ情報
 
-  const BadgeState({required this.earnedBadges, required this.newlyEarned});
-  static const empty = BadgeState(earnedBadges: [], newlyEarned: []);
+  const BadgeState({
+    required this.earnedBadges,
+    required this.newlyEarned,
+    this.newlyCompletedSetBonuses = const [],
+    this.progress = const {},
+    this.rewards = const {},
+    this.rarities = const {},
+  });
+
+  static const empty = BadgeState(
+    earnedBadges: [],
+    newlyEarned: [],
+    newlyCompletedSetBonuses: [],
+    progress: {},
+    rewards: {},
+    rarities: {},
+  );
+
+  /// 特定のバッジの進捗を取得
+  BadgeProgress? getProgress(String badgeId) => progress[badgeId];
+
+  /// 特定のバッジの報酬を取得
+  BadgeReward? getReward(String badgeId) => rewards[badgeId];
+
+  /// 特定のバッジのレアリティを取得
+  BadgeRarity? getRarity(String badgeId) => rarities[badgeId];
+
+  /// 進捗中のバッジ一覧を取得（獲得率が0%超100%未満）
+  List<BadgeProgress> getProgressingBadges() {
+    return progress.values
+        .where((p) => p.progressPercent > 0 && p.progressPercent < 1.0)
+        .toList()
+      ..sort((a, b) => b.progressPercent.compareTo(a.progressPercent));
+  }
+
+  /// 特定のレアリティのバッジ数
+  int getBadgeCountByRarity(BadgeRarity rarity) {
+    return rarities.values.where((r) => r == rarity).length;
+  }
+
+  /// 獲得済みのバッジ内訳（レアリティ別）
+  Map<BadgeRarity, int> getEarnedCountByRarity() {
+    final result = <BadgeRarity, int>{};
+    for (final badge in earnedBadges) {
+      final rarity = rarities[badge.badge.id];
+      if (rarity != null) {
+        result[rarity] = (result[rarity] ?? 0) + 1;
+      }
+    }
+    return result;
+  }
 
   BadgeState copyWith({
     List<EarnedBadge>? earnedBadges,
     List<BadgeModel>? newlyEarned,
+    List<BadgeSetBonus>? newlyCompletedSetBonuses,
+    Map<String, BadgeProgress>? progress,
+    Map<String, BadgeReward>? rewards,
+    Map<String, BadgeRarity>? rarities,
   }) =>
       BadgeState(
         earnedBadges: earnedBadges ?? this.earnedBadges,
         newlyEarned: newlyEarned ?? this.newlyEarned,
+        newlyCompletedSetBonuses:
+            newlyCompletedSetBonuses ?? this.newlyCompletedSetBonuses,
+        progress: progress ?? this.progress,
+        rewards: rewards ?? this.rewards,
+        rarities: rarities ?? this.rarities,
       );
 }
 
@@ -37,7 +106,38 @@ class BadgeNotifier extends Notifier<BadgeState> {
         }
       }
     }
+
+    // Initialize badge metadata (Phase 2+)
+    _initializeBadgeMetadata();
+
     state = BadgeState(earnedBadges: earned, newlyEarned: []);
+  }
+
+  /// バッジメタデータを初期化（レアリティ・報酬）
+  void _initializeBadgeMetadata() {
+    final definitions = getAllNewBadgeDefinitions();
+    final rarities = <String, BadgeRarity>{};
+    final rewards = <String, BadgeReward>{};
+
+    // 既存バッジのデフォルトレアリティ
+    for (final badge in allBadges) {
+      if (!definitions.containsKey(badge.id)) {
+        // 既存バッジはcommonをデフォルト
+        rarities[badge.id] = BadgeRarity.common;
+        // 既存バッジの報酬は null（後で個別に設定可能）
+      }
+    }
+
+    // 新規バッジのメタデータ
+    for (final entry in definitions.entries) {
+      rarities[entry.key] = entry.value.rarity;
+      rewards[entry.key] = entry.value.reward;
+    }
+
+    state = state.copyWith(
+      rarities: rarities,
+      rewards: rewards,
+    );
   }
 
   Future<List<BadgeModel>> checkAndAward({
@@ -117,6 +217,313 @@ class BadgeNotifier extends Notifier<BadgeState> {
 
   void clearNewlyEarned() {
     state = state.copyWith(newlyEarned: []);
+  }
+
+  /// バッジ報酬情報を設定
+  void setRewards(Map<String, BadgeReward> rewards) {
+    state = state.copyWith(rewards: rewards);
+  }
+
+  /// 特定のバッジに報酬を設定
+  void setReward(String badgeId, BadgeReward reward) {
+    final updated = Map<String, BadgeReward>.from(state.rewards);
+    updated[badgeId] = reward;
+    state = state.copyWith(rewards: updated);
+  }
+
+  /// バッジレアリティ情報を設定
+  void setRarities(Map<String, BadgeRarity> rarities) {
+    state = state.copyWith(rarities: rarities);
+  }
+
+  /// 特定のバッジにレアリティを設定
+  void setRarity(String badgeId, BadgeRarity rarity) {
+    final updated = Map<String, BadgeRarity>.from(state.rarities);
+    updated[badgeId] = rarity;
+    state = state.copyWith(rarities: updated);
+  }
+
+  /// バッジ進捗を更新
+  void updateProgress(String badgeId, int currentValue) {
+    final updated = Map<String, BadgeProgress>.from(state.progress);
+    final existing = updated[badgeId];
+
+    if (existing != null) {
+      updated[badgeId] = existing.updateProgress(currentValue);
+    } else {
+      // 進捗情報が存在しない場合は新規作成
+      updated[badgeId] = BadgeProgress(
+        badgeId: badgeId,
+        currentValue: currentValue,
+        targetValue: currentValue, // 仮の値
+        description: badgeId,
+      );
+    }
+
+    state = state.copyWith(progress: updated);
+  }
+
+  /// バッジ進捗を設定（詳細情報付き）
+  void setProgress(BadgeProgress progress) {
+    final updated = Map<String, BadgeProgress>.from(state.progress);
+    updated[progress.badgeId] = progress;
+    state = state.copyWith(progress: updated);
+  }
+
+  /// 複数のバッジ進捗を一括設定
+  void setProgressBatch(List<BadgeProgress> progressList) {
+    final updated = Map<String, BadgeProgress>.from(state.progress);
+    for (final p in progressList) {
+      updated[p.badgeId] = p;
+    }
+    state = state.copyWith(progress: updated);
+  }
+
+  /// Phase 2+ チャレンジバッジの獲得チェック
+  Future<List<BadgeModel>> checkChallengeBadges({
+    required int perfectDays,
+    required bool allStageCleared,
+    required bool speedrunAchieved,
+    required bool nonStopAchieved,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    final definitions = getAllNewBadgeDefinitions();
+
+    // チャレンジバッジチェック
+    for (final badgeId in challengeBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      final earned = BadgeUnlockChecker.checkChallengeBadge(
+        badgeId: badgeId,
+        perfectDays: perfectDays,
+        allStageClear: allStageCleared ? 1 : 0,
+        speedrunCount: speedrunAchieved ? 1 : 0,
+        nonStopCount: nonStopAchieved ? 1 : 0,
+      );
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    // ローカルステート更新
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
+  }
+
+  /// Phase 2+ 社交バッジの獲得チェック
+  Future<List<BadgeModel>> checkSocialBadges({
+    required int friendInviteCount,
+    required int multiplayerWins,
+    required bool isTopTenRanker,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    for (final badgeId in socialBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      final earned = BadgeUnlockChecker.checkSocialBadge(
+        badgeId: badgeId,
+        friendInviteCount: friendInviteCount,
+        multiplayerWins: multiplayerWins,
+        isTopTenRanker: isTopTenRanker,
+      );
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
+  }
+
+  /// Phase 2+ マイルストーンバッジの獲得チェック
+  Future<List<BadgeModel>> checkMilestoneBadges({
+    required int learningMinutes,
+    required int totalCoins,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    for (final badgeId in milestoneBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      final earned = BadgeUnlockChecker.checkMilestoneBadge(
+        badgeId: badgeId,
+        learningMinutes: learningMinutes,
+        totalCoins: totalCoins,
+      );
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
+  }
+
+  /// 複数のバッジチェック結果をマージ
+  List<BadgeModel> _mergeBadgeResults(List<List<BadgeModel>> results) {
+    final merged = <String, BadgeModel>{};
+    for (final badgeList in results) {
+      for (final badge in badgeList) {
+        merged[badge.id] = badge; // 重複排除
+      }
+    }
+    return merged.values.toList();
+  }
+
+  /// Phase 3+ 時間帯別バッジの獲得チェック
+  Future<List<BadgeModel>> checkTimeBadges({
+    required DateTime studyTime,
+    required int questionCount,
+    required Map<String, int> timeSlotCounts,
+    required int weekendQuestions,
+    required List<DateTime> lastSevenDays,
+    required Map<String, int> dailyQuestionCounts,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
+    final newBadges = <BadgeModel>[];
+
+    for (final badgeId in timeBadgeDefinitions.keys) {
+      if (alreadyEarned.contains(badgeId)) continue;
+
+      bool earned = false;
+
+      switch (badgeId) {
+        case 'early_bird':
+          earned = TimeBadgeUnlockChecker.checkEarlyBird(studyTime);
+          break;
+        case 'night_owl':
+          earned = TimeBadgeUnlockChecker.checkNightOwl(studyTime);
+          break;
+        case 'afternoon_champion':
+          earned = TimeBadgeUnlockChecker.checkAfternoonChampion(studyTime);
+          break;
+        case 'consistent_learner':
+          earned = TimeBadgeUnlockChecker.checkConsistentLearner(
+            timeSlotCounts: timeSlotCounts,
+          );
+          break;
+        case 'weekend_warrior':
+          earned = TimeBadgeUnlockChecker.checkWeekendWarrior(
+            studyTime: studyTime,
+            questionCount: weekendQuestions,
+          );
+          break;
+        case 'daily_grind':
+          earned = TimeBadgeUnlockChecker.checkDailyGrind(
+            lastSevenDays: lastSevenDays,
+            dailyQuestionCounts: dailyQuestionCounts,
+          );
+          break;
+      }
+
+      if (earned) {
+        final badge = allBadges.firstWhereOrNull((b) => b.id == badgeId);
+        if (badge != null) {
+          final now = DateTime.now();
+          await prefs.setString('$_earnedPrefix$badgeId', now.toIso8601String());
+          newBadges.add(badge);
+        }
+      }
+    }
+
+    if (newBadges.isNotEmpty) {
+      final nowEarned = [
+        ...state.earnedBadges,
+        ...newBadges.map((b) => EarnedBadge(badge: b, earnedAt: DateTime.now())),
+      ];
+      state = state.copyWith(earnedBadges: nowEarned, newlyEarned: newBadges);
+    }
+
+    return newBadges;
+  }
+
+  /// セットボーナスの完成をチェック
+  Future<List<BadgeSetBonus>> checkSetBonuses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final earnedIds = state.earnedBadges.map((e) => e.badge.id).toSet();
+
+    // 既に完成済みのセットボーナスを取得
+    final completedSetIds = <String>{};
+    for (final setId in badgeSetBonuses.keys) {
+      if (prefs.getBool('$_completedSetBonusPrefix$setId') ?? false) {
+        completedSetIds.add(setId);
+      }
+    }
+
+    // 新しく完成したセットボーナスをチェック
+    final newlyCompleted = <BadgeSetBonus>[];
+    for (final entry in badgeSetBonuses.entries) {
+      final setId = entry.key;
+      final set = entry.value;
+
+      // 既に完成済みならスキップ
+      if (completedSetIds.contains(setId)) continue;
+
+      // セット完成をチェック
+      if (set.isCompleted(earnedIds)) {
+        await prefs.setBool('$_completedSetBonusPrefix$setId', true);
+        newlyCompleted.add(set);
+      }
+    }
+
+    if (newlyCompleted.isNotEmpty) {
+      state = state.copyWith(newlyCompletedSetBonuses: newlyCompleted);
+    }
+
+    return newlyCompleted;
+  }
+
+  /// 新規獲得セットボーナスをクリア
+  void clearNewlyCompletedSetBonuses() {
+    state = state.copyWith(newlyCompletedSetBonuses: []);
   }
 }
 

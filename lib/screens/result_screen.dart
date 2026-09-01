@@ -6,11 +6,16 @@ import 'package:shared_core/models/badge_model.dart';
 import '../providers/adaptive_provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/badge_provider.dart';
+import '../providers/badge_metrics_provider.dart';
+import '../providers/study_habit_provider.dart';
+import '../providers/badge_time_definitions.dart';
+import '../providers/quest_performance_provider.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../providers/coin_provider.dart';
 import '../data/kokugo_characters.dart';
 import '../theme/app_theme.dart';
 import '../widgets/character_unlock_dialog.dart';
+import '../widgets/badge_achievement_notification.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final QuestResult result;
@@ -103,15 +108,104 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         hasMaxLevelCharacter: hasMaxLevel,
       );
 
+      // Phase 2+ チャレンジバッジチェック
+      final updatedProgress = ref.read(progressProvider);
+      final totalStages = 48; // 6年×8ステージ（全ステージ数）
+      final allStageCleared = updatedProgress.clearedStageIds.length == totalStages;
+
+      // パフォーマンストラッキング
+      final questPerformance = ref.read(questPerformanceProvider.notifier);
+      await questPerformance.recordSpeedrunAttempt(
+        questionCount: r.totalCount,
+        elapsedTime: r.elapsed,
+      );
+
+      if (r.isPerfect) {
+        await questPerformance.recordPerfectDay(DateTime.now());
+      }
+
+      // チャレンジバッジチェック
+      final questPerfState = ref.read(questPerformanceProvider);
+      final consecutivePerfectDays = questPerformance.getConsecutivePerfectDays();
+
+      final challengeBadges = await ref.read(badgeProvider.notifier).checkChallengeBadges(
+        perfectDays: consecutivePerfectDays,
+        allStageCleared: allStageCleared,
+        speedrunAchieved: questPerfState.speedrunAchieved,
+        nonStopAchieved: updatedProgress.currentPerfectStreak >= 20,
+      );
+
+      // Phase 2+ マイルストーンバッジチェック
+      final coinState = ref.read(coinProvider);
+      final metricsState = ref.read(badgeMetricsProvider);
+
+      // 今回のセッションの学習時間を追加（経過時間を秒で記録）
+      final sessionDuration = r.elapsed.inSeconds;
+      await ref.read(badgeMetricsProvider.notifier).addLearningTime(sessionDuration);
+
+      final milestoneBadges = await ref.read(badgeProvider.notifier).checkMilestoneBadges(
+        learningMinutes: metricsState.learningMinutes + (sessionDuration ~/ 60),
+        totalCoins: coinState.totalCoins,
+      );
+
+      // Phase 3+ 学習習慣を記録
+      final habitProvider = ref.read(studyHabitProvider.notifier);
+      await habitProvider.recordStudySession(
+        questionCount: r.correctCount,
+        studyTime: DateTime.now(),
+      );
+
+      // 週末の問題数を追跡
+      if (DateTime.now().weekday == DateTime.saturday ||
+          DateTime.now().weekday == DateTime.sunday) {
+        await habitProvider.addWeekendQuestions(r.totalCount);
+      }
+
+      // 今日の問題数を追跡
+      await habitProvider.addTodayQuestions(r.totalCount);
+
+      // Phase 3+ 時間帯別バッジチェック
+      final habitState = ref.read(studyHabitProvider);
+      final timeSlotCounts = <String, int>{};
+      for (final slot in TimeSlot.values) {
+        timeSlotCounts[slot.name] = habitState.getTimeSlotCount(slot);
+      }
+
+      final weekendQuestionsCount = await habitProvider.getWeekendQuestionCount();
+      final lastSevenDays = habitProvider.getLastSevenDays();
+      final dailyQuestionCounts = await habitProvider.getLastSevenDaysCounts();
+
+      final timeBadges = await ref.read(badgeProvider.notifier).checkTimeBadges(
+        studyTime: DateTime.now(),
+        questionCount: r.totalCount,
+        timeSlotCounts: timeSlotCounts,
+        weekendQuestions: weekendQuestionsCount,
+        lastSevenDays: lastSevenDays,
+        dailyQuestionCounts: dailyQuestionCounts,
+      );
+
+      final allNewBadges = [
+        ...newBadges,
+        ...challengeBadges,
+        ...milestoneBadges,
+        ...timeBadges,
+      ];
+
       if (!mounted) return;
       setState(() {
-        _newBadges = newBadges;
+        _newBadges = allNewBadges;
         _saving = false;
       });
       if (r.isPassed) _confetti.play();
       for (final character in newlyUnlocked) {
         if (!mounted) break;
         await showCharacterUnlockDialog(context, character);
+      }
+
+      // 新規バッジ獲得時は通知を表示
+      if (allNewBadges.isNotEmpty) {
+        if (!mounted) break;
+        await showBadgeAchievementDialog(context, allNewBadges);
       }
     } catch (e) {
       // 保存の途中で失敗しても（例：画面が破棄された）、少なくとも
