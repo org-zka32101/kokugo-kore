@@ -13,10 +13,11 @@ class BadgeSetBonusDisplay extends ConsumerWidget {
     final badgeState = ref.watch(badgeProvider);
     final earnedIds = badgeState.earnedBadges.map((e) => e.badge.id).toSet();
 
-    // セット統計を取得
-    final stats = BadgeSetBonusManager.getSetBonusStats(earnedIds);
+    // 一度だけセットを計算して再利用
     final completedSets = BadgeSetBonusManager.getCompletedSets(earnedIds);
     final inProgressSets = BadgeSetBonusManager.getInProgressSets(earnedIds);
+    final totalCompleted = completedSets.length;
+    final totalRewards = BadgeSetBonusManager.getCompletedSetRewards(earnedIds);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -56,7 +57,7 @@ class BadgeSetBonusDisplay extends ConsumerWidget {
                 style: TextStyle(fontSize: 12, color: Colors.black54),
               ),
               Text(
-                '${stats['completed']}/${stats['total']} セット',
+                '$totalCompleted/${badgeSetBonuses.length} セット',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -69,11 +70,11 @@ class BadgeSetBonusDisplay extends ConsumerWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: (stats['completed'] as int) / (stats['total'] as int),
+              value: totalCompleted / badgeSetBonuses.length,
               minHeight: 8,
               backgroundColor: Colors.grey.shade300,
               valueColor: AlwaysStoppedAnimation<Color>(
-                stats['completed'] == stats['total']
+                totalCompleted == badgeSetBonuses.length
                     ? Colors.green
                     : kPrimaryColor,
               ),
@@ -94,7 +95,7 @@ class BadgeSetBonusDisplay extends ConsumerWidget {
                 const Icon(Icons.card_giftcard, size: 16, color: Colors.amber),
                 const SizedBox(width: 8),
                 Text(
-                  'セットボーナス報酬: ${stats['rewards']} コイン',
+                  'セットボーナス報酬: $totalRewards コイン',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -117,7 +118,7 @@ class BadgeSetBonusDisplay extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            ...completedSets.map((set) => _buildSetItem(set, true)).toList(),
+            ...completedSets.map((set) => _buildCompletedSetItem(set)).toList(),
             const SizedBox(height: 12),
           ],
 
@@ -142,17 +143,15 @@ class BadgeSetBonusDisplay extends ConsumerWidget {
     );
   }
 
-  Widget _buildSetItem(BadgeSetBonus set, bool isCompleted) {
+  Widget _buildCompletedSetItem(BadgeSetBonus set) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: isCompleted ? Colors.green.shade50 : Colors.blue.shade50,
+          color: Colors.green.shade50,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isCompleted ? Colors.green.shade300 : Colors.blue.shade300,
-          ),
+          border: Border.all(color: Colors.green.shade300),
         ),
         child: Row(
           children: [
@@ -167,27 +166,26 @@ class BadgeSetBonusDisplay extends ConsumerWidget {
                 children: [
                   Text(
                     set.title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isCompleted ? Colors.green : Colors.blue,
+                      color: Colors.green,
                     ),
                   ),
                   Text(
                     set.rewardDescription,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 10,
-                      color: isCompleted ? Colors.green : Colors.blue,
+                      color: Colors.green,
                     ),
                   ),
                 ],
               ),
             ),
-            if (isCompleted)
-              const Text(
-                '🎁',
-                style: TextStyle(fontSize: 16),
-              ),
+            const Text(
+              '🎁',
+              style: TextStyle(fontSize: 16),
+            ),
           ],
         ),
       ),

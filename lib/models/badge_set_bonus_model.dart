@@ -134,7 +134,7 @@ class BadgeSetBonusManager {
         .toList();
   }
 
-  /// 利用可能なセットボーナスのクエストをす取得
+  /// 利用可能なセットボーナスを取得
   static List<BadgeSetBonus> getAvailableSets(Set<String> earnedBadgeIds) {
     return badgeSetBonuses.values
         .where((set) =>
