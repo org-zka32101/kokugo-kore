@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
+import 'dart:async';
 import '../data/kokugo_characters.dart';
 import '../models/quest_model.dart';
 import '../providers/character_provider.dart';
@@ -26,9 +27,18 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
   late DateTime _startTime;
   late AnimationController _feedbackCtrl;
   late Animation<double> _feedbackAnim;
+  late Timer _timerRefresh;
+  int _elapsedSeconds = 0;
 
   QuizQuestion get _current => widget.stage.questions[_currentIndex];
   bool get _isCorrect => _selectedAnswer == _current.correctIndex;
+
+  // スピードラン判定：10問以上を2分以内
+  bool get _isSpeedrunAchievable =>
+    (_currentIndex + 1) >= 10 && _elapsedSeconds <= 120;
+
+  bool get _isSpeedrunPossible =>
+    widget.stage.questions.length >= 10 && (_elapsedSeconds + 30) <= 120;
 
   @override
   void initState() {
@@ -39,10 +49,20 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
       vsync: this,
     );
     _feedbackAnim = CurvedAnimation(parent: _feedbackCtrl, curve: Curves.elasticOut);
+
+    // タイマーを開始して毎秒経過時間を更新
+    _timerRefresh = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) {
+        setState(() {
+          _elapsedSeconds = DateTime.now().difference(_startTime).inSeconds;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _timerRefresh.cancel();
     _feedbackCtrl.dispose();
     super.dispose();
   }
@@ -126,6 +146,15 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
       body: Column(
         children: [
           _ProgressBar(progress: progress, current: _currentIndex + 1, total: total),
+          // スピードラン検出インジケーター
+          if (widget.stage.questions.length >= 10)
+            _SpeedrunIndicator(
+              elapsedSeconds: _elapsedSeconds,
+              isAchievable: _isSpeedrunAchievable,
+              isPossible: _isSpeedrunPossible,
+              questionsAnswered: _currentIndex + 1,
+              totalQuestions: widget.stage.questions.length,
+            ),
           const _FeaturedCharacterBanner(),
           Expanded(
             child: SingleChildScrollView(
@@ -528,6 +557,106 @@ class _FeedbackCard extends StatelessWidget {
                   ),
                 ],
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// スピードラン検出インジケーター（10問以上で利用可能）
+/// 2分以内に10問クリアでスピードランバッジ獲得
+class _SpeedrunIndicator extends StatelessWidget {
+  final int elapsedSeconds;
+  final bool isAchievable;
+  final bool isPossible;
+  final int questionsAnswered;
+  final int totalQuestions;
+
+  const _SpeedrunIndicator({
+    required this.elapsedSeconds,
+    required this.isAchievable,
+    required this.isPossible,
+    required this.questionsAnswered,
+    required this.totalQuestions,
+  });
+
+  String _formatTime(int seconds) {
+    final mins = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '$mins:${secs.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final timeRemaining = 120 - elapsedSeconds;
+    final timeColor = isAchievable
+        ? Colors.green
+        : timeRemaining <= 30
+            ? Colors.orange
+            : Colors.blue;
+    final isTimeExpired = elapsedSeconds > 120;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: timeColor.withAlpha(20),
+      child: Row(
+        children: [
+          // タイムアイコン
+          Text(
+            isTimeExpired ? '⏱️' : '⚡',
+            style: const TextStyle(fontSize: 16),
+          ),
+          const SizedBox(width: 10),
+
+          // 状態表示
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isAchievable
+                      ? '🎯 スピードラン達成可能！'
+                      : isPossible
+                          ? '⚡ スピードランの対象'
+                          : isTimeExpired
+                              ? '⏱️ 時間切れ'
+                              : '⚡ スピードラン挑戦中',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: timeColor,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$questionsAnswered/$totalQuestions 問 • ${_formatTime(elapsedSeconds)}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: timeColor.withAlpha(200),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 時間表示（残り時間または経過時間）
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: timeColor.withAlpha(100),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              isTimeExpired
+                  ? '時間切れ'
+                  : '残り ${_formatTime(timeRemaining)}',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: timeColor,
+              ),
             ),
           ),
         ],
