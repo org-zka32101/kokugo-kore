@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_core/models/badge_model.dart';
+import 'dart:math' as math;
 import '../theme/app_theme.dart';
 
-/// バッジ獲得の通知ウィジェット（アニメーション付き）
+/// バッジ獲得の通知ウィジェット（高度なアニメーション＆エフェクト付き）
 class BadgeAchievementNotification extends StatefulWidget {
   final List<BadgeModel> badges;
   final Duration displayDuration;
@@ -25,8 +26,13 @@ class _BadgeAchievementNotificationState
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late AnimationController _scaleController;
+  late AnimationController _rotateController;
+  late AnimationController _glowController;
+  late AnimationController _particleController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _rotateAnimation;
+  late Animation<double> _glowAnimation;
 
   @override
   void initState() {
@@ -42,6 +48,21 @@ class _BadgeAchievementNotificationState
       vsync: this,
     );
 
+    _rotateController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _glowController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _particleController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
@@ -51,8 +72,19 @@ class _BadgeAchievementNotificationState
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
     );
 
+    _rotateAnimation = Tween<double>(begin: 0, end: 2 * math.pi).animate(
+      CurvedAnimation(parent: _rotateController, curve: Curves.linear),
+    );
+
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
+
     _slideController.forward();
     _scaleController.forward();
+    _rotateController.repeat();
+    _glowController.repeat(reverse: true);
+    _particleController.forward();
 
     // 指定時間後に自動的に閉じる
     Future.delayed(widget.displayDuration, () {
@@ -72,6 +104,9 @@ class _BadgeAchievementNotificationState
   void dispose() {
     _slideController.dispose();
     _scaleController.dispose();
+    _rotateController.dispose();
+    _glowController.dispose();
+    _particleController.dispose();
     super.dispose();
   }
 
@@ -96,11 +131,15 @@ class _BadgeAchievementNotificationState
 
     // 複数バッジの場合
     if (widget.badges.length > 1) {
-      return _buildMultipleBadgesCard();
+      return _buildAchievementCardWithEffects(_buildMultipleBadgesCard());
     }
 
     // 単一バッジの場合
     final badge = widget.badges.first;
+    return _buildAchievementCardWithEffects(_buildSingleBadgeCard(badge));
+  }
+
+  Widget _buildSingleBadgeCard(BadgeModel badge) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -303,27 +342,135 @@ class _BadgeAchievementNotificationState
   }
 
   Widget _buildBadgeIcon(String emoji) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(200),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(50),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          emoji,
-          style: const TextStyle(fontSize: 48),
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // グロー背景
+        AnimatedBuilder(
+          animation: _glowAnimation,
+          builder: (context, child) {
+            return Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: kPrimaryColor.withAlpha(
+                      (100 * _glowAnimation.value).toInt(),
+                    ),
+                    blurRadius: 20,
+                    spreadRadius: 8,
+                  ),
+                ],
+              ),
+            );
+          },
         ),
-      ),
+
+        // バッジ本体（回転効果付き）
+        RotationTransition(
+          turns: _rotateAnimation,
+          child: Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(220),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(50),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                emoji,
+                style: const TextStyle(fontSize: 48),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  Widget _buildAchievementCardWithEffects(Widget card) {
+    return Stack(
+      children: [
+        // パーティクル背景
+        Positioned.fill(
+          child: AnimatedBuilder(
+            animation: _particleController,
+            builder: (context, child) {
+              return CustomPaint(
+                painter: ParticlePainter(
+                  progress: _particleController.value,
+                  primaryColor: kPrimaryColor,
+                ),
+              );
+            },
+          ),
+        ),
+
+        // メインカード
+        card,
+      ],
+    );
+  }
+}
+
+/// パーティクル効果を描画するカスタムペイナー
+class ParticlePainter extends CustomPainter {
+  final double progress;
+  final Color primaryColor;
+
+  ParticlePainter({
+    required this.progress,
+    required this.primaryColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final random = math.Random(42); // 固定シードで同じパターンを生成
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+
+    // 20個のパーティクルを描画
+    for (int i = 0; i < 20; i++) {
+      final angle = (2 * math.pi * i) / 20;
+      final distance = 80 + (progress * 60);
+      final x = centerX + distance * math.cos(angle);
+      final y = centerY + distance * math.sin(angle);
+
+      // パーティクルのサイズと透明度
+      final size = 4.0 - (progress * 3.0);
+      final opacity = (1.0 - progress).clamp(0.0, 1.0);
+
+      final paint = Paint()
+        ..color = primaryColor.withAlpha((opacity * 150).toInt())
+        ..style = PaintingStyle.fill;
+
+      canvas.drawCircle(Offset(x, y), size.clamp(0.5, 4.0), paint);
+    }
+
+    // 中央のグロー効果
+    final glowPaint = Paint()
+      ..color = primaryColor.withAlpha(((1 - progress) * 100).toInt())
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      Offset(centerX, centerY),
+      20 * (1 - progress),
+      glowPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(ParticlePainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }
 
