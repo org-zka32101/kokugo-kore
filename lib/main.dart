@@ -55,6 +55,7 @@ import 'providers/leaderboard_privacy_provider.dart';
 import 'providers/badge_progress_provider.dart';
 import 'providers/badge_metrics_provider.dart';
 import 'providers/study_habit_provider.dart';
+import 'providers/quest_performance_provider.dart';
 import 'theme/app_theme.dart';
 import 'widgets/premium_gate.dart';
 
@@ -247,6 +248,7 @@ class _RootShellState extends ConsumerState<RootShell> {
       await ref.read(badgeProgressProvider.notifier).load();
       await ref.read(badgeMetricsProvider.notifier).load();
       await ref.read(studyHabitProvider.notifier).load();
+      await ref.read(questPerformanceProvider.notifier).load();
       // Refresh avatar unlock status after purchased items are loaded
       ref.read(avatarUnlockProvider.notifier).refreshUnlockStatus();
       // Check character unlocks with loaded progress

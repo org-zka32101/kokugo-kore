@@ -9,6 +9,7 @@ import '../providers/badge_provider.dart';
 import '../providers/badge_metrics_provider.dart';
 import '../providers/study_habit_provider.dart';
 import '../providers/badge_time_definitions.dart';
+import '../providers/quest_performance_provider.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import '../providers/coin_provider.dart';
 import '../data/kokugo_characters.dart';
@@ -111,11 +112,27 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
       final updatedProgress = ref.read(progressProvider);
       final totalStages = 48; // 6年×8ステージ（全ステージ数）
       final allStageCleared = updatedProgress.clearedStageIds.length == totalStages;
+
+      // パフォーマンストラッキング
+      final questPerformance = ref.read(questPerformanceProvider.notifier);
+      await questPerformance.recordSpeedrunAttempt(
+        questionCount: r.totalCount,
+        elapsedTime: r.elapsed,
+      );
+
+      if (r.isPerfect) {
+        await questPerformance.recordPerfectDay(DateTime.now());
+      }
+
+      // チャレンジバッジチェック
+      final questPerfState = ref.read(questPerformanceProvider);
+      final consecutivePerfectDays = questPerformance.getConsecutivePerfectDays();
+
       final challengeBadges = await ref.read(badgeProvider.notifier).checkChallengeBadges(
-        perfectDays: updatedProgress.currentPerfectStreak > 0 ? updatedProgress.currentPerfectStreak : 0,
+        perfectDays: consecutivePerfectDays,
         allStageCleared: allStageCleared,
-        speedrunAchieved: false, // TODO: スピードラン達成の判定ロジック追加（クリアタイム < 2分）
-        nonStopAchieved: updatedProgress.currentPerfectStreak >= 20, // 連続20問正答
+        speedrunAchieved: questPerfState.speedrunAchieved,
+        nonStopAchieved: updatedProgress.currentPerfectStreak >= 20,
       );
 
       // Phase 2+ マイルストーンバッジチェック
