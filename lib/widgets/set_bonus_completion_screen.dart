@@ -37,33 +37,33 @@ class _SetBonusCompletionScreenState extends State<SetBonusCompletionScreen>
   void initState() {
     super.initState();
 
-    // スケールアニメーション（アイコン拡大）
+    // スケールアニメーション（アイコン拡大）- やや速めで鮮烈な印象
     _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
-    // 回転アニメーション
+    // 回転アニメーション - ゆっくりした回転で豪華さを演出
     _rotateController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2400),
       vsync: this,
     );
 
-    // グロー効果
+    // グロー効果 - 脈動のようなタイミング
     _glowController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    // コンフェッティ効果
+    // コンフェッティ効果 - 落ち着きのあるタイミング
     _confettiController = AnimationController(
-      duration: const Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 2800),
       vsync: this,
     );
 
-    // コイン表示アニメーション
+    // コイン表示アニメーション - テキスト表示のタイミング調整
     _coinController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 

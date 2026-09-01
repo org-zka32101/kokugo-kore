@@ -71,28 +71,33 @@ class _BadgeAchievementNotificationState
   void initState() {
     super.initState();
 
+    // スライドイン - 快速なスライド
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
+    // スケール - エラスティック効果で目立たせる
     _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
+    // 回転 - ゆったりした回転
     _rotateController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    _glowController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _particleController = AnimationController(
       duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+
+    // グロー効果 - 脈動感
+    _glowController = AnimationController(
+      duration: const Duration(milliseconds: 1400),
+      vsync: this,
+    );
+
+    // パーティクル - 落ち着いた演出
+    _particleController = AnimationController(
+      duration: const Duration(milliseconds: 2200),
       vsync: this,
     );
 

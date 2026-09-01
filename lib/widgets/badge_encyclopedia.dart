@@ -72,22 +72,22 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
   Widget _buildStatisticsSection(int acquired, int total, int percent) {
     return Container(
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            kPrimaryColor.withAlpha(240),
-            kPrimaryColor.withAlpha(200),
+            kPrimaryColor.withAlpha(245),
+            kPrimaryColor.withAlpha(210),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(20),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: kPrimaryColor.withAlpha(60),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -95,49 +95,55 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'バッジ図鑑',
+            '🏆 バッジ図鑑',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,
+              height: 1.2,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           // プログレスバー
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(6),
                   child: LinearProgressIndicator(
                     value: acquired / total,
-                    minHeight: 8,
-                    backgroundColor: Colors.white.withAlpha(100),
+                    minHeight: 10,
+                    backgroundColor: Colors.white.withAlpha(120),
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       Colors.green,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
-              Text(
-                '$acquired/$total',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '$acquired/$total',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    '$percent%',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '獲得率: $percent%',
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.white70,
-            ),
           ),
         ],
       ),
@@ -252,15 +258,15 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          childAspectRatio: 0.85,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
+          childAspectRatio: 0.9,
+          mainAxisSpacing: 14,
+          crossAxisSpacing: 14,
         ),
         itemCount: badges.length,
         itemBuilder: (context, index) {
@@ -302,24 +308,26 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
       child: Container(
         decoration: BoxDecoration(
           color: isAcquired ? Colors.white : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isAcquired ? Colors.green.shade300 : Colors.grey.shade300,
+            color: isAcquired
+                ? Colors.green.shade400
+                : Colors.grey.shade300,
             width: isAcquired ? 2 : 1,
           ),
           boxShadow: isAcquired
               ? [
                   BoxShadow(
-                    color: Colors.green.withAlpha(50),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.green.withAlpha(70),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withAlpha(10),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                    color: Colors.black.withAlpha(15),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
         ),
@@ -334,22 +342,30 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
                 Text(
                   badge.emoji,
                   style: TextStyle(
-                    fontSize: 32,
-                    color: isAcquired ? Colors.black87 : Colors.black38,
+                    fontSize: 36,
+                    color: isAcquired
+                        ? Colors.black87
+                        : Colors.black.withAlpha(120),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
 
                 // バッジ名（省略）
-                Text(
-                  badge.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: isAcquired ? Colors.black87 : Colors.black54,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    badge.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: isAcquired
+                          ? Colors.black87
+                          : Colors.black54,
+                      height: 1.3,
+                    ),
                   ),
                 ),
               ],
@@ -359,14 +375,14 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
             if (!isAcquired)
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withAlpha(30),
-                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.black.withAlpha(40),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.lock,
+                    Icons.lock_outline,
                     color: Colors.white70,
-                    size: 16,
+                    size: 20,
                   ),
                 ),
               ),
@@ -374,19 +390,26 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
             // 獲得済みバッジ
             if (isAcquired)
               Positioned(
-                top: 4,
-                right: 4,
+                top: 6,
+                right: 6,
                 child: Container(
-                  width: 18,
-                  height: 18,
+                  width: 22,
+                  height: 22,
                   decoration: BoxDecoration(
                     color: Colors.green.shade400,
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withAlpha(100),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.check,
                     color: Colors.white,
-                    size: 12,
+                    size: 14,
                   ),
                 ),
               ),
