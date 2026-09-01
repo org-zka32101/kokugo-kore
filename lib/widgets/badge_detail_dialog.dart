@@ -188,30 +188,33 @@ class BadgeDetailDialog extends StatelessWidget {
     required String title,
     required String content,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white70 : Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(
+              color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
+            ),
           ),
           child: Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: Colors.black87,
+              color: isDarkMode ? Colors.white70 : Colors.black87,
               height: 1.6,
             ),
           ),
@@ -221,15 +224,16 @@ class BadgeDetailDialog extends StatelessWidget {
   }
 
   Widget _buildRelatedSetBonuses() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'このバッジが含まれるセット',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white70 : Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
@@ -241,13 +245,13 @@ class BadgeDetailDialog extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isCompleted
-                    ? Colors.green.shade50
-                    : Colors.orange.shade50,
+                    ? (isDarkMode ? Colors.green.shade900 : Colors.green.shade50)
+                    : (isDarkMode ? Colors.orange.shade900 : Colors.orange.shade50),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: isCompleted
-                      ? Colors.green.shade300
-                      : Colors.orange.shade300,
+                      ? (isDarkMode ? Colors.green.shade700 : Colors.green.shade300)
+                      : (isDarkMode ? Colors.orange.shade700 : Colors.orange.shade300),
                 ),
               ),
               child: Column(
@@ -263,10 +267,10 @@ class BadgeDetailDialog extends StatelessWidget {
                       Expanded(
                         child: Text(
                           set.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
                       ),
@@ -295,9 +299,9 @@ class BadgeDetailDialog extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     set.rewardDescription,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Colors.black54,
+                      color: isDarkMode ? Colors.white54 : Colors.black54,
                     ),
                   ),
                 ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_core/models/badge_model.dart';
 import 'dart:math' as math;
+import 'dart:async';
 import '../theme/app_theme.dart';
 import '../models/badge_set_bonus_model.dart';
 
@@ -67,6 +68,10 @@ class _BadgeAchievementNotificationState
   late Animation<double> _rotateAnimation;
   late Animation<double> _glowAnimation;
 
+  // タイマー参照（dispose時にキャンセルするため）
+  Timer? _displayTimer;
+  Timer? _dismissTimer;
+
   @override
   void initState() {
     super.initState();
@@ -125,10 +130,12 @@ class _BadgeAchievementNotificationState
     _particleController.forward();
 
     // 指定時間後に自動的に閉じる
-    Future.delayed(widget.displayDuration, () {
+    _displayTimer = Timer(widget.displayDuration, () {
       if (mounted) {
         _slideController.reverse();
-        Future.delayed(const Duration(milliseconds: 600), () {
+
+        // スライドアウト完了後に画面を閉じる（600ms）
+        _dismissTimer = Timer(const Duration(milliseconds: 600), () {
           if (mounted) {
             widget.onDismiss?.call();
             Navigator.of(context).pop();
@@ -140,6 +147,11 @@ class _BadgeAchievementNotificationState
 
   @override
   void dispose() {
+    // タイマーをキャンセル（メモリリーク防止）
+    _displayTimer?.cancel();
+    _dismissTimer?.cancel();
+
+    // AnimationController を破棄
     _slideController.dispose();
     _scaleController.dispose();
     _rotateController.dispose();
