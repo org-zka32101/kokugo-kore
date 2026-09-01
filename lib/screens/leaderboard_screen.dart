@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
 import '../providers/leaderboard_privacy_provider.dart';
+import '../providers/badge_provider.dart';
+import '../providers/badge_metrics_provider.dart';
 
 class LeaderboardScreen extends ConsumerStatefulWidget {
   const LeaderboardScreen({super.key});
@@ -18,9 +20,27 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    // Load privacy settings
+    // Load privacy settings and check leaderboard status
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(leaderboardPrivacyProvider.notifier).load();
+
+      // Phase 2+ ユーザーがTOP10ランカーかチェック
+      // 現在の実装ではモックデータを使用しているため、
+      // 実際のランキングデータに基づいて判定する必要がある
+      const userRank = 4; // あなたは4位（モックデータ）
+      final isTopTenRanker = userRank <= 10;
+
+      if (isTopTenRanker) {
+        await ref.read(badgeMetricsProvider.notifier).setTopTenRanker(true);
+
+        // 社交バッジをチェック
+        final metricsState = ref.read(badgeMetricsProvider);
+        await ref.read(badgeProvider.notifier).checkSocialBadges(
+          friendInviteCount: metricsState.friendInvites,
+          multiplayerWins: metricsState.multiplayerWins,
+          isTopTenRanker: metricsState.isTopTenRanker,
+        );
+      }
     });
   }
 
