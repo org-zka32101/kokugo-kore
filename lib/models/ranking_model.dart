@@ -6,8 +6,8 @@ class StudentRankingData {
   final String studentName;
   final int score; // バッジ数またはポイント
   final int rank; // グループ内順位
-  final DateTime startedAt;
-  final int gradeLevel; // 学年（1-6など）
+  final DateTime startedAt; // アプリ登録日
+  final int birthYear; // 生年（学年自動計算用）
   final DateTime? acquiredAt; // 最後に獲得した日
 
   StudentRankingData({
@@ -16,13 +16,49 @@ class StudentRankingData {
     required this.score,
     required this.rank,
     required this.startedAt,
-    required this.gradeLevel,
+    required this.birthYear,
     this.acquiredAt,
   });
 
+  /// 現在の学年を自動計算（4月1日に学年が上がる）
+  /// 日本の学年制度: 4月1日が新年度開始
+  int get currentGrade {
+    return _calculateGrade(birthYear, DateTime.now());
+  }
+
+  /// 指定の日時における学年を計算
+  int getGradeAt(DateTime dateTime) {
+    return _calculateGrade(birthYear, dateTime);
+  }
+
+  /// 学年計算ロジック
+  /// birthYear: 生年
+  /// dateTime: 計算対象の日時
+  /// 戻り値: 1〜6年生（超過した場合は6を返す）
+  static int _calculateGrade(int birthYear, DateTime dateTime) {
+    int year = dateTime.year;
+    int month = dateTime.month;
+
+    // 4月より前の場合は前年度
+    if (month < 4) {
+      year--;
+    }
+
+    int grade = year - birthYear + 1;
+
+    // 6年生が上限（中学進学）
+    if (grade > 6) {
+      return 6;
+    } else if (grade < 1) {
+      return 1;
+    }
+
+    return grade;
+  }
+
   @override
   String toString() =>
-      'StudentRankingData(id: $studentId, name: $studentName, rank: $rank, score: $score)';
+      'StudentRankingData(id: $studentId, name: $studentName, rank: $rank, score: $score, grade: $currentGrade)';
 }
 
 /// ランキング表示のフィルター設定

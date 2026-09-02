@@ -228,7 +228,7 @@ class RankingScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${student.gradeLevel}年生 • ${student.startedAt.month}月開始',
+                    '${student.currentGrade}年生 • ${student.startedAt.month}月開始',
                     style: TextStyle(
                       fontSize: 12,
                       color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,

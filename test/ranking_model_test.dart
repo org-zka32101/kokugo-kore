@@ -11,7 +11,7 @@ void main() {
         score: 15,
         rank: 1,
         startedAt: now,
-        gradeLevel: 5,
+        birthYear: 2021,
         acquiredAt: now,
       );
 
@@ -19,7 +19,7 @@ void main() {
       expect(student.studentName, '田中 太郎');
       expect(student.score, 15);
       expect(student.rank, 1);
-      expect(student.gradeLevel, 5);
+      expect(student.birthYear, 2021);
       expect(student.acquiredAt, now);
     });
 
@@ -30,7 +30,7 @@ void main() {
         score: 15,
         rank: 1,
         startedAt: DateTime(2026, 1, 15),
-        gradeLevel: 5,
+        birthYear: 2021,
       );
 
       final string = student.toString();
@@ -38,6 +38,7 @@ void main() {
       expect(string, contains('田中 太郎'));
       expect(string, contains('rank: 1'));
       expect(string, contains('score: 15'));
+      expect(string, contains('grade:'));
     });
 
     test('RankingFilter creates instance correctly', () {
@@ -108,10 +109,63 @@ void main() {
         score: 10,
         rank: 1,
         startedAt: DateTime(2026, 1, 1),
-        gradeLevel: 5,
+        birthYear: 2021,
       );
 
       expect(student.acquiredAt, isNull);
+    });
+
+    test('StudentRankingData currentGrade calculates correctly on April 1st or later', () {
+      // 2026年9月1日、2021年生まれ = 5年生
+      final student = StudentRankingData(
+        studentId: 'student_1',
+        studentName: '田中 太郎',
+        score: 10,
+        rank: 1,
+        startedAt: DateTime(2026, 1, 1),
+        birthYear: 2021,
+      );
+
+      final gradeOn20260901 = student.getGradeAt(DateTime(2026, 9, 1));
+      expect(gradeOn20260901, 5);
+    });
+
+    test('StudentRankingData currentGrade updates on April 1st', () {
+      final student = StudentRankingData(
+        studentId: 'student_1',
+        studentName: '田中 太郎',
+        score: 10,
+        rank: 1,
+        startedAt: DateTime(2026, 1, 1),
+        birthYear: 2021,
+      );
+
+      // 3月31日は4年生
+      final gradeOn20270331 = student.getGradeAt(DateTime(2027, 3, 31));
+      expect(gradeOn20270331, 5);
+
+      // 4月1日は5年生
+      final gradeOn20270401 = student.getGradeAt(DateTime(2027, 4, 1));
+      expect(gradeOn20270401, 6);
+    });
+
+    test('StudentRankingData currentGrade caps at 6th grade', () {
+      final student = StudentRankingData(
+        studentId: 'student_1',
+        studentName: '田中 太郎',
+        score: 10,
+        rank: 1,
+        startedAt: DateTime(2026, 1, 1),
+        birthYear: 2020,
+      );
+
+      // 2026年9月1日、2020年生まれ = 6年生（卒業）
+      final gradeOn20260901 = student.getGradeAt(DateTime(2026, 9, 1));
+      expect(gradeOn20260901, 6);
+
+      // 2027年9月1日でも6年生を超えないように
+      final gradeOn20270901 = student.getGradeAt(DateTime(2027, 9, 1));
+      expect(gradeOn20270901, 6);
     });
 
     test('RankingFilter with default groupBy', () {

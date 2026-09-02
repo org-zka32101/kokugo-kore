@@ -37,7 +37,7 @@ class RankingService {
 
       case RankingGroupBy.byGrade:
         for (var student in rankings) {
-          final key = '${student.gradeLevel}年生';
+          final key = '${student.currentGrade}年生';
           grouped.putIfAbsent(key, () => []);
           grouped[key]!.add(student);
         }
@@ -73,7 +73,7 @@ class RankingService {
       case RankingGroupBy.byStartDateAndGrade:
         for (var student in rankings) {
           final key =
-              '${student.gradeLevel}年生 (${student.startedAt.month}月開始)';
+              '${student.currentGrade}年生 (${student.startedAt.month}月開始)';
           grouped.putIfAbsent(key, () => []);
           grouped[key]!.add(student);
         }
@@ -103,7 +103,7 @@ class RankingService {
         score: 15,
         rank: 1,
         startedAt: DateTime(2026, 1, 15),
-        gradeLevel: 5,
+        birthYear: 2021,
         acquiredAt: DateTime(2026, 8, 20),
       ),
       StudentRankingData(
@@ -112,7 +112,7 @@ class RankingService {
         score: 13,
         rank: 2,
         startedAt: DateTime(2026, 2, 10),
-        gradeLevel: 5,
+        birthYear: 2021,
         acquiredAt: DateTime(2026, 8, 18),
       ),
       StudentRankingData(
@@ -121,7 +121,7 @@ class RankingService {
         score: 12,
         rank: 3,
         startedAt: DateTime(2026, 1, 5),
-        gradeLevel: 4,
+        birthYear: 2022,
         acquiredAt: DateTime(2026, 8, 15),
       ),
       StudentRankingData(
@@ -130,7 +130,7 @@ class RankingService {
         score: 11,
         rank: 4,
         startedAt: DateTime(2026, 3, 20),
-        gradeLevel: 5,
+        birthYear: 2021,
         acquiredAt: DateTime(2026, 8, 12),
       ),
       StudentRankingData(
@@ -139,7 +139,7 @@ class RankingService {
         score: 10,
         rank: 5,
         startedAt: DateTime(2026, 2, 28),
-        gradeLevel: 4,
+        birthYear: 2022,
         acquiredAt: DateTime(2026, 8, 10),
       ),
       StudentRankingData(
@@ -148,7 +148,7 @@ class RankingService {
         score: 9,
         rank: 6,
         startedAt: DateTime(2026, 4, 1),
-        gradeLevel: 6,
+        birthYear: 2020,
         acquiredAt: DateTime(2026, 8, 8),
       ),
       StudentRankingData(
@@ -157,7 +157,7 @@ class RankingService {
         score: 8,
         rank: 7,
         startedAt: DateTime(2026, 3, 10),
-        gradeLevel: 4,
+        birthYear: 2022,
         acquiredAt: DateTime(2026, 8, 5),
       ),
     ];
