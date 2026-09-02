@@ -259,30 +259,39 @@ class _BadgeEncyclopediaState extends ConsumerState<BadgeEncyclopedia> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: 0.9,
-          mainAxisSpacing: 14,
-          crossAxisSpacing: 14,
-        ),
-        itemCount: badges.length,
-        itemBuilder: (context, index) {
-          final badge = badges[index];
-          final isAcquired = earnedIds.contains(badge.id);
-          final acquiredAt = ref
-              .watch(badgeProvider)
-              .earnedBadges
-              .firstWhere(
-                (e) => e.badge.id == badge.id,
-                orElse: () =>
-                    EarnedBadge(badge: badge, earnedAt: DateTime.now()),
-              )
-              .earnedAt;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // レスポンシブ: デバイス幅に応じて列数を調整
+          final screenWidth = constraints.maxWidth;
+          final crossAxisCount = screenWidth > 600 ? 6 : 4;
+          final childAspectRatio = screenWidth > 600 ? 1.0 : 0.9;
 
-          return _buildBadgeCard(badge, isAcquired, acquiredAt);
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: childAspectRatio,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 14,
+            ),
+            itemCount: badges.length,
+            itemBuilder: (context, index) {
+              final badge = badges[index];
+              final isAcquired = earnedIds.contains(badge.id);
+              final acquiredAt = ref
+                  .watch(badgeProvider)
+                  .earnedBadges
+                  .firstWhere(
+                    (e) => e.badge.id == badge.id,
+                    orElse: () =>
+                        EarnedBadge(badge: badge, earnedAt: DateTime.now()),
+                  )
+                  .earnedAt;
+
+              return _buildBadgeCard(badge, isAcquired, acquiredAt);
+            },
+          );
         },
       ),
     );

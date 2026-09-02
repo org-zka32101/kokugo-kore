@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:async';
 import 'package:flutter/services.dart';
 import '../models/badge_set_bonus_model.dart';
 import '../theme/app_theme.dart';
@@ -32,6 +33,11 @@ class _SetBonusCompletionScreenState extends State<SetBonusCompletionScreen>
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotateAnimation;
   late Animation<double> _glowAnimation;
+
+  // タイマー参照（dispose時にキャンセルするため）
+  Timer? _dismissTimer;
+  Timer? _coinDelayTimer;
+  final List<Timer> _vibrationTimers = [];
 
   @override
   void initState() {
@@ -87,12 +93,14 @@ class _SetBonusCompletionScreenState extends State<SetBonusCompletionScreen>
     _rotateController.repeat();
     _glowController.repeat(reverse: true);
     _confettiController.forward();
-    Future.delayed(const Duration(milliseconds: 600), () {
+
+    // コイン表示アニメーション開始（600msでlelay）
+    _coinDelayTimer = Timer(const Duration(milliseconds: 600), () {
       if (mounted) _coinController.forward();
     });
 
-    // 演出終了後に画面を閉じる
-    Future.delayed(const Duration(seconds: 5), () {
+    // 演出終了後に画面を閉じる（5秒後）
+    _dismissTimer = Timer(const Duration(seconds: 5), () {
       if (mounted) {
         widget.onCompleted?.call();
         Navigator.of(context).pop();
@@ -104,12 +112,21 @@ class _SetBonusCompletionScreenState extends State<SetBonusCompletionScreen>
   void _triggerVibration() {
     try {
       HapticFeedback.vibrate();
-      Future.delayed(const Duration(milliseconds: 200), () {
-        HapticFeedback.vibrate();
+
+      // 振動タイマーをリストで管理（dispose時にキャンセル可能）
+      final timer1 = Timer(const Duration(milliseconds: 200), () {
+        try {
+          HapticFeedback.vibrate();
+        } catch (_) {}
       });
-      Future.delayed(const Duration(milliseconds: 400), () {
-        HapticFeedback.vibrate();
+      _vibrationTimers.add(timer1);
+
+      final timer2 = Timer(const Duration(milliseconds: 400), () {
+        try {
+          HapticFeedback.vibrate();
+        } catch (_) {}
       });
+      _vibrationTimers.add(timer2);
     } catch (_) {
       // 振動非対応デバイスの場合はスキップ
     }
@@ -117,6 +134,15 @@ class _SetBonusCompletionScreenState extends State<SetBonusCompletionScreen>
 
   @override
   void dispose() {
+    // タイマーをキャンセル（メモリリーク防止）
+    _dismissTimer?.cancel();
+    _coinDelayTimer?.cancel();
+    for (final timer in _vibrationTimers) {
+      timer.cancel();
+    }
+    _vibrationTimers.clear();
+
+    // AnimationController を破棄
     _scaleController.dispose();
     _rotateController.dispose();
     _glowController.dispose();

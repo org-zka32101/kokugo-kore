@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_set_bonus_model.dart';
 import '../theme/app_theme.dart';
@@ -117,6 +118,7 @@ class BadgeDetailDialog extends StatelessWidget {
                 children: [
                   // 説明
                   _buildSection(
+                    context: context,
                     title: '説明',
                     content: badge.description,
                   ),
@@ -124,6 +126,7 @@ class BadgeDetailDialog extends StatelessWidget {
 
                   // 獲得条件
                   _buildSection(
+                    context: context,
                     title: '獲得条件',
                     content: _buildAcquisitionCondition(),
                   ),
@@ -132,6 +135,7 @@ class BadgeDetailDialog extends StatelessWidget {
                   // 獲得日時
                   if (isAcquired && acquiredAt != null) ...[
                     _buildSection(
+                      context: context,
                       title: '獲得日時',
                       content: _formatDateTime(acquiredAt!),
                     ),
@@ -140,7 +144,7 @@ class BadgeDetailDialog extends StatelessWidget {
 
                   // 関連するセットボーナス
                   if (relatedSetBonuses.isNotEmpty) ...[
-                    _buildRelatedSetBonuses(),
+                    _buildRelatedSetBonuses(context),
                     const SizedBox(height: 20),
                   ],
 
@@ -161,7 +165,7 @@ class BadgeDetailDialog extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: _shareoBadge,
+                          onPressed: () async => await _shareBadge(context),
                           icon: const Icon(Icons.share),
                           label: const Text('共有'),
                           style: ElevatedButton.styleFrom(
@@ -185,33 +189,37 @@ class BadgeDetailDialog extends StatelessWidget {
   }
 
   Widget _buildSection({
+    required BuildContext context,
     required String title,
     required String content,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white70 : Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(
+              color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
+            ),
           ),
           child: Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: Colors.black87,
+              color: isDarkMode ? Colors.white70 : Colors.black87,
               height: 1.6,
             ),
           ),
@@ -220,16 +228,17 @@ class BadgeDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildRelatedSetBonuses() {
+  Widget _buildRelatedSetBonuses(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'このバッジが含まれるセット',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white70 : Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
@@ -241,13 +250,13 @@ class BadgeDetailDialog extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isCompleted
-                    ? Colors.green.shade50
-                    : Colors.orange.shade50,
+                    ? (isDarkMode ? Colors.green.shade900 : Colors.green.shade50)
+                    : (isDarkMode ? Colors.orange.shade900 : Colors.orange.shade50),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: isCompleted
-                      ? Colors.green.shade300
-                      : Colors.orange.shade300,
+                      ? (isDarkMode ? Colors.green.shade700 : Colors.green.shade300)
+                      : (isDarkMode ? Colors.orange.shade700 : Colors.orange.shade300),
                 ),
               ),
               child: Column(
@@ -263,10 +272,10 @@ class BadgeDetailDialog extends StatelessWidget {
                       Expanded(
                         child: Text(
                           set.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
                       ),
@@ -295,9 +304,9 @@ class BadgeDetailDialog extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     set.rewardDescription,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Colors.black54,
+                      color: isDarkMode ? Colors.white54 : Colors.black54,
                     ),
                   ),
                 ],
@@ -319,12 +328,35 @@ class BadgeDetailDialog extends StatelessWidget {
     return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  void _shareoBadge() {
-    // TODO: 実装: Share.share() を使用してバッジ情報を共有
-    // Share.share(
-    //   'バッジ「${badge.title}」を獲得しました！ ${badge.emoji}',
-    //   subject: 'バッジ獲得のお知らせ',
-    // );
+  Future<void> _shareBadge(BuildContext context) async {
+    // バッジ情報を共有
+    final shareText = '''
+🎉 バッジ「${badge.title}」を獲得しました！${badge.emoji}
+
+📝 説明: ${badge.description}
+
+🎮 「小学コレ！国語」でバッジを集めて、学習をもっと楽しくしよう！
+''';
+
+    try {
+      // クリップボードにコピー
+      final data = ClipboardData(text: shareText);
+      await Clipboard.setData(data);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('バッジ情報をコピーしました'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('共有に失敗しました: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
 
