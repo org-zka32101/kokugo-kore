@@ -98,8 +98,8 @@ void main() {
         expect(student.studentName.isNotEmpty, true);
         expect(student.score, greaterThanOrEqualTo(0));
         expect(student.rank, greaterThan(0));
-        expect(student.gradeLevel, greaterThan(0));
-        expect(student.gradeLevel, lessThanOrEqualTo(6));
+        expect(student.currentGrade, greaterThan(0));
+        expect(student.currentGrade, lessThanOrEqualTo(6));
       }
     });
 

@@ -63,7 +63,7 @@ class RankingService {
           grouped[month]!.add(student);
         }
         // 開始月で降順にソート（最新順）
-        final sortedKeys = grouped.keys.toList()..sort().reversed;
+        final sortedKeys = (grouped.keys.toList()..sort()).reversed.toList();
         final sortedGrouped = <String, List<StudentRankingData>>{};
         for (var key in sortedKeys) {
           sortedGrouped[key] = grouped[key]!;
