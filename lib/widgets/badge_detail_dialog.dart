@@ -118,6 +118,7 @@ class BadgeDetailDialog extends StatelessWidget {
                 children: [
                   // 説明
                   _buildSection(
+                    context: context,
                     title: '説明',
                     content: badge.description,
                   ),
@@ -125,6 +126,7 @@ class BadgeDetailDialog extends StatelessWidget {
 
                   // 獲得条件
                   _buildSection(
+                    context: context,
                     title: '獲得条件',
                     content: _buildAcquisitionCondition(),
                   ),
@@ -133,6 +135,7 @@ class BadgeDetailDialog extends StatelessWidget {
                   // 獲得日時
                   if (isAcquired && acquiredAt != null) ...[
                     _buildSection(
+                      context: context,
                       title: '獲得日時',
                       content: _formatDateTime(acquiredAt!),
                     ),
@@ -141,7 +144,7 @@ class BadgeDetailDialog extends StatelessWidget {
 
                   // 関連するセットボーナス
                   if (relatedSetBonuses.isNotEmpty) ...[
-                    _buildRelatedSetBonuses(),
+                    _buildRelatedSetBonuses(context),
                     const SizedBox(height: 20),
                   ],
 
@@ -162,7 +165,7 @@ class BadgeDetailDialog extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => _shareBadge(context),
+                          onPressed: () async => await _shareBadge(context),
                           icon: const Icon(Icons.share),
                           label: const Text('共有'),
                           style: ElevatedButton.styleFrom(
@@ -186,6 +189,7 @@ class BadgeDetailDialog extends StatelessWidget {
   }
 
   Widget _buildSection({
+    required BuildContext context,
     required String title,
     required String content,
   }) {
@@ -224,7 +228,7 @@ class BadgeDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildRelatedSetBonuses() {
+  Widget _buildRelatedSetBonuses(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,7 +328,7 @@ class BadgeDetailDialog extends StatelessWidget {
     return '${dateTime.year}年${dateTime.month}月${dateTime.day}日 ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  void _shareBadge(BuildContext context) {
+  Future<void> _shareBadge(BuildContext context) async {
     // バッジ情報を共有
     final shareText = '''
 🎉 バッジ「${badge.title}」を獲得しました！${badge.emoji}
