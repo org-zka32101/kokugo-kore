@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK & AAB
 
 on:
   workflow_dispatch:
@@ -85,12 +85,33 @@ jobs:
           Write-Host "✓ Debug APK build completed"
         shell: powershell
 
+      - name: Build AAB (Release)
+        if: inputs.build_type == 'release'
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+        run: |
+          cd K:/
+          flutter build aab --release --no-pub
+          Write-Host "✓ Release AAB build completed"
+        shell: powershell
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: apk-${{ inputs.build_type }}
           path: |
             build/app/outputs/flutter-apk/app-*.apk
+          retention-days: 30
+
+      - name: Upload AAB artifact
+        if: inputs.build_type == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: aab-release
+          path: |
+            build/app/outputs/bundle/release/app-*.aab
           retention-days: 30
 
       - name: Display build info
@@ -103,6 +124,18 @@ jobs:
             Write-Host "  Size: $([Math]::Round($size, 2)) MB"
           } else {
             Write-Host "⚠️ APK not found"
+          }
+
+          if ("${{ inputs.build_type }}" -eq "release") {
+            $aabPath = Get-ChildItem -Path "build\app\outputs\bundle\release\*.aab" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($aabPath) {
+              $size = $aabPath.Length / 1MB
+              Write-Host "✓ AAB built successfully"
+              Write-Host "  Path: $($aabPath.FullName)"
+              Write-Host "  Size: $([Math]::Round($size, 2)) MB"
+            } else {
+              Write-Host "⚠️ AAB not found"
+            }
           }
         shell: powershell
 
