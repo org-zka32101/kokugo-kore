@@ -1,0 +1,88 @@
+name: Android Emulator Test
+
+on:
+  workflow_call:
+    inputs:
+      api-level:
+        description: 'Android API level for emulator'
+        required: false
+        default: '29'
+        type: string
+      arch:
+        description: 'Emulator architecture (x86 or arm64-v8a)'
+        required: false
+        default: 'x86'
+        type: string
+      flutter-version:
+        description: 'Flutter version to use'
+        required: false
+        default: 'stable'
+        type: string
+      timeout-minutes:
+        description: 'Job timeout in minutes'
+        required: false
+        default: '30'
+        type: number
+
+env:
+  FLUTTER_VERSION: ${{ inputs.flutter-version }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+
+    strategy:
+      matrix:
+        api-level: ['${{ inputs.api-level }}']
+        arch: ['${{ inputs.arch }}']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Setup Android Emulator
+        run: |
+          bash scripts/setup-android-emulator.sh \
+            --api-level ${{ matrix.api-level }} \
+            --arch ${{ matrix.arch }}
+
+      - name: Verify emulator
+        run: |
+          adb devices
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82'
+
+      - name: Run Flutter tests
+        run: |
+          flutter clean
+          flutter pub get
+          flutter test integration_test/ || flutter drive --target=integration_test/app_test.dart
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          adb logcat -d > logcat.txt
+          echo "Emulator state:"
+          adb devices
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-emulator-logs-${{ matrix.api-level }}-${{ matrix.arch }}
+          path: logcat.txt
