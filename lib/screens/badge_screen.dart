@@ -2,13 +2,15 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/models/badge_model.dart';
-import 'package:shared_core/shared_core.dart' show allBadges;
 import '../providers/badge_provider.dart';
 import '../models/badge_progress_model.dart';
 import '../theme/app_theme.dart';
 import '../widgets/badge_widget.dart';
 import '../widgets/badge_collection_challenges.dart';
 import '../widgets/badge_set_bonus_display.dart';
+
+// allBadges は badge_provider で定義される
+// final List<BadgeModel> allBadges で参照可能
 
 enum BadgeFilterType {
   all('すべて'),

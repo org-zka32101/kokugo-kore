@@ -26,12 +26,12 @@ final List<String> knownBadgeIds = [
 ];
 
 /// 動的バッジリスト - shared_core から返されるもの
-List<BadgeModel> get allBadges => _allBadgesCache;
-List<BadgeModel> _allBadgesCache = [];
+/// 初期状態は空、shared_core の初期化時に更新される
+List<BadgeModel> allBadges = [];
 
 /// バッジキャッシュを初期化（shared_core から取得したバッジで）
 void initializeAllBadgesCache(List<BadgeModel> badges) {
-  _allBadgesCache = badges;
+  allBadges = badges;
 }
 
 class BadgeState {
