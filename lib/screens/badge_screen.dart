@@ -9,9 +9,6 @@ import '../widgets/badge_widget.dart';
 import '../widgets/badge_collection_challenges.dart';
 import '../widgets/badge_set_bonus_display.dart';
 
-// allBadges は badge_provider で定義される
-// final List<BadgeModel> allBadges で参照可能
-
 enum BadgeFilterType {
   all('すべて'),
   earned('取得済'),
@@ -47,12 +44,15 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen> {
     final badgeState = ref.watch(badgeProvider);
     final earnedIds = badgeState.earnedBadges.map((e) => e.badge.id).toSet();
     final earnedCount = badgeState.earnedBadges.length;
-    // 仮の総数（badge_provider の allBadges に基づく、現在は50個想定）
-    final totalCount = 50;
 
-    // フィルタと絞り込み（earnedBadges のみを表示）
+    // allBadges は badge_provider で管理（初期化時に自動設定）
+    // 初期化されるまで空リストとして機能
+    final allBadgesRef = allBadges; // badge_provider.dart で定義
+    final totalCount = allBadgesRef.length;
+
+    // フィルタと絞り込み
     var displayBadges = _filterAndSortBadges(
-      badgeState.earnedBadges.map((e) => e.badge).toList(),
+      allBadgesRef,
       earnedIds,
       _filter,
       _sort,
