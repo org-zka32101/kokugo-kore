@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/models/badge_model.dart';
+import 'package:shared_core/shared_core.dart' show allBadges;
 import '../models/badge_challenge_model.dart';
 import '../models/badge_progress_model.dart';
 import '../providers/badge_provider.dart';
