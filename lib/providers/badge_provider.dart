@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/models/badge_model.dart';
-import 'package:shared_core/shared_core.dart' show allBadges;
 import '../models/badge_reward_model.dart';
 import '../models/badge_progress_model.dart';
 import '../models/badge_set_bonus_model.dart';
@@ -12,6 +11,10 @@ import 'study_habit_provider.dart';
 
 const _earnedPrefix = 'badge_earned_';
 const _completedSetBonusPrefix = 'set_bonus_completed_';
+
+/// 全バッジリスト - shared_core から定義されたバッジのみ使用
+/// 注: shared_core のバッジモデルから自動生成される
+final List<BadgeModel> allBadges = [];
 
 class BadgeState {
   final List<EarnedBadge> earnedBadges;
