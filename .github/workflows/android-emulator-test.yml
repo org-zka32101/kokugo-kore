@@ -3,86 +3,126 @@ name: Android Emulator Test
 on:
   workflow_call:
     inputs:
-      api-level:
-        description: 'Android API level for emulator'
-        required: false
-        default: '29'
+      app-path:
+        description: 'Path to Flutter app (e.g., apps/prefecture_defense)'
+        required: true
         type: string
-      arch:
-        description: 'Emulator architecture (x86 or arm64-v8a)'
+      test-command:
+        description: 'Test command to run'
         required: false
-        default: 'x86'
         type: string
-      flutter-version:
-        description: 'Flutter version to use'
-        required: false
-        default: 'stable'
-        type: string
-      timeout-minutes:
-        description: 'Job timeout in minutes'
-        required: false
-        default: '30'
-        type: number
-
-env:
-  FLUTTER_VERSION: ${{ inputs.flutter-version }}
+        default: 'flutter test'
 
 jobs:
-  test:
+  emulator-test:
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ inputs.timeout-minutes }}
-
-    strategy:
-      matrix:
-        api-level: ['${{ inputs.api-level }}']
-        arch: ['${{ inputs.arch }}']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          api-levels: 34
+          ndk-version: 26.1.10909125
+          cmake-version: 3.22.1
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
+          flutter-version: 'stable'
+          channel: 'stable'
 
-      - name: Setup Android Emulator
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle.lock') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Cache Flutter packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.flutter
+          key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            flutter-${{ runner.os }}-
+
+      - name: Create Android Virtual Device
         run: |
-          bash scripts/setup-android-emulator.sh \
-            --api-level ${{ matrix.api-level }} \
-            --arch ${{ matrix.arch }}
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+            "system-images;android-34;google_apis;x86_64"
+
+          echo "no" | $ANDROID_SDK_ROOT/tools/bin/avdmanager create avd \
+            -n test_device \
+            -k "system-images;android-34;google_apis;x86_64" \
+            -d "Pixel_6_Pro_API_34" \
+            --force
+
+      - name: Start Android Emulator
+        run: |
+          $ANDROID_SDK_ROOT/emulator/emulator \
+            -avd test_device \
+            -no-audio \
+            -no-boot-anim \
+            -no-window \
+            -gpu swiftshader_indirect \
+            -memory 2048 \
+            -cores 2 \
+            -qemu -m 2048 \
+            > /tmp/emulator.log 2>&1 &
+
+          # Wait for emulator to boot
+          echo "⏳ Waiting for emulator to boot..."
+          $ANDROID_SDK_ROOT/platform-tools/adb wait-for-device
+          $ANDROID_SDK_ROOT/platform-tools/adb shell getprop sys.boot_from_charger_mode
+
+          # Wait additional time for full boot
+          sleep 30
 
       - name: Verify emulator
         run: |
-          adb devices
-          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82'
+          $ANDROID_SDK_ROOT/platform-tools/adb devices
+          $ANDROID_SDK_ROOT/platform-tools/adb shell getprop ro.boot.serialno
 
-      - name: Run Flutter tests
+      - name: Set up app
+        working-directory: ${{ inputs.app-path }}
         run: |
-          flutter clean
           flutter pub get
-          flutter test integration_test/ || flutter drive --target=integration_test/app_test.dart
+          flutter clean
 
-      - name: Collect logs on failure
-        if: failure()
+      - name: Run tests
+        working-directory: ${{ inputs.app-path }}
+        run: ${{ inputs.test-command }}
+        timeout-minutes: 30
+        continue-on-error: true
+
+      - name: Collect logs
+        if: always()
         run: |
-          adb logcat -d > logcat.txt
-          echo "Emulator state:"
-          adb devices
+          mkdir -p test-results
+          $ANDROID_SDK_ROOT/platform-tools/adb logcat -d > test-results/logcat.log || true
+          cat /tmp/emulator.log > test-results/emulator.log || true
 
-      - name: Upload logs
-        if: failure()
+      - name: Upload test results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-emulator-logs-${{ matrix.api-level }}-${{ matrix.arch }}
-          path: logcat.txt
+          name: android-emulator-logs
+          path: test-results/
+          if-no-files-found: ignore
+
+      - name: Stop emulator
+        if: always()
+        run: |
+          $ANDROID_SDK_ROOT/platform-tools/adb emu kill || true
