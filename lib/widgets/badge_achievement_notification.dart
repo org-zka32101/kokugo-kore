@@ -329,8 +329,9 @@ class _BadgeAchievementNotificationState
               spacing: 12,
               runSpacing: 12,
               children: widget.badges
-                  .map((badge) => _buildBadgeChip(badge))
-                  .toList(),
+                      ?.map((badge) => _buildBadgeChip(badge))
+                      .toList() ??
+                  const [],
             ),
             const SizedBox(height: 16),
 

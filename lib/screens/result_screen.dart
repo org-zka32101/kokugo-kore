@@ -204,7 +204,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
 
       // 新規バッジ獲得時は通知を表示
       if (allNewBadges.isNotEmpty) {
-        if (!mounted) break;
+        if (!mounted) return;
         await showBadgeAchievementDialog(context, allNewBadges);
       }
     } catch (e) {
