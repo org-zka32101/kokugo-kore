@@ -231,8 +231,11 @@ class BadgeCollectionStats extends ConsumerWidget {
     final badgeState = ref.watch(badgeProvider);
     final earnedIds = badgeState.earnedBadges.map((e) => e.badge.id).toSet();
 
+    // allBadges は badge_provider で管理（初期化時に設定）
+    // 仮の総数を使用（将来的に shared_core から動的に取得）
+    final totalBadgeCount = 50;
     final status = BadgeChallengeManager.getCollectionStatus(
-      allBadges.length,
+      totalBadgeCount,
       earnedIds,
       badgeState.rarities,
     );

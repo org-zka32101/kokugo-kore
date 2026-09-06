@@ -47,11 +47,12 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen> {
     final badgeState = ref.watch(badgeProvider);
     final earnedIds = badgeState.earnedBadges.map((e) => e.badge.id).toSet();
     final earnedCount = badgeState.earnedBadges.length;
-    final totalCount = allBadges.length;
+    // 仮の総数（badge_provider の allBadges に基づく、現在は50個想定）
+    final totalCount = 50;
 
-    // フィルタと絞り込み
+    // フィルタと絞り込み（earnedBadges のみを表示）
     var displayBadges = _filterAndSortBadges(
-      allBadges,
+      badgeState.earnedBadges.map((e) => e.badge).toList(),
       earnedIds,
       _filter,
       _sort,

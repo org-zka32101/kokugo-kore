@@ -14,7 +14,9 @@ class BadgeStatsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final badgeState = ref.watch(badgeProvider);
     final earnedCount = badgeState.earnedBadges.length;
-    final totalCount = allBadges.length;
+    // allBadges は badge_provider で管理されており、初期化されるまで空
+    // 仮の総数として使用（将来的に shared_core から取得）
+    final totalCount = 50; // 予想されるバッジの総数
     final progressingBadges = badgeState.getProgressingBadges();
 
     return GestureDetector(
