@@ -54,7 +54,7 @@ void main() {
     group('HomeScreen', () {
       testWidgets('ホーム画面の表示確認', (WidgetTester tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           ProviderScope(
@@ -68,7 +68,7 @@ void main() {
 
       testWidgets('統計情報の表示確認', (WidgetTester tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           ProviderScope(
@@ -87,7 +87,7 @@ void main() {
     group('StageSelectScreen', () {
       testWidgets('ステージ選択画面の表示確認', (WidgetTester tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           const ProviderScope(
@@ -103,7 +103,7 @@ void main() {
     group('BadgeScreen', () {
       testWidgets('バッジスクリーンの表示確認', (WidgetTester tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           const ProviderScope(
@@ -119,7 +119,7 @@ void main() {
     group('SettingsScreen', () {
       testWidgets('設定画面の表示確認', (WidgetTester tester) async {
         tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.clearPhysicalSizeTestValue);
+        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           const ProviderScope(
