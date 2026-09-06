@@ -1,129 +1,111 @@
 #!/bin/bash
-#
-# Setup Android Emulator for Flutter testing
-# Usage: ./setup-android-emulator.sh [--api-level <level>] [--arch <arch>] [--name <name>]
-#
+
+# Android Emulator 環境セットアップスクリプト
+# 用途：各セッションの自動初期化（session-start hook で呼び出し）
 
 set -e
 
-# Default values
-API_LEVEL=${API_LEVEL:-29}
-ARCH=${ARCH:-x86}
-EMULATOR_NAME=${EMULATOR_NAME:-flutter_emulator}
-SYSTEM_IMAGE="system-images;android;${API_LEVEL};${ARCH}"
-AVD_DIR="${HOME}/.android/avd"
+echo "🚀 Android Emulator Environment Setup"
 
-# Parse arguments
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --api-level)
-      API_LEVEL="$2"
-      SYSTEM_IMAGE="system-images;android;${API_LEVEL};${ARCH}"
-      shift 2
-      ;;
-    --arch)
-      ARCH="$2"
-      SYSTEM_IMAGE="system-images;android;${API_LEVEL};${ARCH}"
-      shift 2
-      ;;
-    --name)
-      EMULATOR_NAME="$2"
-      shift 2
-      ;;
-    *)
-      echo "Unknown option: $1"
-      exit 1
-      ;;
-  esac
-done
+# 環境変数の設定
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin"
 
-echo "Setting up Android Emulator..."
-echo "API Level: $API_LEVEL"
-echo "Architecture: $ARCH"
-echo "AVD Name: $EMULATOR_NAME"
-
-# Accept Android SDK licenses (required in CI)
-mkdir -p ~/.android
-echo "y" | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager --licenses 2>&1 | head -20 || true
-
-# Download system image if not present
-echo "Installing system image..."
-${ANDROID_SDK_ROOT}/tools/bin/sdkmanager --install "$SYSTEM_IMAGE" 2>&1 | grep -E "^(Downloading|Installed|Unzipping)" || true
-
-# Create AVD if not exists
-if [ ! -d "${AVD_DIR}/${EMULATOR_NAME}.avd" ]; then
-  echo "Creating Android Virtual Device..."
-  echo "no" | ${ANDROID_SDK_ROOT}/tools/bin/avdmanager create avd \
-    -n "$EMULATOR_NAME" \
-    -k "$SYSTEM_IMAGE" \
-    -f 2>&1 | grep -v "^$" || true
+# 1. Android SDK コマンドラインツール確認
+echo "📱 Checking Android SDK..."
+if ! command -v sdkmanager &> /dev/null; then
+  echo "⚠️  Android SDK not found. Installing..."
+  mkdir -p "$ANDROID_HOME/cmdline-tools"
+  cd /tmp
+  curl -s "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -o cmdline-tools.zip
+  unzip -q cmdline-tools.zip
+  mv cmdline-tools/* "$ANDROID_HOME/cmdline-tools/latest/" 2>/dev/null || mv cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+  rm -f cmdline-tools.zip
+  cd -
 fi
 
-# Configure AVD for faster boot in CI
-AVD_CONFIG="${AVD_DIR}/${EMULATOR_NAME}.avd/config.ini"
-if [ -f "$AVD_CONFIG" ]; then
-  echo "Configuring AVD for faster boot..."
-  # Disable animations and enable headless mode
-  sed -i 's/^hw.keyboard=.*/hw.keyboard=yes/' "$AVD_CONFIG"
-  sed -i 's/^showDeviceFrame=.*/showDeviceFrame=no/' "$AVD_CONFIG"
-  echo "hw.lcd.density=420" >> "$AVD_CONFIG" 2>/dev/null || true
-  echo "hw.ramMB=2048" >> "$AVD_CONFIG" 2>/dev/null || true
+# 2. 必要な SDK コンポーネント インストール
+echo "📦 Installing Android SDK components..."
+yes | sdkmanager --licenses > /dev/null 2>&1 || true
+sdkmanager --update > /dev/null 2>&1 || true
+sdkmanager \
+  "platforms;android-34" \
+  "build-tools;34.0.0" \
+  "system-images;android-34;google_apis;x86_64" \
+  "emulator" \
+  "platform-tools" \
+  > /dev/null 2>&1 || true
+
+# 3. AVD（Android Virtual Device）作成
+AVD_NAME="${1:-default}"
+echo "🎮 Creating Android Virtual Device: $AVD_NAME"
+
+# AVD ディレクトリ
+AVD_DIR="$HOME/.android/avd/$AVD_NAME.avd"
+
+if [ ! -d "$AVD_DIR" ]; then
+  cat > "$HOME/.android/avd/$AVD_NAME.ini" << EOF
+avd.ini.encoding=UTF-8
+path=$AVD_DIR
+path.rel=avd/$AVD_NAME.avd
+target=android-34
+EOF
+
+  mkdir -p "$AVD_DIR"
+  cat > "$AVD_DIR/config.ini" << EOF
+avd.ini.encoding=UTF-8
+abi.type=x86_64
+hw.device.name=Pixel_6_Pro_API_34
+hw.dpadKeys=yes
+hw.gsmModem=yes
+hw.gsmNoise=yes
+hw.initialOrientation=portrait
+hw.keyboard=yes
+hw.mainKeys=no
+hw.ramMB=4096
+hw.screen.density=420
+hw.screen.height=3120
+hw.screen.width=1440
+hw.sensors.orientation=yes
+hw.sensors.proximity=yes
+hw.trackBall=no
+image.sysdir.1=system-images/android-34/google_apis/x86_64/
+kernel.newDeviceNaming=yes
+kernel.qemu.vm.hw.mainkeys=no
+showDeviceFrame=yes
+tag.display=Google APIs
+tag.id=google_apis
+vm.heapSize=512
+EOF
+
+  echo "✅ AVD created: $AVD_NAME"
+else
+  echo "ℹ️  AVD already exists: $AVD_NAME"
 fi
 
-# Start emulator
-echo "Starting Android Emulator..."
-${ANDROID_SDK_ROOT}/emulator/emulator -avd "$EMULATOR_NAME" \
-  -no-snapshot-load \
-  -no-window \
-  -no-audio \
-  -no-boot-anim \
-  -gpu off \
-  -accel auto \
-  -memory 2048 \
-  -cores 2 \
-  -verbose &
+# 4. Gradle キャッシュ設定
+echo "⚙️  Configuring Gradle..."
+mkdir -p "$HOME/.gradle"
+cat > "$HOME/.gradle/gradle.properties" << EOF
+org.gradle.daemon=true
+org.gradle.parallel=true
+org.gradle.workers.max=4
+org.gradle.jvmargs=-Xmx2048m -XX:+UseParallelGC
+android.useAndroidX=true
+android.enableJetifier=true
+EOF
 
-EMULATOR_PID=$!
-
-# Wait for emulator to boot
-echo "Waiting for emulator to boot (max 180 seconds)..."
-timeout=180
-elapsed=0
-while [ $elapsed -lt $timeout ]; do
-  if adb devices | grep -q "$EMULATOR_NAME\|emulator"; then
-    echo "Emulator device detected"
-    break
-  fi
-  sleep 5
-  elapsed=$((elapsed + 5))
-done
-
-if [ $elapsed -ge $timeout ]; then
-  echo "Warning: Emulator device not detected within timeout"
+# 5. Flutter キャッシュ削除（オプション）
+if command -v flutter &> /dev/null; then
+  echo "🔄 Cleaning Flutter cache..."
+  flutter clean --verbose || true
+  flutter pub get || true
 fi
 
-# Wait for boot to complete
-echo "Waiting for system boot completion..."
-timeout=300
-elapsed=0
-while [ $elapsed -lt $timeout ]; do
-  if adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; then
-    echo "System boot completed"
-    break
-  fi
-  sleep 5
-  elapsed=$((elapsed + 5))
-done
-
-if [ $elapsed -ge $timeout ]; then
-  echo "Warning: System boot not completed within timeout"
-fi
-
-# Disable keyguard and notifications
-echo "Configuring system..."
-adb shell input keyevent 82 2>/dev/null || true
-adb shell settings put global window_animation_scale 0 2>/dev/null || true
-adb shell settings put global transition_animation_scale 0 2>/dev/null || true
-
-echo "Android Emulator setup complete"
-adb devices
+echo "✅ Android Emulator setup complete!"
+echo ""
+echo "📌 Start emulator manually with:"
+echo "   emulator -avd $AVD_NAME -no-audio -no-boot-anim &"
+echo ""
+echo "📌 Or run with CI/CD workflow for automated testing"
