@@ -44,11 +44,15 @@ class _BadgeScreenState extends ConsumerState<BadgeScreen> {
     final badgeState = ref.watch(badgeProvider);
     final earnedIds = badgeState.earnedBadges.map((e) => e.badge.id).toSet();
     final earnedCount = badgeState.earnedBadges.length;
-    final totalCount = allBadges.length;
+
+    // allBadges は badge_provider で管理（初期化時に自動設定）
+    // 初期化されるまで空リストとして機能
+    final allBadgesRef = allBadges; // badge_provider.dart で定義
+    final totalCount = allBadgesRef.length;
 
     // フィルタと絞り込み
     var displayBadges = _filterAndSortBadges(
-      allBadges,
+      allBadgesRef,
       earnedIds,
       _filter,
       _sort,

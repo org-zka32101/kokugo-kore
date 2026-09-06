@@ -14,36 +14,8 @@ class BadgeProgressNotifier extends Notifier<Map<String, BadgeProgress>> {
 
   /// SharedPreferencesからバッジ進捗を復元
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final progressMap = <String, BadgeProgress>{};
-
-    for (final badge in allBadges) {
-      final progressJson = prefs.getString('$_progressPrefix${badge.id}');
-      if (progressJson != null) {
-        try {
-          // 簡略版: JSONをパースせずに直接保存された値を読み込み
-          // フル実装ではjsonプラグインを使用
-          final parts = progressJson.split('|');
-          if (parts.length >= 3) {
-            final current = int.tryParse(parts[0]) ?? 0;
-            final target = int.tryParse(parts[1]) ?? 0;
-            final unlockedStr = parts[2];
-            final unlocked =
-                unlockedStr.isEmpty ? null : DateTime.tryParse(unlockedStr);
-
-            progressMap[badge.id] = BadgeProgress(
-              badgeId: badge.id,
-              currentValue: current,
-              targetValue: target,
-              description: badge.title,
-              unlockedAt: unlocked,
-            );
-          }
-        } catch (_) {}
-      }
-    }
-
-    state = progressMap;
+    // バッジ進捗は個別に更新/取得されるため、load時は空状態で初期化
+    state = {};
   }
 
   /// バッジ進捗を更新・保存
