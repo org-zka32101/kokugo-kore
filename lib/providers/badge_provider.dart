@@ -12,9 +12,27 @@ import 'study_habit_provider.dart';
 const _earnedPrefix = 'badge_earned_';
 const _completedSetBonusPrefix = 'set_bonus_completed_';
 
-/// 全バッジリスト - shared_core から定義されたバッジのみ使用
-/// 注: shared_core のバッジモデルから自動生成される
-final List<BadgeModel> allBadges = [];
+/// 全バッジリスト - shared_core から定義されるものを想定
+/// 実装例: BadgeModel の既知の ID リスト
+final List<String> knownBadgeIds = [
+  'streak_3', 'streak_7', 'streak_14', 'streak_30', 'streak_60', 'streak_100',
+  'score_first', 'perfect_score', 'quiz_total_100', 'quiz_total_500',
+  'perfect_3', 'kanji_first', 'kanji_10', 'reading_first', 'reading_10',
+  'character_3', 'character_lv_max', 'stage_20', 'stage_30', 'badge_collector',
+  'challenge_3days_perfect', 'challenge_all_stages', 'challenge_speedrun', 'challenge_nonstop',
+  'friend_invite_1', 'friend_invite_5', 'multiplayer_win_5', 'multiplayer_rank_top10',
+  'learning_1hour', 'learning_10hour', 'learning_100hour', 'coins_1000',
+  'early_bird', 'afternoon_champion', 'night_owl', 'consistent_learner', 'weekend_warrior', 'daily_grind',
+];
+
+/// 動的バッジリスト - shared_core から返されるもの
+List<BadgeModel> get allBadges => _allBadgesCache;
+List<BadgeModel> _allBadgesCache = [];
+
+/// バッジキャッシュを初期化（shared_core から取得したバッジで）
+void initializeAllBadgesCache(List<BadgeModel> badges) {
+  _allBadgesCache = badges;
+}
 
 class BadgeState {
   final List<EarnedBadge> earnedBadges;
@@ -102,6 +120,14 @@ class BadgeNotifier extends Notifier<BadgeState> {
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final earned = <EarnedBadge>[];
+
+    // allBadges が初期化されていない場合はスキップ
+    if (allBadges.isEmpty) {
+      _initializeBadgeMetadata();
+      state = BadgeState(earnedBadges: earned, newlyEarned: []);
+      return;
+    }
+
     for (final badge in allBadges) {
       final dateStr = prefs.getString('$_earnedPrefix${badge.id}');
       if (dateStr != null) {
@@ -125,11 +151,20 @@ class BadgeNotifier extends Notifier<BadgeState> {
     final rewards = <String, BadgeReward>{};
 
     // 既存バッジのデフォルトレアリティ
-    for (final badge in allBadges) {
-      if (!definitions.containsKey(badge.id)) {
-        // 既存バッジはcommonをデフォルト
-        rarities[badge.id] = BadgeRarity.common;
-        // 既存バッジの報酬は null（後で個別に設定可能）
+    if (allBadges.isNotEmpty) {
+      for (final badge in allBadges) {
+        if (!definitions.containsKey(badge.id)) {
+          // 既存バッジはcommonをデフォルト
+          rarities[badge.id] = BadgeRarity.common;
+          // 既存バッジの報酬は null（後で個別に設定可能）
+        }
+      }
+    } else {
+      // allBadges が空の場合、knownBadgeIds から初期化
+      for (final badgeId in knownBadgeIds) {
+        if (!definitions.containsKey(badgeId)) {
+          rarities[badgeId] = BadgeRarity.common;
+        }
       }
     }
 
@@ -161,6 +196,11 @@ class BadgeNotifier extends Notifier<BadgeState> {
     final prefs = await SharedPreferences.getInstance();
     final alreadyEarned = state.earnedBadges.map((e) => e.badge.id).toSet();
     final newBadges = <BadgeModel>[];
+
+    // allBadges が初期化されていない場合はスキップ
+    if (allBadges.isEmpty) {
+      return newBadges;
+    }
 
     for (final badge in allBadges) {
       if (alreadyEarned.contains(badge.id)) continue;
