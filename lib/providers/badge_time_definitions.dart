@@ -1,4 +1,5 @@
 import 'package:shared_core/models/badge_model.dart';
+import '../models/badge_progress_model.dart';
 import '../models/badge_reward_model.dart';
 
 /// Phase 3で追加する時間帯別バッジの定義

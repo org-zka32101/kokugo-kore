@@ -1,4 +1,5 @@
 import 'package:shared_core/models/badge_model.dart';
+import 'badge_progress_model.dart';
 
 /// バッジ獲得チャレンジのデータ構造
 class BadgeChallenge {
