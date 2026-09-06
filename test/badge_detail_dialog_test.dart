@@ -12,6 +12,8 @@ void main() {
       emoji: '🎯',
       title: 'テストバッジ',
       description: 'これはテストバッジです',
+      category: 'learning',
+      requiredCount: 10,
     );
 
     // テスト用の SetBonus モデル

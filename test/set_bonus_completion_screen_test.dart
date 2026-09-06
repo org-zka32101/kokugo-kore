@@ -10,6 +10,7 @@ void main() {
       id: 'set_1',
       title: 'テストセット完成！',
       emoji: '🏆',
+      description: 'テストセットの説明',
       requiredBadgeIds: ['badge_1', 'badge_2', 'badge_3'],
       rewardCoins: 500,
       rewardDescription: '500 コイン獲得！',

@@ -15,29 +15,33 @@ void main() {
         emoji: '🎯',
         title: 'テストバッジ1',
         description: '説明1',
+        category: 'learning',
+        requiredCount: 10,
       ),
       BadgeModel(
         id: 'badge_2',
         emoji: '⭐',
         title: 'テストバッジ2',
         description: '説明2',
+        category: 'achievement',
+        requiredCount: 5,
       ),
       BadgeModel(
         id: 'badge_3',
         emoji: '🏆',
         title: 'テストバッジ3',
         description: '説明3',
+        category: 'milestone',
+        requiredCount: 20,
       ),
     ];
 
     testWidgets('BadgeEncyclopedia renders with empty earned badges',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderContainer(
-          child: MaterialApp(
-            home: Scaffold(
-              body: BadgeEncyclopedia(),
-            ),
+        MaterialApp(
+          home: Scaffold(
+            body: BadgeEncyclopedia(),
           ),
         ),
       );
