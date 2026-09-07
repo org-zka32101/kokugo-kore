@@ -44,7 +44,7 @@ class StudentRankingData {
       year--;
     }
 
-    int grade = year - birthYear + 1;
+    int grade = year - birthYear;
 
     // 6年生が上限（中学進学）
     if (grade > 6) {
