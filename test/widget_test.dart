@@ -117,6 +117,9 @@ void main() {
         );
 
         expect(find.text('せってい'), findsOneWidget);
+        // きろく はスクロール領域内にあるため、drag で表示
+        await tester.drag(find.byType(ListView), const Offset(0, -500));
+        await tester.pumpAndSettle();
         expect(find.text('きろく'), findsOneWidget);
       });
     });
