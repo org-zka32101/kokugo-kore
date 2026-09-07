@@ -67,8 +67,8 @@ void main() {
       // 初期状態を確認（複数のCustomPaintが存在する場合がある）
       expect(find.byType(CustomPaint), findsWidgets);
 
-      // アニメーション途中の状態を確認
-      await tester.pumpAndSettle(const Duration(milliseconds: 600));
+      // 短時間のアニメーション進行（自動閉鎖前）
+      await tester.pump(const Duration(milliseconds: 400));
       expect(find.byType(SetBonusCompletionScreen), findsOneWidget);
     });
 
