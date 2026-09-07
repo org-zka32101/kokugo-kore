@@ -38,6 +38,20 @@
           }
         ]
       }
+    ],
+    "on_build_complete": {
+      "description": "ビルド完了後の自動テスト実行",
+      "script": ".claude/hooks/on-build-complete.sh",
+      "trigger": "post-build"
+    }
+  },
+  "recommendations": {
+    "skills": [
+      {
+        "name": "build-and-test",
+        "description": "ビルド完了後の自動エミュレータテスト（起動・連携・購入・認証・広告）",
+        "location": ".claude/skills/build-and-test/SKILL.md"
+      }
     ]
   }
 }
