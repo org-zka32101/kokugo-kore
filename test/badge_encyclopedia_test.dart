@@ -15,7 +15,7 @@ void main() {
         emoji: '🎯',
         title: 'テストバッジ1',
         description: '説明1',
-        category: 'learning',
+        category: BadgeCategory.score,
         requiredCount: 10,
       ),
       BadgeModel(
@@ -23,7 +23,7 @@ void main() {
         emoji: '⭐',
         title: 'テストバッジ2',
         description: '説明2',
-        category: 'achievement',
+        category: BadgeCategory.score,
         requiredCount: 5,
       ),
       BadgeModel(
@@ -31,7 +31,7 @@ void main() {
         emoji: '🏆',
         title: 'テストバッジ3',
         description: '説明3',
-        category: 'milestone',
+        category: BadgeCategory.score,
         requiredCount: 20,
       ),
     ];
@@ -39,9 +39,11 @@ void main() {
     testWidgets('BadgeEncyclopedia renders with empty earned badges',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: BadgeEncyclopedia(),
+        ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: BadgeEncyclopedia(),
+            ),
           ),
         ),
       );
@@ -54,7 +56,7 @@ void main() {
     testWidgets('BadgeEncyclopedia displays correct number of badges',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderContainer(
+        ProviderScope(
           child: MaterialApp(
             home: Scaffold(
               body: BadgeEncyclopedia(),

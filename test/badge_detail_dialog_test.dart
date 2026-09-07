@@ -12,7 +12,7 @@ void main() {
       emoji: '🎯',
       title: 'テストバッジ',
       description: 'これはテストバッジです',
-      category: 'learning',
+      category: BadgeCategory.score,
       requiredCount: 10,
     );
 

@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_core/models/badge_model.dart';
+import 'package:shared_core/models/badge_model.dart' hide allBadges;
 import '../providers/badge_provider.dart' show badgeProvider, allBadges;
 import '../models/badge_progress_model.dart';
 import '../theme/app_theme.dart';
