@@ -13,10 +13,8 @@ class BadgeDebugUtils {
       throw Exception('Debug mode only');
     }
 
-    final badgeNotifier = ref.read(badgeProvider.notifier);
-    await badgeNotifier.acquireAllBadges();
-
-    debugPrint('✅ All badges acquired');
+    // TODO: Implement acquireAllBadges method on BadgeNotifier
+    debugPrint('⚠️ acquireAllBadges not yet implemented');
   }
 
   /// 特定のバッジを獲得状態にセット
@@ -30,14 +28,12 @@ class BadgeDebugUtils {
       throw Exception('Debug mode only');
     }
 
-    final badgeNotifier = ref.read(badgeProvider.notifier);
-    await badgeNotifier.acquireBadge(badgeId, badgeTitle, emoji);
-
+    // TODO: Implement acquireBadge method on BadgeNotifier
     // 履歴にも記録
     final historyNotifier = ref.read(badgeAcquisitionHistoryProvider.notifier);
     await historyNotifier.recordBadgeAcquisition(badgeId, badgeTitle, emoji);
 
-    debugPrint('✅ Badge acquired: $badgeTitle ($emoji)');
+    debugPrint('✅ Badge recorded in history: $badgeTitle ($emoji)');
   }
 
   /// すべてのバッジを未獲得状態にリセット
@@ -59,6 +55,7 @@ class BadgeDebugUtils {
     final badgeNotifier = ref.read(badgeProvider.notifier);
     badgeNotifier.state = const BadgeState(
       earnedBadges: [],
+      newlyEarned: [],
       newlyCompletedSetBonuses: [],
     );
 
