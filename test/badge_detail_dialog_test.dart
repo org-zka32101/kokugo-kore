@@ -12,7 +12,7 @@ void main() {
       emoji: '🎯',
       title: 'テストバッジ',
       description: 'これはテストバッジです',
-      category: 'learning',
+      category: BadgeCategory.score,
       requiredCount: 10,
     );
 
@@ -21,6 +21,7 @@ void main() {
       id: 'set_1',
       title: 'テストセット',
       emoji: '🏆',
+      description: 'テストセットの説明',
       requiredBadgeIds: ['test_badge', 'badge_2'],
       rewardCoins: 100,
       rewardDescription: '100 コイン獲得',

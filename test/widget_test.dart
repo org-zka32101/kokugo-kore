@@ -53,9 +53,6 @@ void main() {
     // ===== ホームスクリーンテスト =====
     group('HomeScreen', () {
       testWidgets('ホーム画面の表示確認', (WidgetTester tester) async {
-        tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
-
         await tester.pumpWidget(
           ProviderScope(
             overrides: [characterStateProvider.overrideWith(CharacterNotifier.new)],
@@ -67,8 +64,6 @@ void main() {
       });
 
       testWidgets('統計情報の表示確認', (WidgetTester tester) async {
-        tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           ProviderScope(
@@ -86,8 +81,6 @@ void main() {
     // ===== ステージセレクトスクリーンテスト =====
     group('StageSelectScreen', () {
       testWidgets('ステージ選択画面の表示確認', (WidgetTester tester) async {
-        tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           const ProviderScope(
@@ -102,8 +95,6 @@ void main() {
     // ===== バッジスクリーンテスト =====
     group('BadgeScreen', () {
       testWidgets('バッジスクリーンの表示確認', (WidgetTester tester) async {
-        tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           const ProviderScope(
@@ -118,8 +109,6 @@ void main() {
     // ===== 設定スクリーンテスト =====
     group('SettingsScreen', () {
       testWidgets('設定画面の表示確認', (WidgetTester tester) async {
-        tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-        addTearDown(tester.binding.window.physicalSizeTestValue.restore);
 
         await tester.pumpWidget(
           const ProviderScope(
