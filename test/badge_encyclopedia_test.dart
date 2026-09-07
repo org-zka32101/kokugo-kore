@@ -83,10 +83,10 @@ void main() {
       );
 
       // フィルターチップが存在することを確認
-      expect(find.byType(Chip), findsWidgets);
+      expect(find.byType(ChoiceChip), findsWidgets);
 
       // フィルターチップをタップ
-      await tester.tap(find.byType(Chip).first);
+      await tester.tap(find.byType(ChoiceChip).first);
       await tester.pumpAndSettle();
 
       // フィルター後の状態を確認
