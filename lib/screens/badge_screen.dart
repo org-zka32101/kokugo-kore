@@ -509,7 +509,8 @@ class _BadgeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pct = earned / total;
+    final pct = total == 0 ? 0.0 : earned / total;
+    final percentage = pct.isFinite ? (pct * 100).round() : 0;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -529,7 +530,7 @@ class _BadgeHeader extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ],
               ),
-              Text('${(pct * 100).round()}%',
+              Text('$percentage%',
                   style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
             ],
           ),
