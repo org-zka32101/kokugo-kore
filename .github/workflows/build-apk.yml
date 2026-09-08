@@ -2,6 +2,9 @@ name: Build Android APK
 
 on:
   push:
+    branches:
+      - 'claude/continuation-session-*'
+      - 'main'
     tags:
       - 'v*'
   workflow_dispatch:
