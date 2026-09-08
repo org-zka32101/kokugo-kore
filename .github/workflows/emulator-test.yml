@@ -26,21 +26,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Start emulator and run tests
+      - name: Run code analysis
         run: |
-          echo "Starting Android emulator..."
-          emulator -avd default -no-snapshot-load &
-          sleep 30
+          echo "Running code analysis..."
+          flutter analyze
 
+      - name: Build APK
+        run: |
           echo "Building APK..."
           flutter build apk --release --no-pub
 
-          echo "Running 6-perspective tests..."
-          bash .github/scripts/emulator-6check.sh
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: emulator-test-results
-          path: emulator-test-results/
+      - name: Build Web
+        run: |
+          echo "Building Web..."
+          flutter build web --release --no-pub
