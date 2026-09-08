@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/bushu_haiku_data.dart';
+import '../theme/app_theme.dart';
 import '../widgets/generic_quiz_widget.dart';
 
 class HaikuQuizScreen extends StatelessWidget {
