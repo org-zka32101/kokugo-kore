@@ -1042,10 +1042,6 @@ class _HaikuTankaSection extends StatelessWidget {
     ('雪とけて　村いっぱいの　子どもかな', 'ゆきとけて　むらいっぱいの　こどもかな', '小林一茶（こばやしいっさ）'),
   ];
 
-  static const _tanka = [
-    ('金色のちいさき鳥の…', 'きんいろの　ちいさきとりの　かたちして　いてふの花は　散るなりけり', '北原白秋'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return _LearnExpansionTile(
