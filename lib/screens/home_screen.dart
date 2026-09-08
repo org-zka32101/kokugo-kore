@@ -317,14 +317,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF8E44AD), Color(0xFF6C3483)],
+                      colors: [kAccentPurple, Color(0xFF6C3483)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                          color: const Color(0xFF8E44AD).withAlpha(60),
+                          color: kAccentPurple.withAlpha(60),
                           blurRadius: 8,
                           offset: const Offset(0, 3))
                     ],

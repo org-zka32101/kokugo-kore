@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/grammar_data.dart';
+import '../theme/app_theme.dart';
 import '../widgets/generic_quiz_widget.dart';
 
 enum _GrammarMode { joshi, setsuzoku, hinshi, okurigana, romaji }
@@ -28,9 +29,9 @@ extension _GrammarModeExt on _GrammarMode {
   Color get color {
     switch (this) {
       case _GrammarMode.joshi: return const Color(0xFFE74C3C);
-      case _GrammarMode.setsuzoku: return const Color(0xFF8E44AD);
-      case _GrammarMode.hinshi: return const Color(0xFF16A085);
-      case _GrammarMode.okurigana: return const Color(0xFFE67E22);
+      case _GrammarMode.setsuzoku: return kAccentPurple;
+      case _GrammarMode.hinshi: return kAccentTeal;
+      case _GrammarMode.okurigana: return kAccentOrange;
       case _GrammarMode.romaji: return const Color(0xFF2980B9);
     }
   }

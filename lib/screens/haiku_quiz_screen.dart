@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/bushu_haiku_data.dart';
+import '../theme/app_theme.dart';
 import '../widgets/generic_quiz_widget.dart';
 
 class HaikuQuizScreen extends StatelessWidget {
@@ -10,7 +11,7 @@ class HaikuQuizScreen extends StatelessWidget {
     return GenericQuizScreen(
       title: '俳句・短歌クイズ',
       emoji: '🌸',
-      themeColor: const Color(0xFFE91E8C),
+      themeColor: kAccentPink,
       allItems: haikuItems,
       questionsPerRound: 10,
     );
