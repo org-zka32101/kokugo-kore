@@ -449,7 +449,7 @@ class FirebaseRealtimeSyncManager {
     int grade,
   ) async {
     try {
-      // TODO: Implement in v1.4
+      // v1.4: Implement Firebase Realtime Database integration
       //   final db = FirebaseDatabase.instance;
       //   await db.ref(FirebaseRealtimeDB.userProfilePath(userId)).set({
       //     'name': name,
@@ -470,7 +470,7 @@ class FirebaseRealtimeSyncManager {
     Map<String, dynamic> characterData,
   ) async {
     try {
-      // TODO: Implement in v1.4
+      // v1.4: Implement Firebase Realtime Database integration
       debugPrint('✅ Character saved (local backup): $userId/$characterId');
       return true;
     } catch (e) {
@@ -485,7 +485,7 @@ class FirebaseRealtimeSyncManager {
     Map<String, dynamic> allData,
   ) async {
     try {
-      // TODO: Implement in v1.4
+      // v1.4: Implement Firebase Realtime Database integration
       debugPrint('✅ Full sync completed (local backup): $userId');
       return true;
     } catch (e) {

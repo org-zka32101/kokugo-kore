@@ -22,10 +22,16 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
   late TabController _tabController;
   String? _selectedChildId;
 
+  final List<Map<String, String>> _children = [
+    {'id': 'child_001', 'name': '太郎', 'grade': '小1'},
+    {'id': 'child_002', 'name': '花子', 'grade': '小3'},
+  ];
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _selectedChildId = _children.first['id'];
   }
 
   @override
@@ -112,9 +118,10 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                // TODO: Get actual children from profile provider
-                _buildChildButton('太郎 (小1)', true),
-                _buildChildButton('花子 (小3)', false),
+                ..._children.map((child) => _buildChildButton(
+                      '${child['name']} (${child['grade']})',
+                      _selectedChildId == child['id'],
+                    )),
                 _buildChildButton('➕ 新規追加', false),
               ],
             ),

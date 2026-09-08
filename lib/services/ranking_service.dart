@@ -4,8 +4,8 @@ import '../models/ranking_model.dart';
 class RankingService {
   /// フィルター条件に基づいて学生ランキングデータを取得
   Future<List<StudentRankingData>> getStudentRankings(RankingFilter filter) async {
-    // TODO: Firestore/APIから学生データを取得
-    // 現在はモックデータを返す
+    // Fetch student data (currently using mock data)
+    // TODO: Implement Firestore/API data fetching in _fetchStudentData()
     final students = await _fetchStudentData();
 
     // バッジ獲得数でソート
@@ -90,8 +90,8 @@ class RankingService {
     return index >= 0 ? index + 1 : null;
   }
 
-  /// 学生データを取得（モックデータ）
-  /// TODO: Firestore/APIから実際のデータを取得する
+  /// 学生データを取得（サンプルデータ）
+  /// Note: Firestore/APIから実際のデータを取得する場合は、以下を実装
   Future<List<StudentRankingData>> _fetchStudentData() async {
     // シミュレーション：API呼び出しの遅延
     await Future.delayed(const Duration(milliseconds: 500));

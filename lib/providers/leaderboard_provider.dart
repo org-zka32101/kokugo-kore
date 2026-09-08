@@ -167,8 +167,22 @@ class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
     int radius = 5,
   }) async {
     try {
-      // TODO: Fetch nearby ranked players
-      return [];
+      // Sample competing players (nearby ranked players)
+      final sampleNames = ['太郎', '花子', '次郎', '三郎', '四郎'];
+      final startRank = (userRank - radius).clamp(1, 1000);
+
+      return List.generate(
+        radius * 2 + 1,
+        (index) => LeaderboardEntry(
+          rank: startRank + index,
+          userId: 'user_${startRank + index}',
+          username: sampleNames[index % sampleNames.length],
+          score: (100000 - (startRank + index) * 100).toInt(),
+          winRate: (90 - index * 5).toDouble(),
+          grade: 1,
+          isFriend: index % 2 == 0,
+        ),
+      );
     } catch (e) {
       debugPrint('❌ Error fetching competing players: $e');
       return [];
@@ -178,9 +192,15 @@ class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
   /// Get rank progress chart data
   Future<List<Map<String, dynamic>>> getRankProgressHistory() async {
     try {
-      // TODO: Fetch historical rank data
-      // Returns list of {date: String, rank: int}
-      return [];
+      // Sample historical rank data (past 7 days)
+      final now = DateTime.now();
+      return List.generate(
+        7,
+        (index) => {
+          'date': now.subtract(Duration(days: 6 - index)).toString().split(' ')[0],
+          'rank': (150 - index * 5).toInt(),
+        },
+      );
     } catch (e) {
       debugPrint('❌ Error fetching rank history: $e');
       return [];

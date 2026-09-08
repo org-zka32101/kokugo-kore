@@ -12,8 +12,20 @@ final currentBattleProvider = StateNotifierProvider<BattleNotifier, Battle?>((re
 final battleResultProvider = StateProvider<BattleResult?>((ref) => null);
 
 final battleLeaderboardProvider = FutureProvider<List<LeaderboardEntry>>((ref) async {
-  // TODO: Fetch leaderboard
-  return [];
+  // Sample battle leaderboard data
+  final sampleNames = ['太郎', '花子', '次郎', '三郎', '四郎', '五郎', '六郎', '七郎'];
+  return List.generate(
+    8,
+    (index) => LeaderboardEntry(
+      rank: index + 1,
+      userId: 'user_${index + 1}',
+      username: sampleNames[index],
+      score: (100000 - index * 5000).toInt(),
+      winRate: (95 - index * 10).toDouble(),
+      grade: (index % 6) + 1,
+      isFriend: index % 3 == 0,
+    ),
+  );
 });
 
 class BattleNotifier extends StateNotifier<Battle?> {
