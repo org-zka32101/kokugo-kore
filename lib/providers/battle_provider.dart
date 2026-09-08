@@ -19,11 +19,14 @@ final battleLeaderboardProvider = FutureProvider<List<LeaderboardEntry>>((ref) a
     (index) => LeaderboardEntry(
       rank: index + 1,
       userId: 'user_${index + 1}',
-      username: sampleNames[index],
-      score: (100000 - index * 5000).toInt(),
+      displayName: sampleNames[index],
+      profileImageUrl: '',
+      totalScore: (100000 - index * 5000).toInt(),
       winRate: (95 - index * 10).toDouble(),
       grade: (index % 6) + 1,
-      isFriend: index % 3 == 0,
+      averageAccuracy: 0.85,
+      totalBattlesWon: (index + 1) * 10,
+      lastUpdated: DateTime.now(),
     ),
   );
 });

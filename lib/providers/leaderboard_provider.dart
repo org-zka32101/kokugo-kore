@@ -176,11 +176,14 @@ class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
         (index) => LeaderboardEntry(
           rank: startRank + index,
           userId: 'user_${startRank + index}',
-          username: sampleNames[index % sampleNames.length],
-          score: (100000 - (startRank + index) * 100).toInt(),
+          displayName: sampleNames[index % sampleNames.length],
+          profileImageUrl: '',
+          totalScore: (100000 - (startRank + index) * 100).toInt(),
           winRate: (90 - index * 5).toDouble(),
           grade: 1,
-          isFriend: index % 2 == 0,
+          averageAccuracy: 0.8,
+          totalBattlesWon: (index + 1) * 5,
+          lastUpdated: DateTime.now(),
         ),
       );
     } catch (e) {
