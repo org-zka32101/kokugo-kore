@@ -5,9 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 const kPrimaryColor = Color(0xFFF39C12);
 const kPrimaryDark = Color(0xFFD68910);
 const kPrimaryDeep = Color(0xFFBA4A00);
+
+// アクセントカラー
 const kAccentGreen = Color(0xFF27AE60);
 const kAccentRed = Color(0xFFE74C3C);
 const kAccentBlue = Color(0xFF2980B9);
+const kAccentTeal = Color(0xFF16A085);
+const kAccentOrange = Color(0xFFE67E22);
+const kAccentPurple = Color(0xFF8E44AD);
+const kAccentPink = Color(0xFFE91E8C);
+const kAccentDarkRed = Color(0xFFC0392B);
+
+// ニュートラルカラー
 const kBgLight = Color(0xFFF5F5F5);
 const kTextDark = Color(0xFF2C3E50);
 const kTextMuted = Color(0xFF7F8C8D);

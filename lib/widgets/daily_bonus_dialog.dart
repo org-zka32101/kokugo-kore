@@ -66,7 +66,7 @@ class DailyBonusDialog extends StatelessWidget {
               _streakLabel,
               style: const TextStyle(
                 fontSize: 15,
-                color: Color(0xFFE67E22),
+                color: kAccentOrange,
                 fontWeight: FontWeight.bold,
               ),
             ),

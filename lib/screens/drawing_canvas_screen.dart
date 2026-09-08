@@ -189,7 +189,7 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha:  0.06), blurRadius: 6),
+                  BoxShadow(color: Colors.black.withValues(alpha:0.06), blurRadius: 6),
                 ],
               ),
               child: Row(
@@ -341,9 +341,9 @@ class _ScoreDisplay extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:  0.1),
+        color: color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha:  0.4)),
+        border: Border.all(color: color.withValues(alpha:0.4)),
       ),
       child: Column(
         children: [
@@ -362,7 +362,7 @@ class _ScoreDisplay extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '合格点：$passingScore点',
-            style: TextStyle(fontSize: 12, color: color.withValues(alpha:  0.7)),
+            style: TextStyle(fontSize: 12, color: color.withValues(alpha:0.7)),
           ),
         ],
       ),
