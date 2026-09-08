@@ -4,6 +4,7 @@ import '../providers/friend_provider.dart';
 import '../providers/badge_provider.dart';
 import '../providers/badge_metrics_provider.dart';
 import '../theme/app_theme.dart';
+import 'battle_screen.dart';
 
 class FriendInvitationScreen extends ConsumerStatefulWidget {
   const FriendInvitationScreen({super.key});
@@ -123,9 +124,15 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
             friend.$4,
             friend.$5,
             () {
-              // TODO: Start battle with friend
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${friend.$1}と対戦を開始します')),
+              // Start battle with friend
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BattleScreen(
+                    opponentId: 'friend_${index}',
+                    opponentName: friend.$1,
+                  ),
+                ),
               );
             },
           ),

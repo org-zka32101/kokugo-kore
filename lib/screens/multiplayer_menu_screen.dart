@@ -160,7 +160,7 @@ class _MultiplayerMenuScreenState extends ConsumerState<MultiplayerMenuScreen> {
           '同じレベルの相手と自動マッチング',
           Colors.purple,
           () {
-            // TODO: Navigate to random match
+            Navigator.pushNamed(context, '/random-match');
           },
         ),
         const SizedBox(height: 12),
@@ -176,7 +176,7 @@ class _MultiplayerMenuScreenState extends ConsumerState<MultiplayerMenuScreen> {
           'あなたの対戦統計を表示',
           Colors.green,
           () {
-            // TODO: Navigate to battle stats
+            Navigator.pushNamed(context, '/battle-stats');
           },
         ),
       ],
