@@ -425,7 +425,7 @@ class RecommendedPaceScreen extends ConsumerWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                // TODO: Navigate to goal setting screen
+                Navigator.pushNamed(context, '/goal-setting');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple,

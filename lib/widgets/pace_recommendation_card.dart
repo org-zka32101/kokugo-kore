@@ -134,7 +134,7 @@ class PaceRecommendationCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Navigate to detailed analytics
+                    Navigator.pushNamed(context, '/analytics');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kPrimaryColor,

@@ -46,6 +46,10 @@ import 'screens/haiku_quiz_screen.dart';
 import 'screens/upgrade_screen.dart';
 import 'screens/vocabulary_screen.dart';
 import 'screens/writing_screen.dart';
+import 'screens/goal_setting_screen.dart';
+import 'screens/random_match_screen.dart';
+import 'screens/battle_stats_screen.dart';
+import 'screens/detailed_analytics_screen.dart';
 import 'providers/avatar_unlock_provider.dart';
 import 'providers/leaderboard_privacy_provider.dart';
 import 'providers/badge_progress_provider.dart';
@@ -184,6 +188,10 @@ class KokugoKoreApp extends ConsumerWidget {
               child: ReadingMenuScreen(),
             ),
         '/badges': (context) => const BadgeScreen(),
+        '/goal-setting': (context) => const GoalSettingScreen(),
+        '/random-match': (context) => const RandomMatchScreen(),
+        '/battle-stats': (context) => const BattleStatsScreen(),
+        '/analytics': (context) => const DetailedAnalyticsScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/quest') {
