@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_core/shared_core.dart'
-    hide kTextDark, kTextMuted, kPrimaryColor;
+    hide kTextDark, kTextMuted;
 import '../data/kokugo_characters.dart';
 import '../widgets/kokugo_shop_page.dart';
 import '../providers/avatar_unlock_provider.dart';

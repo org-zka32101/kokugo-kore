@@ -181,7 +181,7 @@ class _MiruCard extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 2)),
               ],
             ),
             child: Column(
@@ -300,11 +300,11 @@ class _MemorizeCardState extends ConsumerState<_MemorizeCard> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: _revealed ? kAccentGreen.withOpacity(0.5) : Colors.transparent,
+            color: _revealed ? kAccentGreen.withValues(alpha: 0.5) : Colors.transparent,
             width: 1.5,
           ),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 2)),
           ],
         ),
         child: Column(
@@ -430,7 +430,7 @@ class _KakuTabState extends ConsumerState<_KakuTab> {
       children: [
         Container(
           width: double.infinity,
-          color: kPrimaryColor.withOpacity(0.1),
+          color: kPrimaryColor.withValues(alpha: 0.1),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Row(
             children: [
@@ -504,8 +504,8 @@ class _KakuCard extends StatelessWidget {
     final borderColor =
         isPassed ? kAccentGreen : (attempted ? kAccentRed : Colors.transparent);
     final bgColor = isPassed
-        ? kAccentGreen.withOpacity(0.08)
-        : (attempted ? kAccentRed.withOpacity(0.05) : Colors.white);
+        ? kAccentGreen.withValues(alpha: 0.08)
+        : (attempted ? kAccentRed.withValues(alpha: 0.05) : Colors.white);
 
     return GestureDetector(
       onTap: onTap,
@@ -515,7 +515,7 @@ class _KakuCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: borderColor, width: 1.5),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 4, offset: const Offset(0, 2)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 2)),
           ],
         ),
         child: Column(
