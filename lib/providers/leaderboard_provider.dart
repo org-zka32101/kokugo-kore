@@ -35,13 +35,14 @@ class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
     int gradeRank,
     int totalScore,
     double winRate,
+    {int friendGroupRank = 0}
   ) async {
     try {
       final ranking = UserRanking(
         userId: userId,
         globalRank: globalRank,
         gradeRank: gradeRank,
-        friendGroupRank: 0, // TODO: Calculate friend group rank
+        friendGroupRank: friendGroupRank,
         totalScore: totalScore,
         winRate: winRate,
         lastUpdated: DateTime.now(),
@@ -52,7 +53,7 @@ class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
       state = {
         'globalRank': globalRank,
         'gradeRank': gradeRank,
-        'friendGroupRank': 0,
+        'friendGroupRank': friendGroupRank,
         'totalScore': totalScore,
         'winRate': winRate,
         'lastUpdated': DateTime.now().toString(),

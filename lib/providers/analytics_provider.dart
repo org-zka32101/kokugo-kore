@@ -1,4 +1,5 @@
-﻿import 'package:flutter/foundation.dart';
+﻿import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/analytics_model.dart';
 import '../services/firebase_realtime_db.dart';
@@ -286,7 +287,10 @@ class LearningPaceNotifier extends StateNotifier<LearningPaceData?> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final pacingString = prefs.getString('learning_pace_data');
-      // TODO: Deserialize and set state
+      if (pacingString != null) {
+        final json = jsonDecode(pacingString) as Map<String, dynamic>;
+        state = LearningPaceData.fromJson(json);
+      }
     } catch (e) {
       debugPrint('❌ Error loading pace data: $e');
     }
@@ -296,7 +300,8 @@ class LearningPaceNotifier extends StateNotifier<LearningPaceData?> {
   Future<void> saveToPreferences(LearningPaceData pace) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      // TODO: Serialize and save
+      final json = jsonEncode(pace.toJson());
+      await prefs.setString('learning_pace_data', json);
       await prefs.setString('last_pace_check', DateTime.now().toIso8601String());
     } catch (e) {
       debugPrint('❌ Error saving pace data: $e');
