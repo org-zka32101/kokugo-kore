@@ -551,7 +551,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('ことわざクイズ'),
-        backgroundColor: const Color(0xFF16A085),
+        backgroundColor: const kAccentTeal,
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -573,7 +573,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                       index: i,
                       selected: _selectedAnswer,
                       correct: _answered ? _current.correctIndex : null,
-                      accentColor: const Color(0xFF16A085),
+                      accentColor: const kAccentTeal,
                       onTap: () => _onChoiceTap(i),
                     );
                   }),
@@ -587,7 +587,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                     ElevatedButton(
                       onPressed: _onNext,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isCorrect ? kAccentGreen : const Color(0xFF16A085),
+                        backgroundColor: _isCorrect ? kAccentGreen : const kAccentTeal,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
@@ -620,7 +620,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                   style: const TextStyle(color: kTextMuted, fontSize: 12)),
               Text('${(progress * 100).round()}%',
                   style: const TextStyle(
-                      color: Color(0xFF16A085), fontWeight: FontWeight.bold)),
+                      color: kAccentTeal, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 6),
@@ -630,7 +630,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
               value: progress,
               minHeight: 6,
               backgroundColor: Colors.grey.shade200,
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF16A085)),
+              valueColor: const AlwaysStoppedAnimation<Color>(kAccentTeal),
             ),
           ),
         ],
@@ -706,7 +706,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('ことわざクイズ'),
-        backgroundColor: const Color(0xFF16A085),
+        backgroundColor: const kAccentTeal,
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -722,7 +722,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
               const Text('結果', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: kTextDark)),
               const SizedBox(height: 12),
               Text('$_score / $total 問正解',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF16A085))),
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: kAccentTeal)),
               const SizedBox(height: 8),
               Text('$pct%', style: const TextStyle(fontSize: 20, color: kTextMuted)),
               const SizedBox(height: 24),
@@ -739,7 +739,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                 child: ElevatedButton(
                   onPressed: _restart,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF16A085),
+                    backgroundColor: const kAccentTeal,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text('もう一度チャレンジ！',
@@ -752,12 +752,12 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                 child: OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF16A085)),
+                    side: const BorderSide(color: kAccentTeal),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('メニューに戻る',
-                      style: TextStyle(fontSize: 16, color: Color(0xFF16A085))),
+                      style: TextStyle(fontSize: 16, color: kAccentTeal)),
                 ),
               ),
             ],

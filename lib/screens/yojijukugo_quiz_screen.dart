@@ -10,7 +10,7 @@ class YojijukugoQuizScreen extends StatelessWidget {
     return GenericQuizScreen(
       title: '四字熟語クイズ',
       emoji: '🎴',
-      themeColor: const Color(0xFF8E44AD),
+      themeColor: const kAccentPurple,
       allItems: yojijukugoItems,
       questionsPerRound: 10,
     );

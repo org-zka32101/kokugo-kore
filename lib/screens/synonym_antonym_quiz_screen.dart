@@ -18,7 +18,7 @@ class _SynonymAntonymQuizScreenState extends State<SynonymAntonymQuizScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF16A085),
+        backgroundColor: const kAccentTeal,
         foregroundColor: Colors.white,
         title: const Text('🔄 類義語・対義語クイズ',
             style: TextStyle(fontWeight: FontWeight.bold)),
@@ -27,7 +27,7 @@ class _SynonymAntonymQuizScreenState extends State<SynonymAntonymQuizScreen> {
         children: [
           // モード切替
           Container(
-            color: const Color(0xFF16A085),
+            color: const kAccentTeal,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             child: Row(
               children: [
@@ -49,7 +49,7 @@ class _SynonymAntonymQuizScreenState extends State<SynonymAntonymQuizScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: _isSynonym
-                              ? const Color(0xFF16A085)
+                              ? const kAccentTeal
                               : Colors.white,
                           fontSize: 13,
                         ),
@@ -76,7 +76,7 @@ class _SynonymAntonymQuizScreenState extends State<SynonymAntonymQuizScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: !_isSynonym
-                              ? const Color(0xFF16A085)
+                              ? const kAccentTeal
                               : Colors.white,
                           fontSize: 13,
                         ),
@@ -92,7 +92,7 @@ class _SynonymAntonymQuizScreenState extends State<SynonymAntonymQuizScreen> {
             child: GenericQuizScreen(
               title: _isSynonym ? '類義語クイズ' : '対義語クイズ',
               emoji: _isSynonym ? '🔵' : '🔴',
-              themeColor: const Color(0xFF16A085),
+              themeColor: const kAccentTeal,
               allItems: _isSynonym ? synonymItems : antonymItems,
               questionsPerRound: 10,
             ),

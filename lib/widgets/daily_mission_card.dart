@@ -98,14 +98,14 @@ class _ReviewMissionCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF8E44AD), Color(0xFF6C3483)],
+          colors: [kAccentPurple, Color(0xFF6C3483)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF8E44AD).withAlpha(80),
+            color: const kAccentPurple.withAlpha(80),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

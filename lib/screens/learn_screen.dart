@@ -886,7 +886,7 @@ class _YojijukugoSection extends StatelessWidget {
                           height: 4,
                           margin: const EdgeInsets.only(top: 6, right: 8),
                           decoration: const BoxDecoration(
-                            color: Color(0xFF8E44AD),
+                            color: kAccentPurple,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -1049,7 +1049,7 @@ class _HaikuTankaSection extends StatelessWidget {
       title: '俳句・短歌（はいく・たんか）',
       children: [
         _RuleBox(
-          color: const Color(0xFFE91E8C),
+          color: const kAccentPink,
           title: '俳句（はいく）のきまり',
           lines: const [
             '• 5・7・5 の17音でできている',
@@ -1070,7 +1070,7 @@ class _HaikuTankaSection extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE91E8C).withOpacity(0.07),
+                      color: const kAccentPink.withOpacity(0.07),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
