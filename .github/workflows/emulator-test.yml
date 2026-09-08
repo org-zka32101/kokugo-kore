@@ -1,0 +1,46 @@
+name: Emulator Test (6 Perspectives)
+
+on:
+  push:
+    branches:
+      - claude/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  emulator-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Start emulator and run tests
+        run: |
+          echo "Starting Android emulator..."
+          emulator -avd default -no-snapshot-load &
+          sleep 30
+
+          echo "Building APK..."
+          flutter build apk --release --no-pub
+
+          echo "Running 6-perspective tests..."
+          bash .github/scripts/emulator-6check.sh
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-test-results
+          path: emulator-test-results/
