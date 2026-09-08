@@ -59,13 +59,19 @@ class FriendNotifier extends StateNotifier<List<Friend>> {
   }
 
   /// Send friend request
-  Future<void> sendFriendRequest(String senderId, String recipientId, String recipientName, String recipientImage) async {
+  Future<void> sendFriendRequest(
+    String senderId,
+    String recipientId,
+    String recipientName,
+    String recipientImage,
+    {String senderName = '', String senderImageUrl = ''}
+  ) async {
     try {
       final request = FriendRequest(
         requestId: const Uuid().v4(),
         senderId: senderId,
-        senderName: 'You', // TODO: Get actual sender name
-        senderImageUrl: '', // TODO: Get actual sender image
+        senderName: senderName.isNotEmpty ? senderName : 'User',
+        senderImageUrl: senderImageUrl,
         recipientId: recipientId,
         sentDate: DateTime.now(),
         status: 'pending',
