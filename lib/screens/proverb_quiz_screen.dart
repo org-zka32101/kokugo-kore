@@ -551,7 +551,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('ことわざクイズ'),
-        backgroundColor: const kAccentTeal,
+        backgroundColor: kAccentTeal,
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -573,7 +573,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                       index: i,
                       selected: _selectedAnswer,
                       correct: _answered ? _current.correctIndex : null,
-                      accentColor: const kAccentTeal,
+                      accentColor: kAccentTeal,
                       onTap: () => _onChoiceTap(i),
                     );
                   }),
@@ -587,7 +587,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                     ElevatedButton(
                       onPressed: _onNext,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isCorrect ? kAccentGreen : const kAccentTeal,
+                        backgroundColor: _isCorrect ? kAccentGreen : kAccentTeal,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
@@ -706,7 +706,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('ことわざクイズ'),
-        backgroundColor: const kAccentTeal,
+        backgroundColor: kAccentTeal,
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -739,7 +739,7 @@ class _ProverbQuizScreenState extends ConsumerState<ProverbQuizScreen>
                 child: ElevatedButton(
                   onPressed: _restart,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const kAccentTeal,
+                    backgroundColor: kAccentTeal,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text('もう一度チャレンジ！',

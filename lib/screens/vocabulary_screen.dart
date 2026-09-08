@@ -1250,7 +1250,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('ことば (マスター済: $masteredCount / ${_vocabQuestions.length})'),
-        backgroundColor: const kAccentOrange,
+        backgroundColor: kAccentOrange,
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -1284,7 +1284,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen>
                     ElevatedButton(
                       onPressed: _onNext,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isCorrect ? kAccentGreen : const kAccentOrange,
+                        backgroundColor: _isCorrect ? kAccentGreen : kAccentOrange,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
@@ -1445,7 +1445,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('ことば'),
-        backgroundColor: const kAccentOrange,
+        backgroundColor: kAccentOrange,
         automaticallyImplyLeading: false,
       ),
       body: Center(
@@ -1497,7 +1497,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen>
                 child: ElevatedButton(
                   onPressed: _restart,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const kAccentOrange,
+                    backgroundColor: kAccentOrange,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text(
@@ -1565,8 +1565,8 @@ class _VocabChoiceButton extends StatelessWidget {
         trailingIcon = const Icon(Icons.cancel, color: kAccentRed);
       }
     } else if (selected == index) {
-      borderColor = const kAccentOrange;
-      bgColor = const kAccentOrange.withAlpha(20);
+      borderColor = kAccentOrange;
+      bgColor = kAccentOrange.withAlpha(20);
     }
 
     return Padding(

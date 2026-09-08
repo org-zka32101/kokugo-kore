@@ -105,7 +105,7 @@ class _ReviewMissionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const kAccentPurple.withAlpha(80),
+            color: kAccentPurple.withAlpha(80),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

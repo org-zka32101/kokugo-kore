@@ -29,9 +29,9 @@ extension _GrammarModeExt on _GrammarMode {
   Color get color {
     switch (this) {
       case _GrammarMode.joshi: return const Color(0xFFE74C3C);
-      case _GrammarMode.setsuzoku: return const kAccentPurple;
-      case _GrammarMode.hinshi: return const kAccentTeal;
-      case _GrammarMode.okurigana: return const kAccentOrange;
+      case _GrammarMode.setsuzoku: return kAccentPurple;
+      case _GrammarMode.hinshi: return kAccentTeal;
+      case _GrammarMode.okurigana: return kAccentOrange;
       case _GrammarMode.romaji: return const Color(0xFF2980B9);
     }
   }
