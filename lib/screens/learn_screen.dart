@@ -1049,7 +1049,7 @@ class _HaikuTankaSection extends StatelessWidget {
       title: '俳句・短歌（はいく・たんか）',
       children: [
         _RuleBox(
-          color: const kAccentPink,
+          color: kAccentPink,
           title: '俳句（はいく）のきまり',
           lines: const [
             '• 5・7・5 の17音でできている',
@@ -1070,7 +1070,7 @@ class _HaikuTankaSection extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const kAccentPink.withOpacity(0.07),
+                      color: kAccentPink.withOpacity(0.07),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(

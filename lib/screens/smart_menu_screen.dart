@@ -107,7 +107,7 @@ List<_Recommendation> _computeRecommendations({
     recommendations.add(_Recommendation(
       stage: weak,
       reason: '正答率 $accPct%\n復習で確実にしよう！',
-      accentColor: const kAccentPurple,
+      accentColor: kAccentPurple,
     ));
   }
 

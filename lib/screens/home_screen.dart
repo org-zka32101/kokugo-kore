@@ -324,7 +324,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                          color: const kAccentPurple.withAlpha(60),
+                          color: kAccentPurple.withAlpha(60),
                           blurRadius: 8,
                           offset: const Offset(0, 3))
                     ],

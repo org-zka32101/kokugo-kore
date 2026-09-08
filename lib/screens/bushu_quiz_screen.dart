@@ -10,7 +10,7 @@ class BushuQuizScreen extends StatelessWidget {
     return GenericQuizScreen(
       title: '部首クイズ',
       emoji: '🔑',
-      themeColor: const kAccentDarkRed,
+      themeColor: kAccentDarkRed,
       allItems: bushuItems,
       questionsPerRound: 10,
     );

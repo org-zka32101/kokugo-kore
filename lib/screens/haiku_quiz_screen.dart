@@ -10,7 +10,7 @@ class HaikuQuizScreen extends StatelessWidget {
     return GenericQuizScreen(
       title: '俳句・短歌クイズ',
       emoji: '🌸',
-      themeColor: const kAccentPink,
+      themeColor: kAccentPink,
       allItems: haikuItems,
       questionsPerRound: 10,
     );
