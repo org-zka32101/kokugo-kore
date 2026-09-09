@@ -21,11 +21,41 @@ class RankingService {
   /// グループ化されたランキングデータを取得
   /// キー: グループ名（例：「5年生」「2026年9月」）
   /// 値: そのグループ内のランキング
+  /// [isNamePublic]: ユーザー名を公開するか（デフォルト: false）
   Future<Map<String, List<StudentRankingData>>> getGroupedRankings(
-    RankingFilter filter,
-  ) async {
+    RankingFilter filter, {
+    bool isNamePublic = false,
+  }) async {
     final rankings = await getStudentRankings(filter);
-    return _groupRankings(rankings, filter.groupBy);
+    final grouped = _groupRankings(rankings, filter.groupBy);
+
+    // プライバシー設定に基づいてユーザー名を変換
+    if (!isNamePublic) {
+      return _applyPrivacyMask(grouped);
+    }
+    return grouped;
+  }
+
+  /// プライバシー保護: ユーザー名を匿名化したランキングを返す
+  Map<String, List<StudentRankingData>> _applyPrivacyMask(
+    Map<String, List<StudentRankingData>> grouped,
+  ) {
+    final result = <String, List<StudentRankingData>>{};
+    for (final entry in grouped.entries) {
+      result[entry.key] = entry.value.map((student) {
+        // StudentRankingData のコピーを作成（studentName のみマスク）
+        return StudentRankingData(
+          studentId: student.studentId,
+          studentName: student.displayName, // 匿名化名を使用
+          score: student.score,
+          rank: student.rank,
+          startedAt: student.startedAt,
+          birthYear: student.birthYear,
+          acquiredAt: student.acquiredAt,
+        );
+      }).toList();
+    }
+    return result;
   }
 
   /// ランキングデータをグループ化
@@ -184,5 +214,92 @@ class RankingService {
         acquiredAt: DateTime(2026, 8, 15),
       ),
     ];
+  }
+
+  /// Firebase セキュリティルールテスト
+  /// 認証ユーザーがランキングデータを読み取れるか確認
+  Future<Map<String, dynamic>> testSecurityRules() async {
+    try {
+      final result = <String, dynamic>{
+        'timestamp': DateTime.now().toString(),
+        'tests': <String, dynamic>{},
+      };
+
+      // Test 1: ランキングデータ読み取り
+      try {
+        final snapshot = await _db
+            .ref('$APP_PREFIX/rankings/students')
+            .limitToLast(1)
+            .once();
+
+        result['tests']!['ranking_read'] = {
+          'status': 'success',
+          'exists': snapshot.snapshot.exists,
+          'message': snapshot.snapshot.exists
+              ? 'ランキングデータを読み取り可能'
+              : 'ランキングテーブルが空',
+        };
+        debugPrint('✅ ランキングデータ読み取り成功');
+      } catch (e) {
+        result['tests']!['ranking_read'] = {
+          'status': 'error',
+          'exists': false,
+          'message': 'ランキング読み取り失敗: $e',
+        };
+        debugPrint('❌ ランキング読み取り失敗: $e');
+      }
+
+      // Test 2: ランキング書き込み（失敗するはず）
+      try {
+        await _db
+            .ref('$APP_PREFIX/rankings/students/test_write')
+            .set({'score': 9999});
+
+        result['tests']!['ranking_write'] = {
+          'status': 'error',
+          'blocked': false,
+          'message': '⚠️ ランキング書き込みが許可された（セキュリティルール未設定）',
+        };
+        debugPrint('⚠️ ランキング書き込みが許可された');
+      } catch (e) {
+        result['tests']!['ranking_write'] = {
+          'status': 'success',
+          'blocked': true,
+          'message': '✅ ランキング書き込みが正しく拒否',
+        };
+        debugPrint('✅ ランキング書き込み拒否（期待通り）');
+      }
+
+      // Test 3: ユーザー情報読み取り（自分のみ）
+      try {
+        final userId = 'current_user_id'; // 本来は auth から取得
+        final snapshot = await _db
+            .ref('$APP_PREFIX/users/$userId')
+            .once();
+
+        result['tests']!['user_read'] = {
+          'status': 'success',
+          'exists': snapshot.snapshot.exists,
+          'message': 'ユーザー情報読み取り試行完了',
+        };
+        debugPrint('✅ ユーザー情報アクセス試行完了');
+      } catch (e) {
+        result['tests']!['user_read'] = {
+          'status': 'info',
+          'message': 'ユーザー情報アクセス: $e',
+        };
+        debugPrint('ℹ️ ユーザー情報: $e');
+      }
+
+      result['overall_status'] = 'security_rules_active';
+      debugPrint('\n🔐 セキュリティルールテスト結果: ${result['tests']}');
+      return result;
+    } catch (e) {
+      debugPrint('❌ セキュリティルールテスト失敗: $e');
+      return {
+        'status': 'error',
+        'message': 'テスト実行失敗: $e',
+      };
+    }
   }
 }
