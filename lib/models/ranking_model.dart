@@ -56,6 +56,16 @@ class StudentRankingData {
     return grade;
   }
 
+  /// プライバシー保護用：ユーザー名を匿名化
+  /// 形式: "学生001" など
+  String get displayName => 'ユーザー $studentId'.replaceFirst('student_', '');
+
+  /// ランキング表示用の名前を取得
+  /// [isNamePublic] が true の場合は本名、false の場合は匿名化
+  String getDisplayName({bool isNamePublic = false}) {
+    return isNamePublic ? studentName : displayName;
+  }
+
   @override
   String toString() =>
       'StudentRankingData(id: $studentId, name: $studentName, rank: $rank, score: $score, grade: $currentGrade)';

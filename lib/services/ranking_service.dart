@@ -21,11 +21,41 @@ class RankingService {
   /// グループ化されたランキングデータを取得
   /// キー: グループ名（例：「5年生」「2026年9月」）
   /// 値: そのグループ内のランキング
+  /// [isNamePublic]: ユーザー名を公開するか（デフォルト: false）
   Future<Map<String, List<StudentRankingData>>> getGroupedRankings(
-    RankingFilter filter,
-  ) async {
+    RankingFilter filter, {
+    bool isNamePublic = false,
+  }) async {
     final rankings = await getStudentRankings(filter);
-    return _groupRankings(rankings, filter.groupBy);
+    final grouped = _groupRankings(rankings, filter.groupBy);
+
+    // プライバシー設定に基づいてユーザー名を変換
+    if (!isNamePublic) {
+      return _applyPrivacyMask(grouped);
+    }
+    return grouped;
+  }
+
+  /// プライバシー保護: ユーザー名を匿名化したランキングを返す
+  Map<String, List<StudentRankingData>> _applyPrivacyMask(
+    Map<String, List<StudentRankingData>> grouped,
+  ) {
+    final result = <String, List<StudentRankingData>>{};
+    for (final entry in grouped.entries) {
+      result[entry.key] = entry.value.map((student) {
+        // StudentRankingData のコピーを作成（studentName のみマスク）
+        return StudentRankingData(
+          studentId: student.studentId,
+          studentName: student.displayName, // 匿名化名を使用
+          score: student.score,
+          rank: student.rank,
+          startedAt: student.startedAt,
+          birthYear: student.birthYear,
+          acquiredAt: student.acquiredAt,
+        );
+      }).toList();
+    }
+    return result;
   }
 
   /// ランキングデータをグループ化
