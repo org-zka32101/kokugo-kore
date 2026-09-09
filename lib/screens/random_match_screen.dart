@@ -32,13 +32,14 @@ class _RandomMatchScreenState extends State<RandomMatchScreen> {
         const Icon(Icons.person_add, size: 64, color: kPrimaryColor),
         const SizedBox(height: 24),
         const Text(
-          '相手を探す',
+          '練習相手を探す',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         const Text(
-          'あなたと同じレベルの相手が見つかります',
+          'あなたのレベルに合わせたAI練習相手が見つかります\n（実際のユーザーとのオンライン対戦ではありません）',
           style: TextStyle(fontSize: 14, color: kTextMuted),
+          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 32),
         ElevatedButton(
@@ -49,8 +50,11 @@ class _RandomMatchScreenState extends State<RandomMatchScreen> {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('相手が見つかりました！'),
-                    content: const Text('太郎さんとマッチングしました。対戦を開始しますか？'),
+                    title: const Text('練習相手が見つかりました！'),
+                    content: const Text(
+                      'AI（練習相手）が見つかりました。対戦を開始しますか？\n'
+                      '※ これはオフラインの練習対戦です。実在のユーザーとの対戦ではありません。',
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () {
