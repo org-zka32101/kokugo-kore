@@ -52,6 +52,10 @@ import 'screens/goal_setting_screen.dart';
 import 'screens/random_match_screen.dart';
 import 'screens/battle_stats_screen.dart';
 import 'screens/detailed_analytics_screen.dart';
+import 'screens/multiplayer/rated_match_screen.dart';
+import 'screens/multiplayer/multiplayer_quiz_screen.dart';
+import 'screens/multiplayer/kokugo_leaderboard_screen.dart';
+import 'providers/multiplayer_provider.dart';
 import 'providers/avatar_unlock_provider.dart';
 import 'providers/ranking_privacy_provider.dart';
 import 'providers/badge_progress_provider.dart';
@@ -98,6 +102,8 @@ Future<void> main() async {
       characterStateProvider.overrideWith(CharacterNotifier.new),
       // 国語コレのショップアイテム装着状態ノティファイアを注入
       equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
+      // マルチプレイ対戦（レートマッチング）のFirestoreハンドラを注入
+      ...kokugoMultiplayerProviderOverrides,
     ],
     child: const KokugoKoreApp(),
   ));
@@ -197,8 +203,17 @@ class KokugoKoreApp extends ConsumerWidget {
         '/random-match': (context) => const RandomMatchScreen(),
         '/battle-stats': (context) => const BattleStatsScreen(),
         '/analytics': (context) => const DetailedAnalyticsScreen(),
+        '/multiplayer/rated-match': (context) => const RatedMatchScreen(),
+        '/multiplayer/leaderboard': (context) => const KokugoLeaderboardScreen(),
       },
       onGenerateRoute: (settings) {
+        if (settings.name == '/multiplayer/quiz') {
+          final matchId = settings.arguments as String;
+          return MaterialPageRoute(
+            builder: (_) => MultiplayerQuizScreen(matchId: matchId),
+            settings: settings,
+          );
+        }
         if (settings.name == '/quest') {
           final stage = settings.arguments as Stage;
           return MaterialPageRoute(
