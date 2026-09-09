@@ -1,11 +1,15 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import '../models/ranking_model.dart';
 
 /// ランキング機能を提供するサービス
 class RankingService {
+  static const String APP_PREFIX = 'kokugo-kore';
+  final _db = FirebaseDatabase.instance;
+
   /// フィルター条件に基づいて学生ランキングデータを取得
   Future<List<StudentRankingData>> getStudentRankings(RankingFilter filter) async {
-    // Fetch student data (currently using mock data)
-    // TODO: Implement Firestore/API data fetching in _fetchStudentData()
+    // Fetch student data from Firebase Realtime DB
     final students = await _fetchStudentData();
 
     // バッジ獲得数でソート
@@ -90,12 +94,67 @@ class RankingService {
     return index >= 0 ? index + 1 : null;
   }
 
-  /// 学生データを取得（サンプルデータ）
-  /// Note: Firestore/APIから実際のデータを取得する場合は、以下を実装
+  /// 学生データを取得（Firebase Realtime DB から実データを取得）
   Future<List<StudentRankingData>> _fetchStudentData() async {
-    // シミュレーション：API呼び出しの遅延
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final snapshot = await _db
+          .ref('$APP_PREFIX/rankings/students')
+          .orderByChild('score')
+          .limitToLast(100)
+          .once();
 
+      final students = <StudentRankingData>[];
+
+      if (snapshot.snapshot.exists) {
+        int rank = 1;
+        final jsonList = <Map<String, dynamic>>[];
+
+        // スナップショットからデータを抽出
+        for (final child in snapshot.snapshot.children) {
+          try {
+            final json = Map<String, dynamic>.from(child.value as Map);
+            jsonList.add(json);
+          } catch (e) {
+            debugPrint('❌ Error parsing student data: $e');
+          }
+        }
+
+        // scoreの降順でソート
+        jsonList.sort((a, b) => (b['score'] as int? ?? 0).compareTo(a['score'] as int? ?? 0));
+
+        // ランクを付与して StudentRankingData に変換
+        for (final json in jsonList) {
+          try {
+            students.add(StudentRankingData(
+              studentId: json['studentId'] ?? 'unknown',
+              studentName: json['studentName'] ?? '不明',
+              score: json['score'] ?? 0,
+              rank: rank++,
+              startedAt: json['startedAt'] != null
+                  ? DateTime.parse(json['startedAt'] as String)
+                  : DateTime.now(),
+              birthYear: json['birthYear'] ?? 2020,
+              acquiredAt: json['acquiredAt'] != null
+                  ? DateTime.parse(json['acquiredAt'] as String)
+                  : DateTime.now(),
+              currentGrade: json['currentGrade'] ?? 1,
+            ));
+          } catch (e) {
+            debugPrint('❌ Error creating StudentRankingData: $e');
+          }
+        }
+      }
+
+      return students;
+    } catch (e) {
+      debugPrint('❌ Error fetching student data from Firebase: $e');
+      // フォールバック：サンプルデータを返す
+      return _getFallbackSampleData();
+    }
+  }
+
+  /// フォールバック：サンプルデータ
+  List<StudentRankingData> _getFallbackSampleData() {
     return [
       StudentRankingData(
         studentId: 'student_1',
@@ -123,42 +182,6 @@ class RankingService {
         startedAt: DateTime(2026, 1, 5),
         birthYear: 2022,
         acquiredAt: DateTime(2026, 8, 15),
-      ),
-      StudentRankingData(
-        studentId: 'student_4',
-        studentName: '鈴木 美咲',
-        score: 11,
-        rank: 4,
-        startedAt: DateTime(2026, 3, 20),
-        birthYear: 2021,
-        acquiredAt: DateTime(2026, 8, 12),
-      ),
-      StudentRankingData(
-        studentId: 'student_5',
-        studentName: '小林 健太',
-        score: 10,
-        rank: 5,
-        startedAt: DateTime(2026, 2, 28),
-        birthYear: 2022,
-        acquiredAt: DateTime(2026, 8, 10),
-      ),
-      StudentRankingData(
-        studentId: 'student_6',
-        studentName: '加藤 由美',
-        score: 9,
-        rank: 6,
-        startedAt: DateTime(2026, 4, 1),
-        birthYear: 2020,
-        acquiredAt: DateTime(2026, 8, 8),
-      ),
-      StudentRankingData(
-        studentId: 'student_7',
-        studentName: '伊藤 大樹',
-        score: 8,
-        rank: 7,
-        startedAt: DateTime(2026, 3, 10),
-        birthYear: 2022,
-        acquiredAt: DateTime(2026, 8, 5),
       ),
     ];
   }
