@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_core/shared_core.dart' show CrossPromoSection;
+import 'package:shared_core/shared_core.dart' show CrossPromoSection, FeedbackFormPage;
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/drawing_settings_provider.dart';
@@ -279,7 +279,14 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('バグ報告・改善要望'),
             subtitle: const Text('アプリの問題や機能提案をお知らせください', style: TextStyle(fontSize: 11)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
-            onTap: () => _showFeedbackDialog(context),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const FeedbackFormPage(
+                  appName: 'kokugo-kore',
+                  appVersion: _appVersion,
+                ),
+              ),
+            ),
           ),
           const CrossPromoSection(
             currentAppId: 'com.yourwish.shougakukore.kokugo',
@@ -542,61 +549,6 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showFeedbackDialog(BuildContext context) {
-    final feedbackController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Text('📝', style: TextStyle(fontSize: 28)),
-            SizedBox(width: 8),
-            Text('フィードバック', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'バグの報告や改善要望をお聞かせください。',
-              style: TextStyle(fontSize: 12, color: kTextMuted),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: feedbackController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: 'ここに入力してください...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('キャンセル'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (feedbackController.text.isNotEmpty) {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('ご報告ありがとうございます！今後の改善に役立てさせていただきます。'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-            },
-            child: const Text('送信'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _UsageItem extends StatelessWidget {
