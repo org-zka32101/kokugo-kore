@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_core/shared_core.dart' hide kAccentGreen, kTextDark, kTextMuted;
 import '../data/kokugo_characters.dart';
 import '../providers/character_provider.dart';
@@ -7,6 +8,10 @@ import '../providers/purchased_items_provider.dart';
 import '../providers/avatar_unlock_provider.dart';
 import '../theme/app_theme.dart';
 import 'character_unlock_dialog.dart';
+
+/// [ShopItemKind.emoji] 以外（テーマ・フレーム・アクセサリ）は
+/// 購入後に「装着する」概念を持つアイテムとして扱う。
+bool _isEquippable(AppShopItem item) => item.kind != ShopItemKind.emoji;
 
 String _currentSeason() {
   final m = DateTime.now().month;
@@ -365,15 +370,28 @@ class _ExchangeTab extends ConsumerWidget {
             ...catItems.map((item) {
               final owned = purchased.ownedItemIds.contains(item.id);
               final canAfford = coins >= item.coinCost;
+              final equippable = owned && _isEquippable(item);
+              final equipped = equippable
+                  ? ref.watch(equippedItemsProvider
+                      .select((s) => s.equippedByCategory[item.category] == item.id))
+                  : false;
               return ListTile(
-                leading: Text(item.emoji, style: const TextStyle(fontSize: 28)),
+                leading: item.assetPath != null
+                    ? SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: SvgPicture.asset(item.assetPath!, fit: BoxFit.contain),
+                      )
+                    : Text(item.emoji, style: const TextStyle(fontSize: 28)),
                 title: Text(item.name),
                 subtitle: Text(item.description, maxLines: 1, overflow: TextOverflow.ellipsis),
                 trailing: owned
-                    ? const Chip(
-                        label: Text('所持済み', style: TextStyle(fontSize: 11)),
-                        backgroundColor: Color(0xFFE8F5E9),
-                      )
+                    ? (equippable
+                        ? _EquipButton(item: item, equipped: equipped)
+                        : const Chip(
+                            label: Text('所持済み', style: TextStyle(fontSize: 11)),
+                            backgroundColor: Color(0xFFE8F5E9),
+                          ))
                     : SizedBox(
                         width: 90,
                         child: ElevatedButton(
@@ -681,6 +699,40 @@ class _AvatarTab extends ConsumerWidget {
           ),
         ],
         ),
+      ),
+    );
+  }
+}
+
+/// 所持済み・装着可能なアイテム（テーマ・フレーム等）の
+/// 「装着する / 解除する」ボタン。
+class _EquipButton extends ConsumerWidget {
+  final AppShopItem item;
+  final bool equipped;
+
+  const _EquipButton({required this.item, required this.equipped});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SizedBox(
+      width: 90,
+      child: ElevatedButton(
+        onPressed: () {
+          final notifier = ref.read(equippedItemsProvider.notifier);
+          if (equipped) {
+            notifier.unequip(item.category);
+          } else {
+            notifier.equip(item.category, item.id);
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: equipped ? Colors.grey.shade300 : kPrimaryColor,
+          foregroundColor: equipped ? kTextDark : Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Text(equipped ? '解除する' : '装着する',
+            style: const TextStyle(fontSize: 11)),
       ),
     );
   }

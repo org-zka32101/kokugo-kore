@@ -11,16 +11,28 @@ import '../providers/coin_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/purchased_items_provider.dart';
 import '../providers/profile_avatar_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_core/models/avatar_model.dart';
 import 'package:shared_core/widgets/avatar_widget.dart';
 import '../theme/app_theme.dart';
-import 'package:shared_core/shared_core.dart' show characterStateProvider;
+import 'package:shared_core/shared_core.dart'
+    show characterStateProvider, equippedItemsProvider, kCommonShopItems, AppShopItem;
 import '../data/kokugo_characters.dart';
 import '../widgets/app_intro_dialog.dart';
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
 import '../widgets/badge_progress_tracker.dart';
+
+/// 装着中のIDから shared_core 共通ショップアイテム（テーマ/フレーム）を探す。
+/// 見つからない場合（未所持アイテムの旧IDが残っている等）は null。
+AppShopItem? _findCommonShopItem(String? id) {
+  if (id == null) return null;
+  for (final item in kCommonShopItems) {
+    if (item.id == id) return item;
+  }
+  return null;
+}
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -164,13 +176,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             orElse: () => allAvatars.first,
           )
         : null;
+    final equipped = ref.watch(equippedItemsProvider).equippedByCategory;
 
-    // テーマ背景色
-    final bgColors = purchased.selectedBgId != null
-        ? bgThemeColors[purchased.selectedBgId]
+    // ショップで装着中の背景テーマ（shared_core の共通テーマ）があれば優先。
+    final equippedThemeId = equipped['背景'];
+    final equippedTheme = _findCommonShopItem(equippedThemeId);
+    final equippedThemeColors =
+        (equippedTheme?.themeData?['colors'] as List?)?.cast<String>();
+
+    // ショップで装着中のプロフィールフレーム（shared_core の共通フレーム）。
+    final equippedFrameId = equipped['フレーム'];
+    final equippedFrame = _findCommonShopItem(equippedFrameId);
+
+    // テーマ背景色（装着中の共通テーマ > 旧来の購入済み背景 の順で優先）
+    final bgColors = equippedThemeColors == null
+        ? (purchased.selectedBgId != null ? bgThemeColors[purchased.selectedBgId] : null)
         : null;
-    final topColor = bgColors != null ? Color(bgColors[0]) : kPrimaryColor;
-    final bottomColor = bgColors != null ? Color(bgColors[1]) : kPrimaryDark;
+    final topColor = equippedThemeColors != null
+        ? Color(int.parse(equippedThemeColors[0].replaceFirst('#', '0xFF')))
+        : (bgColors != null ? Color(bgColors[0]) : kPrimaryColor);
+    final bottomColor = equippedThemeColors != null
+        ? Color(int.parse(equippedThemeColors[1].replaceFirst('#', '0xFF')))
+        : (bgColors != null ? Color(bgColors[1]) : kPrimaryDark);
 
     // タイマー終了を検知
     if (timer.isExpired && !_timerEndHandled) {
@@ -232,7 +259,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         profileAvatar != null
-                            ? AvatarImage(avatar: profileAvatar, size: 16)
+                            ? _FramedAvatar(avatar: profileAvatar, frame: equippedFrame, size: 16)
                             : const Text('😊', style: TextStyle(fontSize: 13)),
                         const SizedBox(width: 4),
                         Flexible(
@@ -596,6 +623,42 @@ class _RecentCharactersSection extends ConsumerWidget {
                 ),
               ),
             )).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// プロフィールアイコンに、ショップで装着中のフレームを縁取りとして
+/// 重ねて表示する小さなウィジェット。フレーム未装着時は通常表示のまま。
+class _FramedAvatar extends StatelessWidget {
+  final AvatarModel avatar;
+  final AppShopItem? frame;
+  final double size;
+
+  const _FramedAvatar({required this.avatar, required this.frame, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final avatarImage = AvatarImage(avatar: avatar, size: size);
+    final framePath = frame?.assetPath;
+    if (framePath == null) return avatarImage;
+
+    return SizedBox(
+      width: size * 1.4,
+      height: size * 1.4,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          avatarImage,
+          IgnorePointer(
+            child: SvgPicture.asset(
+              framePath,
+              width: size * 1.4,
+              height: size * 1.4,
+              fit: BoxFit.contain,
+            ),
           ),
         ],
       ),
