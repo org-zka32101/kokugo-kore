@@ -9,7 +9,7 @@ import '../providers/badge_provider.dart';
 import '../providers/friend_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/ranking_privacy_provider.dart';
-import '../providers/ranking_provider.dart';
+import '../providers/ranking_provider.dart' show rankingServiceProvider;
 import '../theme/app_theme.dart';
 import '../widgets/ranking_privacy_dialog.dart';
 
@@ -145,9 +145,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final filter = ref.watch(rankingFilterProvider);
-    final rankedByGroup = ref.watch(rankedByGroupProvider);
-
     return RankingPrivacyGuard(
       child: Scaffold(
         appBar: AppBar(
@@ -186,99 +183,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
           ],
         ),
       ),
-    );
-  }
-
-  /// フィルタータブを構築
-  Widget _buildFilterTabs(
-    BuildContext context,
-    WidgetRef ref,
-    RankingFilter filter,
-  ) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        child: Row(
-          children: RankingGroupBy.values
-              .map((groupBy) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: _buildFilterChip(context, ref, groupBy, filter.groupBy),
-                  ))
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  /// フィルターチップを構築
-  Widget _buildFilterChip(
-    BuildContext context,
-    WidgetRef ref,
-    RankingGroupBy groupBy,
-    RankingGroupBy current,
-  ) {
-    final isSelected = groupBy == current;
-
-    return FilterChip(
-      label: Text(groupBy.label),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
-          ref.read(rankingFilterProvider.notifier).state =
-              RankingFilter(groupBy: groupBy);
-        }
-      },
-      selectedColor: kPrimaryColor,
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.black87,
-        fontWeight: FontWeight.w500,
-      ),
-      side: BorderSide(
-        color: isSelected ? kPrimaryColor : Colors.grey.shade300,
-      ),
-      backgroundColor: Colors.transparent,
-    );
-  }
-
-  /// ランキングリストを構築
-  Widget _buildRankingList(
-    BuildContext context,
-    Map<String, List<StudentRankingData>> grouped,
-  ) {
-    if (grouped.isEmpty) {
-      return const Center(child: Text('ランキングデータがありません'));
-    }
-
-    return ListView.builder(
-      itemCount: grouped.length,
-      itemBuilder: (context, index) {
-        final groupName = grouped.keys.elementAt(index);
-        final students = grouped[groupName]!;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                groupName,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-            ...students.asMap().entries.map((entry) {
-              final rank = entry.key + 1;
-              final student = entry.value;
-              return _buildRankingTile(context, rank, student);
-            }),
-            const Divider(height: 24),
-          ],
-        );
-      },
     );
   }
 
