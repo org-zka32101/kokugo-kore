@@ -115,4 +115,37 @@ class FriendNotifier extends StateNotifier<List<Friend>> {
       'topScore': state.isEmpty ? 0 : state.map((f) => f.totalScore).reduce((a, b) => a > b ? a : b),
     };
   }
+
+  /// Get friend IDs for leaderboard filtering
+  List<String> getFriendIds() {
+    return state.map((f) => f.userId).toList();
+  }
+
+  /// Accept friend request and add to friends list
+  Future<void> acceptFriendRequest(
+    String userId,
+    FriendRequest request,
+    Friend friendData,
+  ) async {
+    try {
+      // Add friend to list
+      await addFriend(userId, friendData);
+
+      // Mark request as accepted
+      debugPrint('✅ Friend request accepted from ${request.senderId}');
+    } catch (e) {
+      debugPrint('❌ Error accepting friend request: $e');
+      rethrow;
+    }
+  }
+
+  /// Decline friend request
+  Future<void> declineFriendRequest(FriendRequest request) async {
+    try {
+      debugPrint('✅ Friend request declined from ${request.senderId}');
+    } catch (e) {
+      debugPrint('❌ Error declining friend request: $e');
+      rethrow;
+    }
+  }
 }

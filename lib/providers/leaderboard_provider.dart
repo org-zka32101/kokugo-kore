@@ -229,4 +229,55 @@ class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
         return false;
     }
   }
+
+  /// Get friend leaderboard (friends' rankings only)
+  Future<List<LeaderboardEntry>> getFriendLeaderboard(List<String> friendIds) async {
+    try {
+      if (friendIds.isEmpty) return [];
+
+      // Sample friend leaderboard data
+      final sampleNames = ['太郎', '花子', '次郎', '三郎', '四郎'];
+      return friendIds.asMap().entries.map((entry) {
+        final index = entry.key;
+        return LeaderboardEntry(
+          rank: index + 1,
+          userId: entry.value,
+          displayName: sampleNames[index % sampleNames.length],
+          profileImageUrl: '',
+          totalScore: (50000 - index * 2000).toInt(),
+          winRate: (80 - index * 5).toDouble(),
+          grade: 1,
+          averageAccuracy: 0.75,
+          totalBattlesWon: (index + 1) * 8,
+          lastUpdated: DateTime.now(),
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('❌ Error fetching friend leaderboard: $e');
+      return [];
+    }
+  }
+
+  /// Calculate friend group ranking
+  Future<int> calculateFriendGroupRank(
+    String userId,
+    List<String> friendIds,
+    int userTotalScore,
+  ) async {
+    try {
+      int rank = 1;
+      final friendLeaderboard = await getFriendLeaderboard(friendIds);
+
+      for (final entry in friendLeaderboard) {
+        if (entry.totalScore > userTotalScore) {
+          rank++;
+        }
+      }
+
+      return rank;
+    } catch (e) {
+      debugPrint('❌ Error calculating friend group rank: $e');
+      return 0;
+    }
+  }
 }
