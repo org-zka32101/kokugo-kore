@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_core/shared_core.dart' show CrossPromoSection, FeedbackFormPage;
+import 'package:shared_core/shared_core.dart'
+    show CrossPromoSection, FeedbackFormPage, requireParentalGate;
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/drawing_settings_provider.dart';
@@ -55,6 +56,17 @@ const _changelog = <String, List<String>>{
     'バッジ・コインシステム',
   ],
 };
+
+/// 保護者向けレポート画面を開く前に、保護者ゲートで確認する。
+Future<void> _openParentReport(BuildContext context) async {
+  final passedGate = await requireParentalGate(
+    context,
+    title: 'ほごしゃかくにん',
+    description: '保護者向けレポートの閲覧には、ほごしゃの確認が必要です。',
+  );
+  if (!passedGate || !context.mounted) return;
+  Navigator.of(context).pushNamed('/parent-report');
+}
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -226,8 +238,7 @@ class SettingsScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 11)),
             trailing: const Icon(Icons.arrow_forward_ios,
                 size: 14, color: kTextMuted),
-            onTap: () =>
-                Navigator.of(context).pushNamed('/parent-report'),
+            onTap: () => _openParentReport(context),
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
@@ -520,6 +531,12 @@ class SettingsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
+              final passedGate = await requireParentalGate(
+                context,
+                title: 'ほごしゃかくにん',
+                description: 'がくしゅうきろくの全リセットには、ほごしゃの確認が必要です。',
+              );
+              if (!passedGate || !context.mounted) return;
               await ref.read(progressProvider.notifier).reset();
             },
             child: const Text('リセット', style: TextStyle(color: kAccentRed)),

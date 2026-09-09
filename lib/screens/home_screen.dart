@@ -16,7 +16,12 @@ import 'package:shared_core/models/avatar_model.dart';
 import 'package:shared_core/widgets/avatar_widget.dart';
 import '../theme/app_theme.dart';
 import 'package:shared_core/shared_core.dart'
-    show characterStateProvider, equippedItemsProvider, kCommonShopItems, AppShopItem;
+    show
+        characterStateProvider,
+        equippedItemsProvider,
+        kCommonShopItems,
+        AppShopItem,
+        requireParentalGate;
 import '../data/kokugo_characters.dart';
 import '../widgets/app_intro_dialog.dart';
 import '../widgets/daily_bonus_dialog.dart';
@@ -32,6 +37,17 @@ AppShopItem? _findCommonShopItem(String? id) {
     if (item.id == id) return item;
   }
   return null;
+}
+
+/// 保護者向けレポート画面を開く前に、保護者ゲートで確認する。
+Future<void> _openParentReport(BuildContext context) async {
+  final passedGate = await requireParentalGate(
+    context,
+    title: 'ほごしゃかくにん',
+    description: '保護者向けレポートの閲覧には、ほごしゃの確認が必要です。',
+  );
+  if (!passedGate || !context.mounted) return;
+  Navigator.pushNamed(context, '/parent-report');
 }
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -295,9 +311,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   PopupMenuItem(
                     child: const Text('保護者レポート'),
-                    onTap: () {
-                      Navigator.pushNamed(context, '/parent-report');
-                    },
+                    onTap: () => _openParentReport(context),
                   ),
                 ],
               ),
@@ -309,7 +323,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SliverToBoxAdapter(
               child: _SafetyNetBanner(
                 count: adaptive.strugglingCount,
-                onTap: () => Navigator.pushNamed(context, '/parent-report'),
+                onTap: () => _openParentReport(context),
               ),
             ),
 
