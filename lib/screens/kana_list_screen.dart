@@ -2,6 +2,7 @@
 // Kana study screen: みる / おぼえる / かく (3 tabs)
 
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_card.dart';
 import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/kana_data.dart';

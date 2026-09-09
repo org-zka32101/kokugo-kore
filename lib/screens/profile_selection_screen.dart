@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_card.dart';
 import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show requireParentalGate;
@@ -258,7 +259,7 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                   (a) => a.id == selectedAvatarId,
                   orElse: () => allAvatars.first,
                 );
-                return Card(
+                return AppCard(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: CircleAvatar(

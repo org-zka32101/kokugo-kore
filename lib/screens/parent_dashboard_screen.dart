@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_card.dart';
 import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/analytics_model.dart';
@@ -198,7 +199,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
                 const SizedBox(height: 20),
 
                 // 進捗グラフ
-                Card(
+                AppCard(
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
@@ -223,7 +224,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
                 const SizedBox(height: 20),
 
                 // 推奨学習ペース
-                Card(
+                AppCard(
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
@@ -258,7 +259,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 正答率トレンド
-          Card(
+          AppCard(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
@@ -281,7 +282,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
           const SizedBox(height: 20),
 
           // 漢字習得リスト
-          Card(
+          AppCard(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
@@ -305,7 +306,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
           const SizedBox(height: 20),
 
           // カテゴリ別分析
-          Card(
+          AppCard(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
@@ -335,7 +336,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
       child: Column(
         children: [
           // 獲得バッジ
-          Card(
+          AppCard(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
@@ -379,7 +380,7 @@ class _ParentDashboardScreenState extends ConsumerState<ParentDashboardScreen>
     return InkWell(
       onTap: () {},
       borderRadius: BorderRadius.circular(12),
-      child: Card(
+      child: AppCard(
         elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Container(

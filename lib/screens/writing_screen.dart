@@ -2,6 +2,7 @@
 // かく練習: 文字選択 → DrawingCanvasScreen で自動採点 (80点以上でクリア)
 
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_card.dart';
 import 'package:shared_core/widgets/components/app_button.dart';
 import '../screens/drawing_canvas_screen.dart';
 import '../theme/app_theme.dart';
