@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_core/shared_core.dart' show WeeklyBarChartWidget;
 import '../providers/adaptive_provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/profile_provider.dart';
@@ -349,8 +350,35 @@ class _AccuracyByGrade extends StatelessWidget {
   final AdaptiveState adaptive;
   const _AccuracyByGrade({required this.adaptive});
 
+  /// 学年ごとの平均正答率（0〜1）。ステージ履歴がない学年は含めない。
+  Map<int, double> get _accuracyByGrade {
+    final result = <int, double>{};
+    for (var g = 1; g <= 6; g++) {
+      final stages = adaptive.stageHistory.keys
+          .where((id) => id.startsWith('g${g}_'))
+          .toList();
+      if (stages.isEmpty) continue;
+      final totalCorrect =
+          stages.fold(0.0, (sum, id) => sum + adaptive.accuracyFor(id));
+      result[g] = (totalCorrect / stages.length).clamp(0.0, 1.0);
+    }
+    return result;
+  }
+
+  Color _colorForPct(double pct) {
+    if (pct >= 0.8) return kAccentGreen;
+    if (pct >= 0.6) return kPrimaryColor;
+    return kAccentRed;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final accuracyByGrade = _accuracyByGrade;
+    if (accuracyByGrade.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final grades = accuracyByGrade.keys.toList()..sort();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -360,84 +388,13 @@ class _AccuracyByGrade extends StatelessWidget {
           BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
-      child: Column(
-        children: [
-          for (var g = 1; g <= 6; g++) _GradeBar(grade: g, adaptive: adaptive),
-        ],
-      ),
-    );
-  }
-}
-
-class _GradeBar extends StatelessWidget {
-  final int grade;
-  final AdaptiveState adaptive;
-  const _GradeBar({required this.grade, required this.adaptive});
-
-  @override
-  Widget build(BuildContext context) {
-    final stages = adaptive.stageHistory.keys
-        .where((id) => id.startsWith('g${grade}_'))
-        .toList();
-    if (stages.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    final totalCorrect =
-        stages.fold(0.0, (sum, id) => sum + adaptive.accuracyFor(id));
-    final avg = totalCorrect / stages.length;
-    final pct = avg.clamp(0.0, 1.0);
-    final color = pct >= 0.8
-        ? kAccentGreen
-        : pct >= 0.6
-            ? kPrimaryColor
-            : kAccentRed;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 44,
-            child: Text('${grade}年生',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                FractionallySizedBox(
-                  widthFactor: pct,
-                  child: Container(
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: 36,
-            child: Text(
-              '${(pct * 100).round()}%',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-              textAlign: TextAlign.right,
-            ),
-          ),
-        ],
+      child: WeeklyBarChartWidget(
+        values: [for (final g in grades) accuracyByGrade[g]! * 100],
+        labels: [for (final g in grades) '$g年生'],
+        primaryColor: kPrimaryColor,
+        barColorForValue: (value) => _colorForPct(value / 100),
+        maxY: 100,
+        valueSuffix: '%',
       ),
     );
   }
