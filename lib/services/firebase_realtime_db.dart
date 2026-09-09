@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_core/shared_core.dart' show FeedbackReport;
 import '../models/analytics_model.dart';
 import '../models/friend_model.dart';
 import '../models/battle_model.dart';
@@ -146,6 +147,10 @@ class FirebaseRealtimeDB {
   static const String battlesPath = 'battles';
   static const String leaderboardPath = 'leaderboard';
   static const String readingPath = 'reading_passages';
+
+  // バグ報告・改善要望（shared_core の FeedbackReport）
+  static const String feedbackPath = 'feedback';
+  static String feedbackReportPath(String reportId) => '$feedbackPath/$reportId';
 }
 
 /// Firebase Realtime Database API (Phase 1+)
@@ -338,6 +343,20 @@ class FirebaseRealtimeAPI {
           }
           return entries;
         });
+  }
+
+  // ===== Feedback API（バグ報告・改善要望） =====
+
+  /// バグ報告・改善要望を feedback/{reportId} に書き込む。
+  /// FeedbackNotifier.setSubmitHandler() に登録して使う。
+  static Future<void> submitFeedback(FeedbackReport report) async {
+    try {
+      final ref = _db.ref(FirebaseRealtimeDB.feedbackReportPath(report.id));
+      await ref.set(report.toJson());
+    } catch (e) {
+      debugPrint('❌ Error submitting feedback: $e');
+      rethrow;
+    }
   }
 
   // ===== Reading API =====

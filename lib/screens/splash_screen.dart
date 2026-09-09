@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_core/shared_core.dart' show feedbackProvider;
 import '../providers/adaptive_provider.dart';
 import '../providers/badge_provider.dart';
 import '../providers/coin_provider.dart';
@@ -13,6 +16,7 @@ import '../providers/premium_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/sound_provider.dart';
+import '../services/firebase_realtime_db.dart';
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
 
@@ -44,6 +48,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _load() async {
+    // バグ報告・改善要望フォームの送信ハンドラを登録
+    // （Realtime Database の feedback/{id} へ書き込む）
+    ref.read(feedbackProvider.notifier).setSubmitHandler(FirebaseRealtimeAPI.submitFeedback);
+    unawaited(ref.read(feedbackProvider.notifier).retryPendingReports());
+
     await Future.wait([
       ref.read(profileProvider.notifier).load(),
       ref.read(progressProvider.notifier).load(),
