@@ -26,10 +26,11 @@ import 'package:shared_core/shared_core.dart'
         CoinState,
         CoinNotifier,
         avatarProvider,
-        CrossPromoService,
         equippedItemsProvider,
         screenTimeProvider,
         ScreenTimeLimitReachedWidget;
+import 'package:cross_promo_kit/cross_promo_kit.dart'
+    show CrossPromoService;
 import 'providers/character_provider.dart';
 import 'providers/equipped_items_provider.dart';
 import 'providers/screen_time_provider.dart';
