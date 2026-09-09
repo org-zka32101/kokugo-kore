@@ -167,7 +167,6 @@ class RankingService {
               acquiredAt: json['acquiredAt'] != null
                   ? DateTime.parse(json['acquiredAt'] as String)
                   : DateTime.now(),
-              currentGrade: json['currentGrade'] ?? 1,
             ));
           } catch (e) {
             debugPrint('❌ Error creating StudentRankingData: $e');
