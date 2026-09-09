@@ -1,18 +1,28 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/battle_provider.dart';
 import '../providers/badge_provider.dart';
 import '../providers/badge_metrics_provider.dart';
 import '../theme/app_theme.dart';
+import '../data/quiz_data.dart';
+import '../models/quest_model.dart';
 
+/// このバトル画面は実際の対人・対サーバー通信を行わない、
+/// オフラインの「AI（練習相手）」との自己ベスト挑戦モードです。
+/// 相手のスコアは通信結果ではなく、練習相手を模したランダム加算です。
 class BattleScreen extends ConsumerStatefulWidget {
   final String opponentId;
   final String opponentName;
+
+  /// 出題対象の学年（未指定の場合はランダムな学年から出題）
+  final int? grade;
 
   const BattleScreen({
     super.key,
     required this.opponentId,
     required this.opponentName,
+    this.grade,
   });
 
   @override
@@ -21,21 +31,47 @@ class BattleScreen extends ConsumerStatefulWidget {
 
 class _BattleScreenState extends ConsumerState<BattleScreen> {
   int _currentRound = 1;
-  int _totalRounds = 5;
+  final int _totalRounds = 5;
   int _playerScore = 0;
   int _opponentScore = 0;
   String? _selectedAnswer;
   bool _answered = false;
 
-  final String _currentQuestion = '「山」の読み方は？';
-  final List<String> _choices = ['やま', 'かわ', 'き', 'ひ'];
-  final int _correctAnswerIndex = 0;
+  late final List<QuizQuestion> _questions;
+
+  QuizQuestion get _currentQuestion => _questions[_currentRound - 1];
+  List<String> get _choices => _currentQuestion.choices;
+  int get _correctAnswerIndex => _currentQuestion.correctIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _questions = _pickRandomQuestions(_totalRounds);
+  }
+
+  /// 既存のクイズデータ（漢字・語彙など）からランダムに出題を選ぶ
+  List<QuizQuestion> _pickRandomQuestions(int count) {
+    final grade = widget.grade ?? (Random().nextInt(6) + 1);
+    final pool = <QuizQuestion>[
+      for (final stage in getStagesForGrade(grade)) ...stage.questions,
+    ];
+    pool.shuffle();
+    if (pool.length >= count) {
+      return pool.take(count).toList();
+    }
+    // 問題数が不足する場合は他の学年からも補充する
+    final fallback = <QuizQuestion>[
+      for (var g = 1; g <= 6; g++)
+        for (final stage in getStagesForGrade(g)) ...stage.questions,
+    ]..shuffle();
+    return fallback.take(count).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('対戦中...'),
+        title: const Text('AI（練習相手）と対戦中...'),
         backgroundColor: kPrimaryColor,
         automaticallyImplyLeading: false,
       ),
@@ -90,8 +126,8 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
             ],
           ),
 
-          // プレイヤー2（相手）
-          _buildScoreColumn(widget.opponentName, _opponentScore, false),
+          // プレイヤー2（AI練習相手）
+          _buildScoreColumn('AI（${widget.opponentName}）', _opponentScore, false),
         ],
       ),
     );
@@ -184,7 +220,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _currentQuestion,
+                  _currentQuestion.question,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -339,7 +375,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            '説明：「山」は「やま」と読みます。',
+            _currentQuestion.explanation,
             style: const TextStyle(fontSize: 12, height: 1.5),
           ),
           const SizedBox(height: 16),
@@ -369,10 +405,11 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
       _answered = true;
       if (isCorrect) {
         _playerScore += 10;
-        // ランダムに相手もスコアを加算（仮実装）
-        if ((DateTime.now().millisecond % 2 == 0)) {
-          _opponentScore += 10;
-        }
+      }
+      // AI練習相手のスコアは実際の対戦通信ではなく、
+      // 疑似的な難易度演出としてランダムに加算している（仮実装）
+      if (Random().nextBool()) {
+        _opponentScore += 10;
       }
     });
   }
@@ -412,7 +449,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('対戦終了'),
+        title: const Text('AI（練習相手）との対戦終了'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -426,8 +463,14 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildResultColumn('あなた', _playerScore),
-                _buildResultColumn(widget.opponentName, _opponentScore),
+                _buildResultColumn('AI（${widget.opponentName}）', _opponentScore),
               ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '※ この対戦はオフラインの練習モードです。実際のユーザーとは対戦していません。',
+              style: TextStyle(fontSize: 11, color: kTextMuted),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
