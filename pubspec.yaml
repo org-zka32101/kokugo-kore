@@ -32,6 +32,7 @@ dependencies:
   json_annotation: ^4.9.0
   fl_chart: ^0.67.0
   path_drawing: ^1.0.1 # SVG path 'd' string parsing for stroke-order playback
+  flutter_svg: ^2.0.10+1 # shared_core のショップアイテム(テーマ/フレーム)SVG表示用
 
 dev_dependencies:
   flutter_test:

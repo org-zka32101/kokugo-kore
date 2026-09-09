@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kokugo_kore/main.dart';
 import 'package:kokugo_kore/models/quest_model.dart';
 import 'package:shared_core/shared_core.dart'
-    show BadgeModel, EarnedBadge, BadgeCategory, characterStateProvider;
+    show BadgeModel, EarnedBadge, BadgeCategory, characterStateProvider, equippedItemsProvider;
 import 'package:kokugo_kore/screens/splash_screen.dart';
 import 'package:kokugo_kore/screens/home_screen.dart';
 import 'package:kokugo_kore/screens/stage_select_screen.dart';
@@ -15,6 +15,7 @@ import 'package:kokugo_kore/screens/result_screen.dart';
 import 'package:kokugo_kore/theme/app_theme.dart';
 import 'package:kokugo_kore/data/quiz_data.dart';
 import 'package:kokugo_kore/providers/character_provider.dart';
+import 'package:kokugo_kore/providers/equipped_items_provider.dart';
 
 void main() {
   group('国語コレ！アプリケーション', () {
@@ -55,7 +56,10 @@ void main() {
       testWidgets('ホーム画面の表示確認', (WidgetTester tester) async {
         await tester.pumpWidget(
           ProviderScope(
-            overrides: [characterStateProvider.overrideWith(CharacterNotifier.new)],
+            overrides: [
+              characterStateProvider.overrideWith(CharacterNotifier.new),
+              equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
+            ],
             child: const MaterialApp(home: HomeScreen()),
           ),
         );
@@ -67,7 +71,10 @@ void main() {
 
         await tester.pumpWidget(
           ProviderScope(
-            overrides: [characterStateProvider.overrideWith(CharacterNotifier.new)],
+            overrides: [
+              characterStateProvider.overrideWith(CharacterNotifier.new),
+              equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
+            ],
             child: const MaterialApp(home: HomeScreen()),
           ),
         );

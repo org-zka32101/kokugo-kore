@@ -20,8 +20,9 @@ import 'screens/quest_screen.dart';
 import 'screens/result_screen.dart';
 import 'screens/settings_screen.dart';
 import 'package:shared_core/shared_core.dart'
-    show characterStateProvider, coinProvider, CoinState, CoinNotifier, avatarProvider, CrossPromoService;
+    show characterStateProvider, coinProvider, CoinState, CoinNotifier, avatarProvider, CrossPromoService, equippedItemsProvider;
 import 'providers/character_provider.dart';
+import 'providers/equipped_items_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 import 'providers/purchased_items_provider.dart';
@@ -95,6 +96,8 @@ Future<void> main() async {
     overrides: [
       // 国語コレのキャラクターノティファイアを注入
       characterStateProvider.overrideWith(CharacterNotifier.new),
+      // 国語コレのショップアイテム装着状態ノティファイアを注入
+      equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
     ],
     child: const KokugoKoreApp(),
   ));
