@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_core/shared_core.dart' show requireParentalGate;
 import '../providers/profile_provider.dart';
 import '../providers/profile_avatar_provider.dart';
 import '../providers/avatar_unlock_provider.dart';
@@ -275,6 +276,12 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                       onSelected: (val) async {
                         if (val == 'delete') {
                           if (profiles.length > 1) {
+                            final passedGate = await requireParentalGate(
+                              context,
+                              title: 'ほごしゃかくにん',
+                              description: 'プロフィールの削除には、ほごしゃの確認が必要です。',
+                            );
+                            if (!passedGate || !context.mounted) return;
                             await ref.read(profileProvider.notifier).deleteProfile(profile.id);
                           }
                         } else if (val == 'icon') {
