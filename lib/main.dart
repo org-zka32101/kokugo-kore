@@ -129,6 +129,8 @@ class KokugoKoreApp extends ConsumerWidget {
     return MaterialApp(
       title: '小学コレ！国語',
       theme: buildAppTheme(),
+      darkTheme: buildDarkAppTheme(),
+      themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
