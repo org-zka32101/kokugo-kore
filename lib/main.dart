@@ -12,6 +12,7 @@ import 'screens/idiom_quiz_screen.dart';
 import 'screens/kanji_list_screen.dart';
 import 'screens/kana_list_screen.dart';
 import 'screens/learn_screen.dart';
+import 'screens/lesson_screen.dart';
 import 'screens/privacy_policy_screen.dart';
 import 'screens/proverb_quiz_screen.dart';
 import 'screens/profile_selection_screen.dart';
@@ -145,6 +146,7 @@ class KokugoKoreApp extends ConsumerWidget {
         '/terms': (context) => const PrivacyPolicyScreen(),
         '/shop': (context) => const ShopScreen(),
         '/learn': (context) => const LearnScreen(),
+        '/lesson': (context) => const LessonScreen(),
         '/vocabulary': (context) => const PremiumGate(
               featureName: 'ことば',
               featureEmoji: '💬',
