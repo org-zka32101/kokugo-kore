@@ -116,7 +116,7 @@ class FriendNotifier extends StateNotifier<List<Friend>> {
     };
   }
 
-  /// Get friend IDs for leaderboard filtering
+  /// Get friend IDs for ranking filtering
   List<String> getFriendIds() {
     return state.map((f) => f.userId).toList();
   }

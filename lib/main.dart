@@ -34,7 +34,7 @@ import 'screens/parent_report_screen.dart';
 import 'screens/parent_dashboard_screen.dart';
 import 'screens/multiplayer_menu_screen.dart';
 import 'screens/friend_invitation_screen.dart';
-import 'screens/leaderboard_screen.dart';
+import 'screens/ranking_screen.dart';
 import 'screens/badge_screen.dart';
 import 'screens/reading_menu_screen.dart';
 import 'screens/smart_menu_screen.dart';
@@ -52,7 +52,7 @@ import 'screens/random_match_screen.dart';
 import 'screens/battle_stats_screen.dart';
 import 'screens/detailed_analytics_screen.dart';
 import 'providers/avatar_unlock_provider.dart';
-import 'providers/leaderboard_privacy_provider.dart';
+import 'providers/ranking_privacy_provider.dart';
 import 'providers/badge_progress_provider.dart';
 import 'providers/badge_metrics_provider.dart';
 import 'providers/study_habit_provider.dart';
@@ -179,10 +179,10 @@ class KokugoKoreApp extends ConsumerWidget {
               child: MultiplayerMenuScreen(),
             ),
         '/friend-invitation': (context) => const FriendInvitationScreen(),
-        '/leaderboard': (context) => const PremiumGate(
+        '/ranking': (context) => const PremiumGate(
               featureName: 'マルチプレイ',
               featureEmoji: '⚔️',
-              child: LeaderboardScreen(),
+              child: RankingScreen(),
             ),
         '/reading': (context) => const PremiumGate(
               featureName: '読解力強化',
@@ -250,7 +250,7 @@ class _RootShellState extends ConsumerState<RootShell> {
       await ref.read(purchasedItemsProvider.notifier).load();
       await ref.read(profileAvatarProvider.notifier).load();
       await ref.read(avatarProvider.notifier).load();
-      await ref.read(leaderboardPrivacyProvider.notifier).load();
+      await ref.read(rankingPrivacyProvider.notifier).load();
       await ref.read(badgeProgressProvider.notifier).load();
       await ref.read(badgeMetricsProvider.notifier).load();
       await ref.read(studyHabitProvider.notifier).load();
