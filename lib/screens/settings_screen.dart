@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart'
-    show CrossPromoSection, FeedbackFormPage, requireParentalGate;
+    show
+        CrossPromoSection,
+        FeedbackFormPage,
+        requireParentalGate,
+        ScreenTimeSettingsWidget;
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/drawing_settings_provider.dart';
@@ -66,6 +70,27 @@ Future<void> _openParentReport(BuildContext context) async {
   );
   if (!passedGate || !context.mounted) return;
   Navigator.of(context).pushNamed('/parent-report');
+}
+
+/// 利用時間制限の設定画面を開く前に、保護者ゲートで確認する。
+Future<void> _openScreenTimeSettings(BuildContext context) async {
+  final passedGate = await requireParentalGate(
+    context,
+    title: 'ほごしゃかくにん',
+    description: '利用時間の設定変更には、ほごしゃの確認が必要です。',
+  );
+  if (!passedGate || !context.mounted) return;
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => Scaffold(
+        appBar: AppBar(
+          title: const Text('利用時間の設定'),
+          backgroundColor: kPrimaryColor,
+        ),
+        body: const ScreenTimeSettingsWidget(primaryColor: kPrimaryColor),
+      ),
+    ),
+  );
 }
 
 class SettingsScreen extends ConsumerWidget {
@@ -209,6 +234,16 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('マスターした語数', style: TextStyle(fontSize: 11)),
             trailing: Text('$masteredVocab語',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+          const Divider(),
+          _SectionHeader(title: '利用時間制限'),
+          ListTile(
+            leading: const Text('⏰', style: TextStyle(fontSize: 20)),
+            title: const Text('利用時間を設定する'),
+            subtitle: const Text('1日の利用時間に上限を設定できます（ほごしゃ向け）',
+                style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
+            onTap: () => _openScreenTimeSettings(context),
           ),
           const Divider(),
           _SectionHeader(title: 'テーマ'),

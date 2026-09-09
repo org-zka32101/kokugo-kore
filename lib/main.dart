@@ -20,9 +20,19 @@ import 'screens/quest_screen.dart';
 import 'screens/result_screen.dart';
 import 'screens/settings_screen.dart';
 import 'package:shared_core/shared_core.dart'
-    show characterStateProvider, coinProvider, CoinState, CoinNotifier, avatarProvider, CrossPromoService, equippedItemsProvider;
+    show
+        characterStateProvider,
+        coinProvider,
+        CoinState,
+        CoinNotifier,
+        avatarProvider,
+        CrossPromoService,
+        equippedItemsProvider,
+        screenTimeProvider,
+        ScreenTimeLimitReachedWidget;
 import 'providers/character_provider.dart';
 import 'providers/equipped_items_provider.dart';
+import 'providers/screen_time_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 import 'providers/purchased_items_provider.dart';
@@ -102,6 +112,8 @@ Future<void> main() async {
       characterStateProvider.overrideWith(CharacterNotifier.new),
       // 国語コレのショップアイテム装着状態ノティファイアを注入
       equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
+      // 国語コレの利用時間制限（スクリーンタイム管理）ノティファイアを注入
+      screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
       // マルチプレイ対戦（レートマッチング）のFirestoreハンドラを注入
       ...kokugoMultiplayerProviderOverrides,
     ],
@@ -293,6 +305,11 @@ class _RootShellState extends ConsumerState<RootShell> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(screenTimeProvider);
+    final isLimitReached = ref.read(screenTimeProvider.notifier).isLimitReached;
+    if (isLimitReached) {
+      return const ScreenTimeLimitReachedWidget(primaryColor: kPrimaryColor);
+    }
     return Scaffold(
       body: IndexedStack(
         index: _tab,
