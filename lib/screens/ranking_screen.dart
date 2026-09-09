@@ -1,0 +1,444 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/friend_model.dart';
+import '../models/ranking_model.dart';
+import '../providers/badge_metrics_provider.dart';
+import '../providers/badge_provider.dart';
+import '../providers/friend_provider.dart';
+import '../providers/profile_provider.dart';
+import '../providers/ranking_privacy_provider.dart';
+import '../providers/ranking_provider.dart';
+import '../theme/app_theme.dart';
+import '../widgets/ranking_privacy_dialog.dart';
+
+/// ランキング画面
+///
+/// 全体・学年別・開始月別・学年×開始月のランキング（Firebase Realtime Database
+/// `kokugo-kore/rankings/students` を参照）と、友達ランキング（[friendListProvider]）
+/// をタブで切り替えて表示する。名前の公開・匿名化は [rankingPrivacyProvider] で管理する。
+class RankingScreen extends ConsumerStatefulWidget {
+  const RankingScreen({super.key});
+
+  @override
+  ConsumerState<RankingScreen> createState() => _RankingScreenState();
+}
+
+class _RankingScreenState extends ConsumerState<RankingScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(rankingPrivacyProvider.notifier).load();
+
+      final userId = ref.read(profileProvider).currentProfile?.id;
+      if (userId != null) {
+        await ref.read(friendListProvider.notifier).loadFriends(userId);
+      }
+
+      await _checkTopTenBadge();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  /// 全体ランキングでTOP10入りしていればバッジ獲得判定を行う
+  Future<void> _checkTopTenBadge() async {
+    final userId = ref.read(profileProvider).currentProfile?.id;
+    if (userId == null) return;
+
+    final rankingService = ref.read(rankingServiceProvider);
+    final rank = await rankingService.getStudentRank(
+      userId,
+      RankingFilter(groupBy: RankingGroupBy.all),
+    );
+
+    final isTopTen = rank != null && rank > 0 && rank <= 10;
+    if (!isTopTen) return;
+
+    await ref.read(badgeMetricsProvider.notifier).setTopTenRanker(true);
+
+    final metricsState = ref.read(badgeMetricsProvider);
+    await ref.read(badgeProvider.notifier).checkSocialBadges(
+          friendInviteCount: metricsState.friendInvites,
+          multiplayerWins: metricsState.multiplayerWins,
+          isTopTenRanker: metricsState.isTopTenRanker,
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filter = ref.watch(rankingFilterProvider);
+    final rankedByGroup = ref.watch(rankedByGroupProvider);
+
+    return RankingPrivacyGuard(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('ランキング'),
+          elevation: 0,
+          backgroundColor: kPrimaryColor,
+          foregroundColor: Colors.white,
+          bottom: TabBar(
+            controller: _tabController,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            tabs: const [
+              Tab(text: '🏆 ランキング'),
+              Tab(text: '👥 友達'),
+            ],
+          ),
+          actions: [
+            IconButton(
+              tooltip: '名前の公開設定',
+              icon: const Icon(Icons.privacy_tip_outlined),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (_) => const RankingPrivacyDialog(),
+              ),
+            ),
+          ],
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            Column(
+              children: [
+                _buildFilterTabs(context, ref, filter),
+                Expanded(
+                  child: rankedByGroup.when(
+                    data: (grouped) => _buildRankingList(context, grouped),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, stackTrace) =>
+                        Center(child: Text('エラーが発生しました: $error')),
+                  ),
+                ),
+              ],
+            ),
+            _buildFriendRanking(context, ref),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// フィルタータブを構築
+  Widget _buildFilterTabs(
+    BuildContext context,
+    WidgetRef ref,
+    RankingFilter filter,
+  ) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        child: Row(
+          children: RankingGroupBy.values
+              .map((groupBy) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: _buildFilterChip(context, ref, groupBy, filter.groupBy),
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  /// フィルターチップを構築
+  Widget _buildFilterChip(
+    BuildContext context,
+    WidgetRef ref,
+    RankingGroupBy groupBy,
+    RankingGroupBy current,
+  ) {
+    final isSelected = groupBy == current;
+
+    return FilterChip(
+      label: Text(groupBy.label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) {
+          ref.read(rankingFilterProvider.notifier).state =
+              RankingFilter(groupBy: groupBy);
+        }
+      },
+      selectedColor: kPrimaryColor,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : Colors.black87,
+        fontWeight: FontWeight.w500,
+      ),
+      side: BorderSide(
+        color: isSelected ? kPrimaryColor : Colors.grey.shade300,
+      ),
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  /// ランキングリストを構築
+  Widget _buildRankingList(
+    BuildContext context,
+    Map<String, List<StudentRankingData>> grouped,
+  ) {
+    if (grouped.isEmpty) {
+      return const Center(child: Text('ランキングデータがありません'));
+    }
+
+    return ListView.builder(
+      itemCount: grouped.length,
+      itemBuilder: (context, index) {
+        final groupName = grouped.keys.elementAt(index);
+        final students = grouped[groupName]!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                groupName,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            ...students.asMap().entries.map((entry) {
+              final rank = entry.key + 1;
+              final student = entry.value;
+              return _buildRankingTile(context, rank, student);
+            }),
+            const Divider(height: 24),
+          ],
+        );
+      },
+    );
+  }
+
+  /// ランキングタイルを構築
+  Widget _buildRankingTile(
+    BuildContext context,
+    int rank,
+    StudentRankingData student,
+  ) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          color: isDarkMode ? Colors.grey.shade900 : Colors.white,
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            _buildRankBadge(rank),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    student.studentName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: isDarkMode ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${student.currentGrade}年生 • ${student.startedAt.month}月開始',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'バッジ',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${student.score}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: kPrimaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 友達ランキングを構築（[friendListProvider] のスコア順）
+  Widget _buildFriendRanking(BuildContext context, WidgetRef ref) {
+    final friends = ref.watch(friendListProvider);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    if (friends.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.people_outline, size: 48, color: kTextMuted),
+              const SizedBox(height: 12),
+              const Text(
+                'まだ友達がいません',
+                style: TextStyle(fontWeight: FontWeight.bold, color: kTextMuted),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '友達を招待してスコアを競い合おう！',
+                style: TextStyle(fontSize: 12, color: kTextMuted),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton(
+                onPressed: () =>
+                    Navigator.pushNamed(context, '/friend-invitation'),
+                child: const Text('友達を招待する'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final sorted = [...friends]
+      ..sort((a, b) => b.totalScore.compareTo(a.totalScore));
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: sorted.length,
+      itemBuilder: (context, index) {
+        final rank = index + 1;
+        final Friend friend = sorted[index];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              color: isDarkMode ? Colors.grey.shade900 : Colors.white,
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                _buildRankBadge(rank),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        friend.displayName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: isDarkMode ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${friend.grade}年生 • 正答率 ${(friend.averageAccuracy * 100).toStringAsFixed(0)}%',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDarkMode
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '${friend.totalScore}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: kPrimaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 順位バッジを構築
+  Widget _buildRankBadge(int rank) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: _getRankColor(rank),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: _getRankColor(rank).withAlpha(100),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          '$rank',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 順位に応じた色を取得
+  Color _getRankColor(int rank) {
+    switch (rank) {
+      case 1:
+        return const Color(0xFFFFD700); // 金
+      case 2:
+        return const Color(0xFFC0C0C0); // 銀
+      case 3:
+        return const Color(0xFFCD7F32); // 銅
+      default:
+        return Colors.grey.shade500;
+    }
+  }
+}

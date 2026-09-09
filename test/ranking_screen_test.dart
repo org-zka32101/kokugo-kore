@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kokugo_kore/models/ranking_model.dart';
-import 'package:kokugo_kore/widgets/ranking_screen.dart';
+import 'package:kokugo_kore/screens/ranking_screen.dart';
 
 void main() {
   group('RankingScreen Widget Tests', () {

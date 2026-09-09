@@ -12,7 +12,7 @@ import '../providers/profile_provider.dart';
 import '../providers/coin_provider.dart';
 import '../providers/referral_provider.dart';
 import '../providers/purchased_items_provider.dart';
-import '../providers/leaderboard_privacy_provider.dart';
+import '../providers/ranking_privacy_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_intro_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -206,7 +206,7 @@ class SettingsScreen extends ConsumerWidget {
           const _TomoKoreSection(),
           const Divider(),
           _SectionHeader(title: 'ランキング設定'),
-          const _LeaderboardPrivacySection(),
+          const _RankingPrivacySection(),
           const Divider(),
           _SectionHeader(title: 'バトル設定'),
           const _BattleSettingsSection(),
@@ -829,12 +829,12 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _LeaderboardPrivacySection extends ConsumerWidget {
-  const _LeaderboardPrivacySection();
+class _RankingPrivacySection extends ConsumerWidget {
+  const _RankingPrivacySection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final privacy = ref.watch(leaderboardPrivacyProvider);
+    final privacy = ref.watch(rankingPrivacyProvider);
 
     return Column(
       children: [
@@ -850,12 +850,12 @@ class _LeaderboardPrivacySection extends ConsumerWidget {
                   'オンにするとランキングであなたの名前が表示されます',
                   style: TextStyle(fontSize: 11),
                 ),
-                value: privacy.showNameInLeaderboard,
-                onChanged: (_) =>
-                    ref.read(leaderboardPrivacyProvider.notifier).toggleNameVisibility(),
+                value: privacy.isNamePublic,
+                onChanged: (value) =>
+                    ref.read(rankingPrivacyProvider.notifier).setNamePublic(value),
                 activeColor: kPrimaryColor,
               ),
-              if (!privacy.showNameInLeaderboard)
+              if (!privacy.isNamePublic)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(56, 8, 16, 8),
                   child: Container(
@@ -974,7 +974,7 @@ class _BattleSettingsSectionState extends State<_BattleSettingsSection> {
           subtitle:
               const Text('過去の対戦結果を確認する', style: TextStyle(fontSize: 11)),
           trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
-          onTap: () => Navigator.of(context).pushNamed('/leaderboard'),
+          onTap: () => Navigator.of(context).pushNamed('/ranking'),
         ),
       ],
     );

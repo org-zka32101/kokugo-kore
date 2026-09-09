@@ -168,7 +168,7 @@ class _MultiplayerMenuScreenState extends ConsumerState<MultiplayerMenuScreen> {
           '🏅 ランキング',
           'グローバルランキングを確認',
           Colors.orange,
-          () => Navigator.pushNamed(context, '/leaderboard'),
+          () => Navigator.pushNamed(context, '/ranking'),
         ),
         const SizedBox(height: 12),
         _buildMenuButton(

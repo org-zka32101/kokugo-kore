@@ -6,7 +6,6 @@ import '../models/analytics_model.dart';
 import '../models/friend_model.dart';
 import '../models/battle_model.dart';
 import '../models/reading_passage_model.dart';
-import '../models/leaderboard_model.dart';
 
 /// Firebase Realtime Database スキーマ
 /// https://firebase.google.com/docs/database/structure-your-data
@@ -145,7 +144,6 @@ class FirebaseRealtimeDB {
   static String userBattlesPath(String userId) => '${userPath(userId)}/battles';
   static String userReadingPath(String userId) => '${userPath(userId)}/readings';
   static const String battlesPath = 'battles';
-  static const String leaderboardPath = 'leaderboard';
   static const String readingPath = 'reading_passages';
 
   // バグ報告・改善要望（shared_core の FeedbackReport）
@@ -306,43 +304,6 @@ class FirebaseRealtimeAPI {
       debugPrint('❌ Error saving battle result: $e');
       rethrow;
     }
-  }
-
-  // ===== Leaderboard API =====
-
-  /// Update user ranking
-  static Future<void> updateUserRanking(String userId, UserRanking ranking) async {
-    try {
-      final ref = _db.ref('${FirebaseRealtimeDB.leaderboardPath}/users/$userId');
-      await ref.set(ranking.toJson());
-    } catch (e) {
-      debugPrint('❌ Error updating ranking: $e');
-      rethrow;
-    }
-  }
-
-  /// Get leaderboard stream
-  static Stream<List<LeaderboardEntry>> getLeaderboardStream(String type) {
-    return _db
-        .ref('${FirebaseRealtimeDB.leaderboardPath}/$type')
-        .orderByChild('rank')
-        .limitToFirst(100)
-        .onValue
-        .map((event) {
-          if (!event.snapshot.exists) return [];
-
-          final entries = <LeaderboardEntry>[];
-          try {
-            for (final child in event.snapshot.children) {
-              entries.add(
-                LeaderboardEntry.fromJson(Map<String, dynamic>.from(child.value as Map)),
-              );
-            }
-          } catch (e) {
-            debugPrint('❌ Error parsing leaderboard: $e');
-          }
-          return entries;
-        });
   }
 
   // ===== Feedback API（バグ報告・改善要望） =====
