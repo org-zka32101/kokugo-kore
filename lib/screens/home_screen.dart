@@ -362,6 +362,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
+          // ── 学ぶ（解説メニュー）カード ────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/lesson'),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: kAccentTeal.withAlpha(20),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: kAccentTeal.withAlpha(60)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('📖', style: TextStyle(fontSize: 24)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '学ぶ',
+                              style: TextStyle(
+                                color: kAccentTeal,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                            const Text(
+                              '国語の仕組みを解説記事で読んでみよう',
+                              style: TextStyle(color: kTextMuted, fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_right, color: kAccentTeal.withAlpha(150)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           SliverToBoxAdapter(
             child: _StatsRow(
               progress: progress,
