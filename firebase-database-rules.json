@@ -1,0 +1,43 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "kokugo-kore": {
+      ".read": "auth != null",
+      ".write": false,
+      "rankings": {
+        ".read": "auth != null",
+        ".write": false,
+        "students": {
+          ".read": "auth != null",
+          ".write": false,
+          "$studentId": {
+            ".read": "auth != null",
+            ".write": false
+          }
+        }
+      },
+      "users": {
+        ".read": "auth != null",
+        ".write": false,
+        "$uid": {
+          ".read": "auth != null && ($uid === auth.uid || root.child('kokugo-kore/friendships').child(auth.uid).child($uid).val() === true)",
+          ".write": "auth != null && $uid === auth.uid",
+          ".validate": "newData.hasChildren(['userId', 'displayName', 'email'])"
+        }
+      },
+      "friendships": {
+        ".read": "auth != null",
+        ".write": false,
+        "$uid": {
+          ".read": "auth != null && ($uid === auth.uid || root.child('kokugo-kore/friendships').child(auth.uid).child($uid).val() === true || root.child('kokugo-kore/friendships').child($uid).child(auth.uid).val() === true)",
+          ".write": "auth != null && $uid === auth.uid",
+          "$friendId": {
+            ".read": "auth != null && ($uid === auth.uid || root.child('kokugo-kore/friendships').child(auth.uid).child($uid).val() === true)",
+            ".write": "auth != null && $uid === auth.uid"
+          }
+        }
+      }
+    }
+  }
+}
