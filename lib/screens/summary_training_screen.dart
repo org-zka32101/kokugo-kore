@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/reading_passages_data.dart';
 import '../models/reading_passage_model.dart';
@@ -98,11 +99,8 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: AppButton(
                 onPressed: _selectedSummaryIndex != null ? () => setState(() => _summaryAnswered = true) : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPrimaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text('答える', style: TextStyle(color: Colors.white)),
@@ -230,11 +228,8 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
           if (!_expressionAnswered)
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: AppButton(
                 onPressed: _selectedExpression != null ? () => setState(() => _expressionAnswered = true) : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPrimaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text('答える', style: TextStyle(color: Colors.white)),
@@ -253,15 +248,12 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: AppButton(
                 onPressed: () => setState(() {
                   _currentExpressionQ++;
                   _selectedExpression = null;
                   _expressionAnswered = false;
                 }),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPrimaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: Text(
@@ -341,13 +333,12 @@ class _SummaryTrainingScreenState extends ConsumerState<SummaryTrainingScreen>
             const SizedBox(height: 8),
             const Text('全問回答しました', style: TextStyle(color: kTextMuted)),
             const SizedBox(height: 24),
-            ElevatedButton(
+            AppButton(
               onPressed: () => setState(() {
                 _currentExpressionQ = 0;
                 _selectedExpression = null;
                 _expressionAnswered = false;
               }),
-              style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
               child: const Text('もう一度', style: TextStyle(color: Colors.white)),
             ),
           ],

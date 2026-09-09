@@ -3,6 +3,7 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/drawing_settings_provider.dart';
 import '../theme/app_theme.dart';
@@ -274,14 +275,10 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
                           const SizedBox(height: 12),
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton.icon(
+                            child: AppButton(
                               onPressed: _clearCanvas,
                               icon: const Icon(Icons.refresh),
                               label: const Text('もう一度！'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: kAccentRed,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12)),
                               ),
@@ -307,11 +304,8 @@ class _DrawingCanvasScreenState extends ConsumerState<DrawingCanvasScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           flex: 2,
-                          child: ElevatedButton(
+                          child: AppButton(
                             onPressed: _hasStrokes ? _submit : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: kAccentRed,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                             child: const Text('できた！',
                                 style: TextStyle(

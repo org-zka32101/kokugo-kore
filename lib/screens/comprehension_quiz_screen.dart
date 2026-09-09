@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/reading_passages_data.dart';
 import '../models/reading_passage_model.dart';
@@ -132,11 +133,8 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
           ],
           const SizedBox(height: 24),
           if (_answered)
-            ElevatedButton(
+            AppButton(
               onPressed: _goToNextQuestion,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: Text(
@@ -145,11 +143,8 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
               ),
             )
           else
-            ElevatedButton(
+            AppButton(
               onPressed: _selectedAnswer != null ? _submitAnswer : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('答える', style: TextStyle(color: Colors.white, fontSize: 14)),
@@ -316,7 +311,7 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AppButton(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => SummaryTrainingScreen(
@@ -325,9 +320,6 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
                       ),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kPrimaryColor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text('要約・表現トレーニングへ', style: TextStyle(color: Colors.white, fontSize: 14)),
@@ -339,7 +331,7 @@ class _ComprehensionQuizScreenState extends ConsumerState<ComprehensionQuizScree
                 child: OutlinedButton(
                   onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst || r.settings.name == '/reading'),
                   style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: const Text('メニューに戻る'),
+                  label: 'メニューに戻る',
                 ),
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/friend_model.dart';
 import '../models/ranking_model.dart';
@@ -325,7 +326,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
               OutlinedButton(
                 onPressed: () =>
                     Navigator.pushNamed(context, '/friend-invitation'),
-                child: const Text('友達を招待する'),
+                label: '友達を招待する',
               ),
             ],
           ),

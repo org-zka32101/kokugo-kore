@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart'
     show
@@ -127,17 +128,13 @@ class _RatedMatchScreenState extends ConsumerState<RatedMatchScreen> {
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
-            ElevatedButton(
+            AppButton(
               onPressed: () => ref.read(matchmakingProvider.notifier).startSearching(
                     userId: identity.userId,
                     displayName: identity.displayName,
                     rating: rating.rating,
                     metadata: {'grade': identity.grade},
                   ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: kPrimaryDark,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               ),
               child: const Text('対戦相手を探す', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

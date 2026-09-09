@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import '../theme/app_theme.dart';
 
 class RandomMatchScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _RandomMatchScreenState extends State<RandomMatchScreen> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 32),
-        ElevatedButton(
+        AppButton(
           onPressed: () {
             setState(() => _isSearching = true);
             Future.delayed(const Duration(seconds: 3), () {
@@ -61,16 +62,16 @@ class _RandomMatchScreenState extends State<RandomMatchScreen> {
                           Navigator.pop(context);
                           setState(() => _isSearching = false);
                         },
-                        child: const Text('キャンセル'),
+                        label: 'キャンセル',
                       ),
-                      ElevatedButton(
+                      AppButton(
                         onPressed: () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('対戦を開始しました！')),
                           );
                         },
-                        child: const Text('対戦開始'),
+                        label: '対戦開始',
                       ),
                     ],
                   ),
@@ -78,9 +79,6 @@ class _RandomMatchScreenState extends State<RandomMatchScreen> {
               }
             });
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: kPrimaryColor,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
           ),
           child: const Text('探す', style: TextStyle(fontSize: 16, color: Colors.white)),
         ),
@@ -99,11 +97,8 @@ class _RandomMatchScreenState extends State<RandomMatchScreen> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 32),
-        ElevatedButton(
+        AppButton(
           onPressed: () => setState(() => _isSearching = false),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
           ),
           child: const Text('キャンセル', style: TextStyle(fontSize: 16, color: Colors.white)),
         ),

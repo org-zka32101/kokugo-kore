@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/premium_provider.dart';
 import '../services/ad_service.dart';
@@ -585,10 +586,8 @@ class _IdiomQuizScreenState extends ConsumerState<IdiomQuizScreen>
                       child: _buildFeedback(),
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton(
+                    AppButton(
                       onPressed: _onNext,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isCorrect ? kAccentGreen : const Color(0xFF2980B9),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
@@ -740,10 +739,8 @@ class _IdiomQuizScreenState extends ConsumerState<IdiomQuizScreen>
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AppButton(
                   onPressed: _restart,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2980B9),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text('もう一度チャレンジ！',

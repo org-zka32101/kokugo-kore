@@ -2,6 +2,7 @@
 // Study menu: grid of learning activities
 
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/kana_data.dart';
 import '../theme/app_theme.dart';

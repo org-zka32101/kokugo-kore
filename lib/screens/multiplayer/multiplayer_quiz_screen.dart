@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart'
     show currentMatchProvider, watchMatchProvider, MatchState, QuizQuestion, Stage;
@@ -294,11 +295,8 @@ class _MultiplayerQuizScreenState extends ConsumerState<MultiplayerQuizScreen> {
           const SizedBox(height: 16),
           Text('$myScore - $opponentScore', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
           const SizedBox(height: 32),
-          ElevatedButton(
+          AppButton(
             onPressed: () => Navigator.of(context).popUntil((route) => route.settings.name == '/multiplayer'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             ),
             child: const Text('マルチプレイに戻る', style: TextStyle(color: Colors.white, fontSize: 16)),
           ),

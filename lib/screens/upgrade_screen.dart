@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show requireParentalGate;
 import '../providers/premium_provider.dart';
@@ -44,9 +45,9 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
+                AppButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('もどる'),
+                  label: 'もどる',
                 ),
               ],
             ),

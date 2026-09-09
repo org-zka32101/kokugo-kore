@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show requireParentalGate;
 import '../providers/profile_provider.dart';
@@ -86,7 +87,7 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('とじる'),
+              label: 'とじる',
             ),
           ],
         ),
@@ -184,9 +185,9 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('キャンセル'),
+              label: 'キャンセル',
             ),
-            ElevatedButton(
+            AppButton(
               onPressed: () async {
                 if (_nameController.text.isNotEmpty) {
                   await ref.read(profileProvider.notifier).addProfile(_nameController.text, _selectedGrade);
@@ -199,7 +200,7 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                   if (ctx.mounted) Navigator.pop(ctx);
                 }
               },
-              child: const Text('追加'),
+              label: '追加',
             ),
           ],
         ),
@@ -227,7 +228,7 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                   Text('プロフィールがありません',
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 24),
-                  ElevatedButton.icon(
+                  AppButton(
                     onPressed: _showAddProfileDialog,
                     icon: const Icon(Icons.add),
                     label: const Text('最初のプロフィールを作成'),
@@ -242,12 +243,10 @@ class _ProfileSelectionScreenState extends ConsumerState<ProfileSelectionScreen>
                 if (index == profiles.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: ElevatedButton.icon(
+                    child: AppButton(
                       onPressed: _showAddProfileDialog,
                       icon: const Icon(Icons.add),
                       label: const Text('プロフィールを追加'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   );

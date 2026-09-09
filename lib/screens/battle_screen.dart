@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/battle_provider.dart';
 import '../providers/badge_provider.dart';
@@ -241,11 +242,8 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
           if (_answered)
             _buildAnswerResult()
           else
-            ElevatedButton(
+            AppButton(
               onPressed: _selectedAnswer != null ? _submitAnswer : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -379,11 +377,8 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
             style: const TextStyle(fontSize: 12, height: 1.5),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
+          AppButton(
             onPressed: _goToNextRound,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimaryColor,
-              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
             child: const Text(
               '次へ',
@@ -477,14 +472,13 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('戻る'),
+            label: '戻る',
           ),
-          ElevatedButton(
+          AppButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
             child: const Text('ホームに戻る', style: TextStyle(color: Colors.white)),
           ),
         ],

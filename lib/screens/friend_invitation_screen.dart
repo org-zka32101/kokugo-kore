@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/friend_provider.dart';
 import '../providers/badge_provider.dart';
@@ -196,15 +197,12 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
                 ),
                 Column(
                   children: [
-                    ElevatedButton(
+                    AppButton(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('${req.$1}を承認しました')),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                       ),
                       child: const Text(
                         '承認',
@@ -270,7 +268,7 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
           SizedBox(
             width: double.infinity,
             child: Consumer(
-              builder: (context, ref, child) => ElevatedButton(
+              builder: (context, ref, child) => AppButton(
                 onPressed: () async {
                   // 招待数を増やす
                   await ref.read(badgeMetricsProvider.notifier).incrementFriendInvites();
@@ -299,10 +297,7 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
                     );
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPrimaryColor,
-                ),
-                child: const Text('招待を送る'),
+                label: '招待を送る',
               ),
             ),
           ),
@@ -415,15 +410,12 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
                         ],
                       ),
                     ),
-                    ElevatedButton(
+                    AppButton(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('${friend.$1}に招待を送りました')),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryColor,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       ),
                       child: const Text(
                         '追加',
@@ -509,11 +501,8 @@ class _FriendInvitationScreenState extends ConsumerState<FriendInvitationScreen>
               ],
             ),
           ),
-          ElevatedButton(
+          AppButton(
             onPressed: onTap,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
             child: const Text(
               '対戦',

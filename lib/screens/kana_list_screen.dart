@@ -2,6 +2,7 @@
 // Kana study screen: みる / おぼえる / かく (3 tabs)
 
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
@@ -147,7 +148,7 @@ void _showStrokeOrderDialog(BuildContext context, WidgetRef ref, KanaItem item) 
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('とじる'),
+          label: 'とじる',
         ),
       ],
     ),
@@ -398,7 +399,7 @@ class _KakuTabState extends ConsumerState<_KakuTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('キャンセル'),
+            label: 'キャンセル',
           ),
           TextButton(
             onPressed: () async {

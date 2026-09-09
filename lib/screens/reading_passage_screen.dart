@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/reading_passages_data.dart';
 import '../theme/app_theme.dart';
@@ -103,11 +104,8 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: AppButton(
                       onPressed: () => _showCompletionDialog(passage.title),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: const Text('読み終わった', style: TextStyle(color: Colors.white, fontSize: 14)),
@@ -154,9 +152,9 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('戻る'),
+            label: '戻る',
           ),
-          ElevatedButton(
+          AppButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.of(context).push(
@@ -168,7 +166,6 @@ class _ReadingPassageScreenState extends ConsumerState<ReadingPassageScreen> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor),
             child: const Text('クイズに答える', style: TextStyle(color: Colors.white)),
           ),
         ],

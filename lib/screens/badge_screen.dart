@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/models/badge_model.dart' hide allBadges;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import '../theme/app_theme.dart';
 
 class GoalSettingScreen extends StatefulWidget {
@@ -89,16 +90,13 @@ class _GoalSettingScreenState extends State<GoalSettingScreen> {
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: AppButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('目標を保存しました！')),
                   );
                   Navigator.pop(context);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kPrimaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 child: const Text('保存する', style: TextStyle(fontSize: 16, color: Colors.white)),
               ),

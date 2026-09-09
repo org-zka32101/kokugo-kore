@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import 'dart:async';
@@ -129,7 +130,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
                 title: const Text('やめますか？'),
                 content: const Text('今の進捗は保存されません。'),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('続ける')),
+                  TextButton(onPressed: () => Navigator.pop(ctx), label: '続ける'),
                   TextButton(
                     onPressed: () {
                       Navigator.pop(ctx);
@@ -184,11 +185,8 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton(
+                    AppButton(
                       onPressed: _onNext,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isCorrect ? kAccentGreen : kPrimaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
                         _currentIndex < total - 1 ? '次の問題へ →' : '結果を見る！',

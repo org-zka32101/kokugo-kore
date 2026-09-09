@@ -1,6 +1,7 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import '../models/quest_model.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../providers/adaptive_provider.dart';
@@ -285,22 +286,21 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('ステージ選択'),
+                        label: 'ステージ選択',
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton(
+                      child: AppButton(
+                        label: 'ホームへ',
                         onPressed: _saving
-                            ? null
+                            ? () {}
                             : () => Navigator.of(context).pushNamedAndRemoveUntil(
                                   '/home',
                                   (route) => false,
                                 ),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        child: const Text('ホームへ'),
+                        isEnabled: !_saving,
+                        isFullWidth: true,
                       ),
                     ),
                   ],

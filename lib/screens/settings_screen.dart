@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart'
     show
@@ -432,7 +433,7 @@ class SettingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('とじる'),
+            label: 'とじる',
           ),
         ],
       ),
@@ -484,7 +485,7 @@ class SettingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('とじる'),
+            label: 'とじる',
           ),
         ],
       ),
@@ -548,7 +549,7 @@ class SettingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('とじる'),
+            label: 'とじる',
           ),
         ],
       ),
@@ -562,7 +563,7 @@ class SettingsScreen extends ConsumerWidget {
         title: const Text('きろくをリセットしますか？'),
         content: const Text('すべての学習記録とバッジが消えます。この操作は元に戻せません。'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('キャンセル')),
+          TextButton(onPressed: () => Navigator.pop(ctx), label: 'キャンセル'),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -588,7 +589,7 @@ class SettingsScreen extends ConsumerWidget {
         title: const Text('かく れんしゅうをリセットしますか？'),
         content: const Text('かく練習の成績が消えます。この操作は元に戻せません。'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('キャンセル')),
+          TextButton(onPressed: () => Navigator.pop(ctx), label: 'キャンセル'),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -738,7 +739,7 @@ class _TomoKoreSection extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('とじる'),
+            label: 'とじる',
           ),
         ],
       ),
@@ -776,7 +777,7 @@ class _TomoKoreSection extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('キャンセル'),
+            label: 'キャンセル',
           ),
           TextButton(
             onPressed: () async {
@@ -804,7 +805,7 @@ class _TomoKoreSection extends ConsumerWidget {
                 }
               }
             },
-            child: const Text('入力'),
+            label: '入力',
           ),
         ],
       ),

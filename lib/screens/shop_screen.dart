@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:shared_core/shared_core.dart'
     hide kTextDark, kTextMuted;
 import '../data/kokugo_characters.dart';

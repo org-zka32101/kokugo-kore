@@ -2,6 +2,7 @@
 // Kanji list screen: みる(複数読み+使い方ダイアログ) / おぼえる / かく (進捗保存)
 
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/kanji_data.dart';
 import '../providers/drawing_progress_provider.dart';
@@ -169,7 +170,7 @@ class _MiruTab extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('とじる'),
+            label: 'とじる',
           ),
         ],
       ),

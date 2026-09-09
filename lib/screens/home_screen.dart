@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_core/widgets/components/app_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/quiz_data.dart';
@@ -133,7 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('とじる'),
+              label: 'とじる',
             ),
           ],
         ),
@@ -304,13 +305,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               PopupMenuButton(
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                    child: const Text('プロフィール変更'),
+                    label: 'プロフィール変更',
                     onTap: () {
                       Navigator.pushReplacementNamed(context, '/profile-selection');
                     },
                   ),
                   PopupMenuItem(
-                    child: const Text('保護者レポート'),
+                    label: '保護者レポート',
                     onTap: () => _openParentReport(context),
                   ),
                 ],
@@ -642,7 +643,7 @@ class _RecentCharactersSection extends ConsumerWidget {
               const Spacer(),
               TextButton(
                 onPressed: () => Navigator.of(context).pushNamed('/characters'),
-                child: const Text('すべて見る'),
+                label: 'すべて見る',
               ),
             ],
           ),
