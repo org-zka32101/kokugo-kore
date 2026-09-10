@@ -72,7 +72,9 @@ jobs:
         shell: powershell
 
       - name: Build APK (Release)
-        if: inputs.build_type == 'release'
+        if: |
+          (github.event_name == 'workflow_dispatch' && inputs.build_type == 'release') ||
+          (github.event_name == 'push')
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -84,7 +86,7 @@ jobs:
         shell: powershell
 
       - name: Build APK (Debug)
-        if: inputs.build_type == 'debug'
+        if: github.event_name == 'workflow_dispatch' && inputs.build_type == 'debug'
         run: |
           cd K:/
           flutter build apk --debug
