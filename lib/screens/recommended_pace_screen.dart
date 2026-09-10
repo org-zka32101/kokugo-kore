@@ -66,7 +66,7 @@ class RecommendedPaceScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // 目標設定
-            _buildGoalSettingSection(),
+            _buildGoalSettingSection(context),
           ],
         ),
       ),
@@ -396,7 +396,7 @@ class RecommendedPaceScreen extends ConsumerWidget {
   }
 
   /// 目標設定セクション
-  Widget _buildGoalSettingSection() {
+  Widget _buildGoalSettingSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
