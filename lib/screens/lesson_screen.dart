@@ -5,8 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_core/shared_core.dart' show LessonMenuPage, lessonProvider;
+import 'package:shared_core/shared_core.dart' show LessonMenuPage;
 import '../data/lesson_data.dart';
+import '../providers/lesson_provider.dart';
 
 class LessonScreen extends ConsumerStatefulWidget {
   const LessonScreen({super.key});

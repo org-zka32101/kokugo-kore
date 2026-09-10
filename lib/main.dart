@@ -28,12 +28,14 @@ import 'package:shared_core/shared_core.dart'
         avatarProvider,
         equippedItemsProvider,
         screenTimeProvider,
-        ScreenTimeLimitReachedWidget;
+        ScreenTimeLimitReachedWidget,
+        lessonProvider;
 import 'package:cross_promo_kit/cross_promo_kit.dart'
     show CrossPromoService;
 import 'providers/character_provider.dart';
 import 'providers/equipped_items_provider.dart';
 import 'providers/screen_time_provider.dart';
+import 'providers/lesson_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 import 'providers/purchased_items_provider.dart';
@@ -115,6 +117,8 @@ Future<void> main() async {
       equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
       // 国語コレの利用時間制限（スクリーンタイム管理）ノティファイアを注入
       screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
+      // 国語コレの解説記事管理（LessonProvider）ノティファイアを注入
+      lessonProvider.overrideWith(LessonNotifier.new),
       // マルチプレイ対戦（レートマッチング）のFirestoreハンドラを注入
       ...kokugoMultiplayerProviderOverrides,
     ],
