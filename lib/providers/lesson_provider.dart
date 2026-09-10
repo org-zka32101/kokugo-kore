@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shared_core/models/lesson_content_model.dart';
+import 'package:shared_core/shared_core.dart' show LessonContent;
 import '../data/lesson_data.dart';
 
 const _readPrefix = 'kokugo_lesson_read_';
