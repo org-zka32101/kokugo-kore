@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderContainer, UncontrolledProviderScope;
 import 'services/ad_service.dart';
+import 'services/revenue_cat_service.dart';
 import 'data/kana_data.dart';
 import 'firebase_options.dart';
 import 'models/quest_model.dart';
@@ -95,6 +96,13 @@ Future<void> main() async {
     );
     await CrossPromoService.init();
   } catch (_) {}
+
+  // RevenueCat 初期化（サブスクリプション管理）
+  try {
+    await RevenueCatService().initialize();
+  } catch (e) {
+    debugPrint('[RevenueCat] 初期化スキップ: $e');
+  }
 
   // AdMob 初期化
   await AdService.initialize();
