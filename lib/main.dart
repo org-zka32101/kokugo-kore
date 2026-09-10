@@ -26,7 +26,10 @@ import 'package:shared_core/shared_core.dart'
         avatarProvider,
         equippedItemsProvider,
         screenTimeProvider,
-        ScreenTimeLimitReachedWidget;
+        ScreenTimeLimitReachedWidget,
+        badgeProvider,
+        unifiedBadges,
+        BadgeNotifier;
 import 'package:cross_promo_kit/cross_promo_kit.dart'
     show CrossPromoService;
 import 'providers/character_provider.dart';
@@ -98,6 +101,7 @@ Future<void> main() async {
 
   // テスト用設定: コイン初期値を999999に設定・全機能開放
   const bool isTestMode = false; // リリース版：本番機能のみ
+
   if (isTestMode) {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('total_coins', 999999);
@@ -112,6 +116,12 @@ Future<void> main() async {
       characterStateProvider.overrideWith(CharacterNotifier.new),
       // 国語コレのショップアイテム装着状態ノティファイアを注入
       equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
+      // 統一バッジシステム（Phase 4.1）: 国語コレ用バッジを主題タグで初期化
+      badgeProvider.overrideWith((ref) {
+        final notifier = BadgeNotifier();
+        notifier.setBadgeDefinitions(unifiedBadges, subject: 'kokugo');
+        return notifier;
+      }),
       // 国語コレの利用時間制限（スクリーンタイム管理）ノティファイアを注入
       screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
       // 国語コレの解説記事管理（LessonProvider）ノティファイアを注入
