@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderContainer, UncontrolledProviderScope;
 import 'services/ad_service.dart';
 import 'data/kana_data.dart';
 import 'firebase_options.dart';
@@ -110,18 +110,14 @@ Future<void> main() async {
     await prefs.setInt('unlocked_stages', 100); // 全ステージ開放フラグ
   }
 
-  runApp(ProviderScope(
+  final container = ProviderContainer(
     overrides: [
       // 国語コレのキャラクターノティファイアを注入
       characterStateProvider.overrideWith(CharacterNotifier.new),
       // 国語コレのショップアイテム装着状態ノティファイアを注入
       equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
       // 統一バッジシステム（Phase 4.1）: 国語コレ用バッジを主題タグで初期化
-      badgeProvider.overrideWith((ref) {
-        final notifier = BadgeNotifier();
-        notifier.setBadgeDefinitions(unifiedBadges, subject: 'kokugo');
-        return notifier;
-      }),
+      badgeProvider.overrideWith(() => BadgeNotifier()),
       // 国語コレの利用時間制限（スクリーンタイム管理）ノティファイアを注入
       screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
       // 国語コレの解説記事管理（LessonProvider）ノティファイアを注入
@@ -129,6 +125,13 @@ Future<void> main() async {
       // マルチプレイ対戦（レートマッチング）のFirestoreハンドラを注入
       ...kokugoMultiplayerProviderOverrides,
     ],
+  );
+
+  // バッジシステム初期化: 統一バッジを主題タグで初期化
+  container.read(badgeProvider.notifier).setBadgeDefinitions(unifiedBadges, subject: 'kokugo');
+
+  runApp(UncontrolledProviderScope(
+    container: container,
     child: const KokugoKoreApp(),
   ));
 }
