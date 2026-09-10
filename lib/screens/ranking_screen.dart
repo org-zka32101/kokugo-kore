@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_core/shared_core.dart'
-    show globalRankingProvider, subjectRankingStreamProvider, GlobalRankingEntry;
 import '../models/friend_model.dart';
 import '../models/ranking_model.dart';
 import '../providers/badge_metrics_provider.dart';
@@ -32,7 +30,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(rankingPrivacyProvider.notifier).load();
@@ -158,8 +156,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: const [
-              Tab(text: '🌍 全体'),
-              Tab(text: '📖 国語'),
               Tab(text: '👥 友達'),
             ],
           ),
@@ -177,8 +173,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildGlobalRankingTab(context, ref),
-            _buildSubjectRankingTab(context, ref),
             _buildFriendRankingTab(context, ref),
           ],
         ),
