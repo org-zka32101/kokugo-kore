@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_core/shared_core.dart'
-    show globalRankingProvider, subjectRankingStreamProvider, GlobalRankingEntry;
 import '../models/friend_model.dart';
 import '../models/ranking_model.dart';
 import '../providers/badge_metrics_provider.dart';
