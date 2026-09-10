@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/quest_model.dart';
+
 import '../theme/app_theme.dart';
 
 class StageCard extends StatelessWidget {
   final Stage stage;
+
   final bool isCleared;
   final bool isLocked;
   final bool isPremiumLocked;

@@ -1,22 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/shared_core.dart' show feedbackProvider;
 import '../providers/adaptive_provider.dart';
+
 import '../providers/badge_provider.dart';
 import '../providers/coin_provider.dart';
 import '../providers/daily_bonus_provider.dart';
 import '../providers/learning_timer_provider.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/drawing_settings_provider.dart';
-import '../providers/vocab_mastery_provider.dart';
-import '../providers/premium_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/sound_provider.dart';
 import '../services/firebase_realtime_db.dart';
+import '../providers/vocab_mastery_provider.dart';
+import '../providers/premium_provider.dart';
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
 

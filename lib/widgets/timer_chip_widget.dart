@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/learning_timer_provider.dart';
 import '../theme/app_theme.dart';
 
-/// AppBar や HomeScreen に表示する小型タイマーチップ
 class TimerChip extends ConsumerWidget {
   final VoidCallback? onTap;
 

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
 import 'package:shared_core/shared_core.dart' hide kTextDark, kTextMuted;
+
 import '../data/kokugo_characters.dart';
 import '../theme/app_theme.dart';
 
-/// 国語コレ版キャラクター図鑑（LvMAX 画像対応）
 class KokugoCharacterCollectionPage extends ConsumerStatefulWidget {
   final List<BaseCharacter> characters;
   final int totalStagesCleared;

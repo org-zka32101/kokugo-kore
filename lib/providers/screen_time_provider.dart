@@ -8,4 +8,5 @@ import 'package:shared_core/shared_core.dart';
 class ScreenTimeNotifier extends BaseScreenTimeNotifier {
   @override
   String get storageKey => 'kokugo_screen_time';
+
 }

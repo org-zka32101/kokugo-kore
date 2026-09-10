@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'dart:async';
 import 'package:flutter/services.dart';
+
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
+
 import '../models/badge_set_bonus_model.dart';
 import '../theme/app_theme.dart';
 
-/// セットボーナス完成演出スクリーン
 class SetBonusCompletionScreen extends StatefulWidget {
   final BadgeSetBonus setBonus;
   final int coinsEarned;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/synonym_antonym_data.dart';
+
 import '../theme/app_theme.dart';
 import '../widgets/generic_quiz_widget.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart';
+
 import 'purchased_items_provider.dart';
 
 /// ローカルアバター unlock ロジック
@@ -8,7 +9,6 @@ import 'purchased_items_provider.dart';
 class AvatarUnlockNotifier extends StateNotifier<Map<String, bool>> {
   final Ref ref;
 
-  // 無料で使用可能なアバター ID リスト（最初の4つ + デフォルト）
   static const List<String> _freeAvatarIds = [
     'kuroneko',        // デフォルト
     'avatar_panda',    // 無料 1

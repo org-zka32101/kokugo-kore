@@ -1,19 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart'
     show currentMatchProvider, watchMatchProvider, MatchState, QuizQuestion, Stage;
+
 import '../../data/quiz_data.dart';
 import '../../providers/multiplayer_provider.dart';
 import '../../services/kokugo_matchmaking_service.dart';
 import '../../theme/app_theme.dart';
 
-/// マルチプレイ対戦本編（国語版）。
-///
-/// マッチが成立した2人に、同じ学年の問題から `matchId` をシードにして
-/// 同一の10問セットを出題し、正答数をスコアとしてリアルタイム同期する。
-/// 参考: social_quiz_app の multiplayer_quiz_screen.dart。
 class MultiplayerQuizScreen extends ConsumerStatefulWidget {
   final String matchId;
 

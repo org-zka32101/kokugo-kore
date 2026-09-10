@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../providers/badge_provider.dart';
+
 import '../models/badge_progress_model.dart';
 import '../theme/app_theme.dart';
 
-/// ホーム画面に表示するバッジ統計カード
 class BadgeStatsCard extends ConsumerWidget {
   final VoidCallback? onTap;
 

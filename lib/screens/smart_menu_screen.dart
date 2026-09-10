@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/quiz_data.dart';
 import '../models/quest_model.dart';
 import '../providers/adaptive_provider.dart';
@@ -16,6 +17,7 @@ extension _DifficultyExt on _Difficulty {
     switch (this) {
       case _Difficulty.easy:
         return 'かんたん';
+
       case _Difficulty.normal:
         return 'ふつう';
       case _Difficulty.hard:

@@ -4,16 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/quest_model.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../providers/adaptive_provider.dart';
-import '../providers/progress_provider.dart';
-import '../providers/badge_provider.dart';
+import 'package:shared_core/shared_core.dart' show characterStateProvider;
+import '../providers/coin_provider.dart';
+
+import '../data/kokugo_characters.dart';
+import '../theme/app_theme.dart';
 import '../providers/badge_metrics_provider.dart';
 import '../providers/study_habit_provider.dart';
 import '../providers/badge_time_definitions.dart';
 import '../providers/quest_performance_provider.dart';
-import 'package:shared_core/shared_core.dart' show characterStateProvider;
-import '../providers/coin_provider.dart';
-import '../data/kokugo_characters.dart';
-import '../theme/app_theme.dart';
+import '../providers/progress_provider.dart';
+import '../providers/badge_provider.dart';
 import '../widgets/character_unlock_dialog.dart';
 import '../widgets/badge_achievement_notification.dart';
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/ranking_privacy_provider.dart';
 
 /// ランキング名前公開許可ダイアログ
 /// ユーザーがランキングでユーザー名を公開するかどうかを確認
 class RankingPrivacyDialog extends ConsumerWidget {
   final VoidCallback? onAllowCallback;
+
   final VoidCallback? onDenyCallback;
 
   const RankingPrivacyDialog({

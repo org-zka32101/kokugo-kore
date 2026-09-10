@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/reading_passages_data.dart';
 import '../theme/app_theme.dart';
 import 'comprehension_quiz_screen.dart';
 
 class ReadingPassageScreen extends ConsumerStatefulWidget {
   final String passageId;
+
   final String title;
 
   const ReadingPassageScreen({

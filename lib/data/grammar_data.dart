@@ -205,7 +205,6 @@ const joshiItems = <GenericQuizItem>[
   ),
 ];
 
-// ─── 接続語クイズ（25問）──────────────────────────────────────
 const setsuzokulItems = <GenericQuizItem>[
   GenericQuizItem(
     question: '「雨が降っていた。（　）、傘を持って出かけた。」に入る接続語は？',

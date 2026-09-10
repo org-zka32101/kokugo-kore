@@ -6,6 +6,7 @@ import 'package:shared_core/shared_core.dart';
 /// 国語コレ版キャラクター状態（shared_core のCharacterStateを独立）
 class KokugoCharacterState {
   final String characterId;
+
   final bool isUnlocked;
   final int level; // 従来のレベル（1-5）
   final int experience; // EXP（進化用、0～）

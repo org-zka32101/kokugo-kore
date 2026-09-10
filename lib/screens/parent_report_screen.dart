@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show WeeklyBarChartWidget;
 import '../providers/adaptive_provider.dart';
-import '../providers/progress_provider.dart';
-import '../providers/profile_provider.dart';
+
 import '../data/quiz_data.dart';
 import '../models/quest_model.dart';
+import '../providers/progress_provider.dart';
+import '../providers/profile_provider.dart';
 import '../theme/app_theme.dart';
 
 class ParentReportScreen extends ConsumerWidget {

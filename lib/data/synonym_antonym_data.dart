@@ -165,7 +165,6 @@ const synonymItems = <GenericQuizItem>[
   ),
 ];
 
-// ─── 対義語クイズ（40問）───────────────────────────────────────
 const antonymItems = <GenericQuizItem>[
   GenericQuizItem(
     highlight: '大きい',

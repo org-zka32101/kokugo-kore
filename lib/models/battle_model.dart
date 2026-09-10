@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'battle_model.freezed.dart';
+
 part 'battle_model.g.dart';
 
 @freezed

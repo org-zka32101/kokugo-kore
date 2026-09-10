@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/shared_core.dart' show LessonContent;
 
 const _readPrefix = 'kokugo_lesson_read_';
+
 const _favoritePrefix = 'kokugo_lesson_favorite_';
 
 class LessonState {

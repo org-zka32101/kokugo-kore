@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/kokugo_characters.dart';
+
 import '../models/character_model.dart';
 
 /// 国語コレ固有のキャラクターノティファイア。

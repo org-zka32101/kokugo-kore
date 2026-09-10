@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/drawing_settings_provider.dart';

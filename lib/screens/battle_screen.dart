@@ -1,11 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/battle_provider.dart';
-import '../providers/badge_provider.dart';
-import '../providers/badge_metrics_provider.dart';
-import '../theme/app_theme.dart';
-import '../data/quiz_data.dart';
+
 import '../models/quest_model.dart';
 
 /// このバトル画面は実際の対人・対サーバー通信を行わない、
@@ -13,6 +11,11 @@ import '../models/quest_model.dart';
 /// 相手のスコアは通信結果ではなく、練習相手を模したランダム加算です。
 class BattleScreen extends ConsumerStatefulWidget {
   final String opponentId;
+import '../providers/badge_provider.dart';
+import '../providers/badge_metrics_provider.dart';
+import '../theme/app_theme.dart';
+import '../data/quiz_data.dart';
+
   final String opponentName;
 
   /// 出題対象の学年（未指定の場合はランダムな学年から出題）

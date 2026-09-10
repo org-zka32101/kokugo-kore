@@ -189,7 +189,6 @@ const List<BaseCharacter> kKokugoCharacters = [
   ),
 ];
 
-/// レベル MAX 時のキャラクター画像（進化版）
 const Map<String, String> kKokugoCharactersLvMax = {
   'honhon': 'assets/characters_lvmax/honhon_lvmax.jpg',
   'penpen': 'assets/characters_lvmax/penpen_lvmax.jpg',

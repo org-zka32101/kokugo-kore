@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/friend_model.dart';
 import '../models/ranking_model.dart';
 import '../providers/badge_metrics_provider.dart';
@@ -11,11 +12,6 @@ import '../providers/ranking_provider.dart' show rankingServiceProvider;
 import '../theme/app_theme.dart';
 import '../widgets/ranking_privacy_dialog.dart';
 
-/// ランキング画面
-///
-/// 全体・学年別・開始月別・学年×開始月のランキング（Firebase Realtime Database
-/// `kokugo-kore/rankings/students` を参照）と、友達ランキング（[friendListProvider]）
-/// をタブで切り替えて表示する。名前の公開・匿名化は [rankingPrivacyProvider] で管理する。
 class RankingScreen extends ConsumerStatefulWidget {
   const RankingScreen({super.key});
 

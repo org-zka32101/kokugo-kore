@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_core/shared_core.dart'
     hide kTextDark, kTextMuted;
+
 import '../data/kokugo_characters.dart';
 import '../widgets/kokugo_shop_page.dart';
 import '../providers/avatar_unlock_provider.dart';
@@ -8,6 +9,7 @@ import '../providers/avatar_unlock_provider.dart';
 // Get coin-unlock avatars for shop display (paid avatars only)
 List<AvatarModel> _getCoinUnlockAvatars() {
   return getPaidAvatars();
+
 }
 
 // ── 国語コレ 交換所アイテム ───────────────────────────────────────────────

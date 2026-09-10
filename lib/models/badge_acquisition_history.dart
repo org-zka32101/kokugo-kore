@@ -1,7 +1,6 @@
 import 'package:shared_core/models/badge_model.dart';
 import 'badge_set_bonus_model.dart';
 
-/// バッジ獲得履歴
 class BadgeAcquisitionRecord {
   final String badgeId;
   final String badgeTitle;

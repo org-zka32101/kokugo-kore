@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
 import 'dart:async';
+
 import '../data/kokugo_characters.dart';
 import '../models/quest_model.dart';
 import '../providers/character_provider.dart';

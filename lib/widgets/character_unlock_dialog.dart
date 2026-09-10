@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_core/shared_core.dart' hide kTextMuted;
+
 import '../theme/app_theme.dart';
 
 Future<void> showCharacterUnlockDialog(
@@ -89,6 +90,7 @@ Future<void> showCharacterUnlockDialog(
       ],
     ),
   );
+
 }
 
 /// レベルアップ成功時の演出ダイアログ。kokugo_shop_page.dart から呼び出す。

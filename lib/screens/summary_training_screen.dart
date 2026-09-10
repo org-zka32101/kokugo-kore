@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/reading_passages_data.dart';
 import '../models/reading_passage_model.dart';
 import '../theme/app_theme.dart';
 
 class SummaryTrainingScreen extends ConsumerStatefulWidget {
   final String passageId;
+
   final String passageTitle;
 
   const SummaryTrainingScreen({
