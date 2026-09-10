@@ -2,6 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Cloud CI/CD automation test - GitHub Actions workflow validation
+// Testing automatic build, analyze, and PR creation workflow
 import 'services/ad_service.dart';
 import 'data/kana_data.dart';
 import 'firebase_options.dart';
