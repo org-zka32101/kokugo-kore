@@ -14,7 +14,9 @@ import 'package:shared_core/shared_core.dart'
         ScreenTimeLimitReachedWidget,
         badgeProvider,
         unifiedBadges,
-        BadgeNotifier;
+        BadgeNotifier,
+        rankingProvider,
+        friendProvider;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 
@@ -78,6 +80,8 @@ import 'screens/yojijukugo_quiz_screen.dart';
 import 'screens/synonym_antonym_quiz_screen.dart';
 import 'services/ad_service.dart';
 import 'services/revenue_cat_service.dart';
+import 'services/firestore_ranking_service.dart';
+import 'services/firestore_friend_service.dart';
 import 'widgets/premium_gate.dart';
 
 Future<void> main() async {
@@ -137,6 +141,17 @@ Future<void> main() async {
 
   // バッジシステム初期化: 統一バッジを主題タグで初期化
   container.read(badgeProvider.notifier).setBadgeDefinitions(unifiedBadges, subject: 'kokugo');
+
+  // Firestore ランキング・フレンド サービスの初期化
+  final rankingService = FirestoreRankingService();
+  final friendService = FirestoreFriendService();
+
+  // Handler を shared_core provider に注入
+  container.read(rankingProvider.notifier).setFetchHandler(rankingService.fetchRankings);
+  container.read(friendProvider.notifier)
+    ..setFetchHandler(friendService.fetchFriends)
+    ..setAddFriendHandler(friendService.addFriend)
+    ..setRemoveFriendHandler(friendService.removeFriend);
 
   runApp(UncontrolledProviderScope(
     container: container,
