@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:purchases_flutter/purchases_flutter.dart';
 
-import '../config/constants.dart';
+import '../utils/constants.dart';
 
 class RevenueCatService {
   static final RevenueCatService _instance = RevenueCatService._internal();
