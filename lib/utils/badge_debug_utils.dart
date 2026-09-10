@@ -8,84 +8,86 @@ import '../providers/badge_acquisition_history_provider.dart';
 /// バッジシステム用デバッグユーティリティ
 class BadgeDebugUtils {
   /// すべてのバッジを獲得状態にセット（デバッグ用）
-  static Future<void> acquireAllBadges(WidgetRef ref) async {
-    if (!kDebugMode) {
-      throw Exception('Debug mode only');
-    }
-
-    final badgeNotifier = ref.read(badgeProvider.notifier);
-    final prefs = await SharedPreferences.getInstance();
-    final now = DateTime.now();
-
-    final allBadges = badgeNotifier.getAllBadges();
-    final newEarnedBadges = <EarnedBadge>[];
-
-    for (final badge in allBadges) {
-      // SharedPreferences に保存
-      await prefs.setString('earned_badge_${badge.id}', now.toIso8601String());
-      newEarnedBadges.add(EarnedBadge(badge: badge, earnedAt: now));
-    }
-
-    // 状態を更新
-    final currentState = ref.read(badgeProvider);
-    badgeNotifier.state = currentState.copyWith(
-      earnedBadges: newEarnedBadges,
-      newlyEarned: allBadges,
-    );
-
-    debugPrint('✅ All ${allBadges.length} badges acquired');
-  }
+  // TODO: Implement getAllBadges() in BadgeNotifier
+  // static Future<void> acquireAllBadges(WidgetRef ref) async {
+  //   if (!kDebugMode) {
+  //     throw Exception('Debug mode only');
+  //   }
+  //
+  //   final badgeNotifier = ref.read(badgeProvider.notifier);
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final now = DateTime.now();
+  //
+  //   final allBadges = badgeNotifier.getAllBadges();
+  //   final newEarnedBadges = <EarnedBadge>[];
+  //
+  //   for (final badge in allBadges) {
+  //     // SharedPreferences に保存
+  //     await prefs.setString('earned_badge_${badge.id}', now.toIso8601String());
+  //     newEarnedBadges.add(EarnedBadge(badge: badge, earnedAt: now));
+  //   }
+  //
+  //   // 状態を更新
+  //   final currentState = ref.read(badgeProvider);
+  //   badgeNotifier.state = currentState.copyWith(
+  //     earnedBadges: newEarnedBadges,
+  //     newlyEarned: allBadges,
+  //   );
+  //
+  //   debugPrint('✅ All ${allBadges.length} badges acquired');
+  // }
 
   /// 特定のバッジを獲得状態にセット
-  static Future<void> acquireBadge(
-    WidgetRef ref,
-    String badgeId,
-    String badgeTitle,
-    String emoji,
-  ) async {
-    if (!kDebugMode) {
-      throw Exception('Debug mode only');
-    }
-
-    final badgeNotifier = ref.read(badgeProvider.notifier);
-    final prefs = await SharedPreferences.getInstance();
-    final now = DateTime.now();
-
-    // すべてのバッジから対象バッジを検索
-    final allBadges = badgeNotifier.getAllBadges();
-    final targetBadge = allBadges.firstWhere(
-      (b) => b.id == badgeId,
-      orElse: () => BadgeModel(
-        id: badgeId,
-        title: badgeTitle,
-        emoji: emoji,
-        description: 'Debug acquired badge',
-        category: 'debug',
-        rarity: BadgeRarity.common,
-      ),
-    );
-
-    // SharedPreferences に保存
-    await prefs.setString('earned_badge_$badgeId', now.toIso8601String());
-
-    // 既に獲得済みでない場合は追加
-    final currentState = ref.read(badgeProvider);
-    final alreadyEarned = currentState.earnedBadges.map((e) => e.badge.id).toSet();
-
-    if (!alreadyEarned.contains(badgeId)) {
-      final updatedBadges = [
-        ...currentState.earnedBadges,
-        EarnedBadge(badge: targetBadge, earnedAt: now),
-      ];
-      badgeNotifier.state = currentState.copyWith(earnedBadges: updatedBadges);
-    }
-
-    // 履歴にも記録
-    final historyNotifier = ref.read(badgeAcquisitionHistoryProvider.notifier);
-    await historyNotifier.recordBadgeAcquisition(badgeId, badgeTitle, emoji);
-
-    debugPrint('✅ Badge acquired: $badgeTitle ($emoji)');
-  }
+  // TODO: Fix BadgeModel constructor and implement properly
+  // static Future<void> acquireBadge(
+  //   WidgetRef ref,
+  //   String badgeId,
+  //   String badgeTitle,
+  //   String emoji,
+  // ) async {
+  //   if (!kDebugMode) {
+  //     throw Exception('Debug mode only');
+  //   }
+  //
+  //   final badgeNotifier = ref.read(badgeProvider.notifier);
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final now = DateTime.now();
+  //
+  //   // すべてのバッジから対象バッジを検索
+  //   final allBadges = badgeNotifier.getAllBadges();
+  //   final targetBadge = allBadges.firstWhere(
+  //     (b) => b.id == badgeId,
+  //     orElse: () => BadgeModel(
+  //       id: badgeId,
+  //       title: badgeTitle,
+  //       emoji: emoji,
+  //       description: 'Debug acquired badge',
+  //       category: 'debug',
+  //       rarity: BadgeRarity.common,
+  //     ),
+  //   );
+  //
+  //   // SharedPreferences に保存
+  //   await prefs.setString('earned_badge_$badgeId', now.toIso8601String());
+  //
+  //   // 既に獲得済みでない場合は追加
+  //   final currentState = ref.read(badgeProvider);
+  //   final alreadyEarned = currentState.earnedBadges.map((e) => e.badge.id).toSet();
+  //
+  //   if (!alreadyEarned.contains(badgeId)) {
+  //     final updatedBadges = [
+  //       ...currentState.earnedBadges,
+  //       EarnedBadge(badge: targetBadge, earnedAt: now),
+  //     ];
+  //     badgeNotifier.state = currentState.copyWith(earnedBadges: updatedBadges);
+  //   }
+  //
+  //   // 履歴にも記録
+  //   final historyNotifier = ref.read(badgeAcquisitionHistoryProvider.notifier);
+  //   await historyNotifier.recordBadgeAcquisition(badgeId, badgeTitle, emoji);
+  //
+  //   debugPrint('✅ Badge acquired: $badgeTitle ($emoji)');
+  // }
 
   /// すべてのバッジを未獲得状態にリセット
   static Future<void> resetAllBadges(WidgetRef ref) async {
