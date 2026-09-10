@@ -35,7 +35,7 @@ import 'package:cross_promo_kit/cross_promo_kit.dart'
 import 'providers/character_provider.dart';
 import 'providers/equipped_items_provider.dart';
 import 'providers/screen_time_provider.dart';
-import 'providers/lesson_provider.dart';
+import 'providers/lesson_provider.dart' show LessonNotifier;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 import 'providers/purchased_items_provider.dart';
