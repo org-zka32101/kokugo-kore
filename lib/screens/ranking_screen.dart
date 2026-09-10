@@ -50,68 +50,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
     super.dispose();
   }
 
-  /// グローバルランキングタブを構築
-  Widget _buildGlobalRankingTab(BuildContext context, WidgetRef ref) {
-    return ref.watch(globalRankingProvider).when(
-      data: (state) {
-        if (state.entries.isEmpty) {
-          return const Center(
-            child: Text('ランキングデータがありません'),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: state.entries.length,
-          itemBuilder: (context, index) {
-            final entry = state.entries[index];
-            return _GlobalRankingEntryTile(
-              rank: entry.globalRank,
-              username: entry.username,
-              score: entry.totalScore,
-              percentile: entry.percentile,
-              isHighlight: index == 0,
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) =>
-          Center(child: Text('エラーが発生しました: $error')),
-    );
-  }
-
-  /// 教科別（国語）ランキングタブを構築
-  Widget _buildSubjectRankingTab(BuildContext context, WidgetRef ref) {
-    return ref.watch(subjectRankingStreamProvider('japanese')).when(
-      data: (entries) {
-        if (entries.isEmpty) {
-          return const Center(
-            child: Text('ランキングデータがありません'),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: entries.length,
-          itemBuilder: (context, index) {
-            final entry = entries[index];
-            return _SubjectRankingEntryTile(
-              rank: entry.subjectRank,
-              username: entry.username,
-              score: entry.score,
-              percentile: entry.percentile,
-              isHighlight: index == 0,
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) =>
-          Center(child: Text('エラーが発生しました: $error')),
-    );
-  }
-
   /// フレンドランキングタブを構築
   Widget _buildFriendRankingTab(BuildContext context, WidgetRef ref) {
     return _buildFriendRanking(context, ref);
