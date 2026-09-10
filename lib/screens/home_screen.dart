@@ -22,6 +22,8 @@ import 'package:shared_core/shared_core.dart'
         kCommonShopItems,
         AppShopItem,
         requireParentalGate;
+import 'package:cross_promo_kit/cross_promo_kit.dart'
+    show CrossPromoSection;
 import '../data/kokugo_characters.dart';
 import '../widgets/app_intro_dialog.dart';
 import '../widgets/daily_bonus_dialog.dart';
@@ -507,6 +509,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SliverToBoxAdapter(
             child: _RecentCharactersSection(),
+          ),
+          // クロスプロモーション（他アプリ紹介）
+          SliverToBoxAdapter(
+            child: CrossPromoSection(
+              currentAppId: 'com.example.kokugo_kore',
+              currentCategory: '小学コレ',
+            ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
