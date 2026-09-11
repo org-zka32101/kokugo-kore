@@ -17,6 +17,7 @@ import 'package:shared_core/shared_core.dart'
         BadgeNotifier,
         rankingProvider,
         globalRankingProvider,
+        missionProvider,
         friendProvider;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
@@ -65,6 +66,7 @@ import 'screens/random_match_screen.dart';
 import 'screens/battle_stats_screen.dart';
 import 'screens/ranking_screen.dart';
 import 'screens/badge_screen.dart';
+import 'screens/mission/mission_screen.dart';
 import 'screens/reading_menu_screen.dart';
 import 'screens/smart_menu_screen.dart';
 import 'screens/result_screen.dart';
@@ -254,6 +256,7 @@ class KokugoKoreApp extends ConsumerWidget {
             ),
         '/badges': (context) => const BadgeScreen(),
         '/goal-setting': (context) => const GoalSettingScreen(),
+        '/mission': (context) => const MissionScreen(),
         '/random-match': (context) => const RandomMatchScreen(),
         '/battle-stats': (context) => const BattleStatsScreen(),
         '/analytics': (context) => const DetailedAnalyticsScreen(),
