@@ -1,6 +1,7 @@
 import 'package:cross_promo_kit/cross_promo_kit.dart'
     show CrossPromoService;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +22,8 @@ import 'package:shared_core/shared_core.dart'
         missionProvider,
         friendProvider,
         premiumProvider,
-        PremiumNotifier;
+        PremiumNotifier,
+        PushNotificationService;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 
@@ -107,6 +109,29 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     await CrossPromoService.init();
+
+    // Phase 4.18: プッシュ通知サービス初期化
+    final pushService = PushNotificationService();
+    try {
+      await pushService.initialize(
+        onMessageHandler: (RemoteMessage message) {
+          debugPrint('Received message: ${message.notification?.title}');
+        },
+      );
+    } catch (e) {
+      // PushNotificationService initialization failed, continue anyway
+    }
+
+    // FCM トークンを取得・保存
+    try {
+      final fcmToken = await pushService.getFCMToken();
+      if (fcmToken != null) {
+        debugPrint('FCM Token obtained: ${fcmToken.substring(0, 20)}...');
+        // 将来: await updateUserFCMToken(userId, fcmToken);
+      }
+    } catch (e) {
+      // FCM token retrieval failed, continue anyway
+    }
 
     // Phase 4.12-4.14: RemoteConfig 初期化（Dynamic Pricing・Retention・Multiplayer 用）
     final remoteConfig = FirebaseRemoteConfig.instance;
