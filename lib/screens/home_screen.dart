@@ -27,7 +27,8 @@ import 'package:shared_core/shared_core.dart'
         kCommonShopItems,
         AppShopItem,
         requireParentalGate,
-        FriendsListPage;
+        FriendsListPage,
+        DailyMissionPage;
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
@@ -296,6 +297,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             actions: [
+              // デイリーミッションボタン（Phase 4.5）
+              IconButton(
+                icon: const Icon(Icons.assignment, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DailyMissionPage(
+                        primaryColor: topColor,
+                        appTitle: '小学コレ！国語',
+                        filterSubject: 'japanese',
+                      ),
+                    ),
+                  );
+                },
+                tooltip: 'デイリーミッション',
+              ),
               // フレンドボタン（Phase 4.4 フレンド機能）
               IconButton(
                 icon: const Icon(Icons.people, color: Colors.white),
