@@ -83,6 +83,7 @@ import 'screens/writing_screen.dart';
 import 'screens/goal_setting_screen.dart';
 import 'screens/yojijukugo_quiz_screen.dart';
 import 'screens/synonym_antonym_quiz_screen.dart';
+import 'screens/ai_kanji_consultation_screen.dart';
 import 'services/ad_service.dart';
 import 'services/revenue_cat_service.dart';
 import 'services/firestore_ranking_service.dart';
@@ -229,6 +230,8 @@ class KokugoKoreApp extends ConsumerWidget {
               featureEmoji: '🎋',
               child: HaikuQuizScreen(),
             ),
+        '/ai-kanji-consultation': (context) =>
+            const AIKanjiConsultationScreen(),
         '/privacy': (context) => const PrivacyPolicyScreen(),
         '/terms': (context) => const PrivacyPolicyScreen(),
         '/shop': (context) => const ShopScreen(),

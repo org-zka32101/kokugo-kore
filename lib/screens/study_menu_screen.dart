@@ -168,6 +168,14 @@ final List<_StudyItem> _studyItems = [
     route: '/haiku-quiz',
     isPremium: true,
   ),
+  _StudyItem(
+    emoji: '🤖',
+    title: 'AI漢字相談',
+    subtitle: 'AIに漢字について質問しよう',
+    color: const Color(0xFF8E44AD),
+    route: '/ai-kanji-consultation',
+    isPremium: true,
+  ),
 ];
 
 class StudyMenuScreen extends StatelessWidget {
