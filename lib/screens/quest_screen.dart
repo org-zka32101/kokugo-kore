@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show characterStateProvider;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 
 import '../data/kokugo_characters.dart';
 import '../models/quest_model.dart';
 import '../providers/character_provider.dart';
 import '../providers/premium_provider.dart';
+import '../providers/progress_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/premium_gate.dart';
+import '../services/firebase_service.dart' show FirebaseService;
 
 class QuestScreen extends ConsumerStatefulWidget {
   final Stage stage;
@@ -78,7 +81,7 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
     _feedbackCtrl.forward(from: 0);
   }
 
-  void _onNext() {
+  Future<void> _onNext() async {
     if (_currentIndex < widget.stage.questions.length - 1) {
       setState(() {
         _currentIndex++;
@@ -97,6 +100,24 @@ class _QuestScreenState extends ConsumerState<QuestScreen>
         totalCount: widget.stage.questions.length,
         elapsed: elapsed,
       );
+
+      // Phase 4.12-4.14: Learning Time・ストリーク記録
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId != null && mounted) {
+        try {
+          final durationMinutes = elapsed.inSeconds ~/ 60;
+
+          // Phase 4.12: Learning Time 記録（Dynamic Pricing 用）
+          await FirebaseService().recordLearningSession(userId, durationMinutes);
+
+          // Phase 4.13: Retention - ストリーク記録
+          await FirebaseService().updateStreak(userId);
+        } catch (e) {
+          debugPrint('Learning session recording error: $e');
+        }
+      }
+
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(
         '/result',
         arguments: {'result': result, 'stage': widget.stage},
