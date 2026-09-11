@@ -20,6 +20,7 @@ import 'package:shared_core/shared_core.dart'
         rankingProvider,
         globalRankingProvider,
         missionProvider,
+        dailyMissionProvider,
         friendProvider,
         premiumProvider,
         PremiumNotifier,
@@ -228,6 +229,12 @@ Future<void> main() async {
   // ミッション初期化: 現在のユーザー ID で初期化
   if (currentUserId != null) {
     unawaited(container.read(missionProvider.notifier).initializeMissions(currentUserId));
+  }
+
+  // Phase 4.20: デイリーミッション統一実装
+  // 日次ミッション初期化: 現在のユーザー ID とアプリ ID で初期化
+  if (currentUserId != null) {
+    unawaited(container.read(dailyMissionProvider.notifier).initializeDailyMissions(currentUserId, 'kokugo'));
   }
 
   runApp(UncontrolledProviderScope(
