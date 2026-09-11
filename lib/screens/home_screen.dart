@@ -26,7 +26,8 @@ import 'package:shared_core/shared_core.dart'
         equippedItemsProvider,
         kCommonShopItems,
         AppShopItem,
-        requireParentalGate;
+        requireParentalGate,
+        FriendsListPage;
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
@@ -295,6 +296,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             actions: [
+              // フレンドボタン（Phase 4.4 フレンド機能）
+              IconButton(
+                icon: const Icon(Icons.people, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const FriendsListPage()),
+                  );
+                },
+                tooltip: 'フレンド',
+              ),
               // タイマーチップ（動作中のみ表示）
               Padding(
                 padding: const EdgeInsets.only(right: 4),
