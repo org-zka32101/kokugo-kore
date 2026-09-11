@@ -1,6 +1,7 @@
 import 'package:cross_promo_kit/cross_promo_kit.dart'
     show CrossPromoService;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderContainer, UncontrolledProviderScope;
@@ -106,6 +107,25 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     await CrossPromoService.init();
+
+    // Phase 4.12-4.14: RemoteConfig 初期化（Dynamic Pricing・Retention・Multiplayer 用）
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(
+      RemoteConfigSettings(
+        minimumFetchInterval: const Duration(hours: 1),
+      ),
+    );
+    await remoteConfig.fetchAndActivate();
+
+    // デフォルト値を設定（Pricing・Retention・Multiplayer 設定）
+    await remoteConfig.setDefaults({
+      'pricing_new_user_discount': 0.2,  // 20% 割引
+      'pricing_vip_threshold_minutes': 180,  // 3時間以上で VIP 価格
+      'retention_streak_bonus_multiplier': 1.5,  // ストリーク 1.5 倍
+      'retention_daily_mission_count': 3,  // 1日3ミッション
+      'multiplayer_rating_initial': 1500,  // 初期レート
+      'multiplayer_rating_change_base': 30,  // レート変動基本値
+    });
   } catch (_) {}
 
   // RevenueCat 初期化（サブスクリプション管理）

@@ -2,7 +2,7 @@ name: kokugo_kore
 description: "小学1～6年生向け国語学習アプリ。ひらがな・漢字・読解・作文をゲーム感覚で学習。バッジシステムで楽しくモチベーション向上。学年別カリキュラム対応。"
 publish_to: 'none'
 
-version: 1.4.0+16
+version: 1.5.0+17
 
 environment:
   sdk: ^3.9.0
@@ -26,6 +26,7 @@ dependencies:
   firebase_core: ^3.13.1
   firebase_auth: ^5.5.4
   firebase_database: ^11.3.10
+  firebase_remote_config: ^5.1.0 # Phase 4.12-4.14: Dynamic Pricing・Retention・Multiplayer 設定
   cloud_firestore: ^5.5.0 # shared_core のマルチプレイ対戦(レートマッチング)用 FirestoreMatchmakingService
   in_app_purchase: ^3.2.0
   google_fonts: ^6.2.1
