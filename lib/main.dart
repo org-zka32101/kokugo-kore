@@ -18,7 +18,9 @@ import 'package:shared_core/shared_core.dart'
         rankingProvider,
         globalRankingProvider,
         missionProvider,
-        friendProvider;
+        friendProvider,
+        premiumProvider,
+        PremiumNotifier;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 
@@ -106,8 +108,9 @@ Future<void> main() async {
   } catch (_) {}
 
   // RevenueCat 初期化（サブスクリプション管理）
+  final revenueCatService = RevenueCatService();
   try {
-    await RevenueCatService().initialize();
+    await revenueCatService.initialize();
   } catch (e) {
     debugPrint('[RevenueCat] 初期化スキップ: $e');
   }
@@ -138,6 +141,8 @@ Future<void> main() async {
       screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
       // 国語コレの解説記事管理（LessonProvider）ノティファイアを注入
       lessonProvider.overrideWith(LessonNotifier.new),
+      // Phase 4.7: 統一サブスクリプション管理（PremiumProvider）
+      premiumProvider.overrideWith(PremiumNotifier.new),
       // マルチプレイ対戦（レートマッチング）のFirestoreハンドラを注入
       ...kokugoMultiplayerProviderOverrides,
     ],
@@ -159,9 +164,17 @@ Future<void> main() async {
     ..setAddFriendHandler(friendService.addFriend)
     ..setRemoveFriendHandler(friendService.removeFriend);
 
+  // Phase 4.7: 統一サブスクリプション初期化
+  final currentUserId = missionService.getCurrentUserId();
+  if (currentUserId != null) {
+    container.read(premiumProvider.notifier)
+      ..setCheckHandler((userId) => revenueCatService.isSubscribed(userId))
+      ..setExpiryHandler((userId) => revenueCatService.getSubscriptionExpirationDate(userId));
+    unawaited(container.read(premiumProvider.notifier).checkSubscription(currentUserId));
+  }
+
   // Phase 4.5: デイリーミッション統一
   // ミッション初期化: 現在のユーザー ID で初期化
-  final currentUserId = missionService.getCurrentUserId();
   if (currentUserId != null) {
     unawaited(container.read(missionProvider.notifier).initializeMissions(currentUserId));
   }
