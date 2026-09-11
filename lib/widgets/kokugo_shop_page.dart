@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_core/shared_core.dart' hide kAccentGreen, kTextDark, kTextMuted;
+
 import '../data/kokugo_characters.dart';
 import '../providers/character_provider.dart';
 import '../providers/purchased_items_provider.dart';
@@ -9,8 +10,6 @@ import '../providers/avatar_unlock_provider.dart';
 import '../theme/app_theme.dart';
 import 'character_unlock_dialog.dart';
 
-/// [ShopItemKind.emoji] 以外（テーマ・フレーム・アクセサリ）は
-/// 購入後に「装着する」概念を持つアイテムとして扱う。
 bool _isEquippable(AppShopItem item) => item.kind != ShopItemKind.emoji;
 
 String _currentSeason() {

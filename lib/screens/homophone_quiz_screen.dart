@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../data/homophone_data.dart';
+
 import '../widgets/generic_quiz_widget.dart';
 
 class HomophoneQuizScreen extends StatelessWidget {
   const HomophoneQuizScreen({super.key});
 
-  // 同音異義語クイズ: 選択肢の（ふりがな）を除去 — 全選択肢が同じ読みなので表記が答えのヒントになるため
   static final _strippedItems = homophoneItems.map((item) {
     final strippedChoices = item.choices
         .map((c) => c.replaceAll(RegExp(r'（[^）]*）'), '').trim())

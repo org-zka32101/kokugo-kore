@@ -1,5 +1,6 @@
 import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_progress_model.dart';
+
 import '../models/badge_reward_model.dart';
 
 /// Phase 2で追加する新規バッジの定義
@@ -41,7 +42,6 @@ final challengeBadgeDefinitions = <String, BadgeDefinition>{
   ),
 };
 
-/// 社交バッジの定義
 final socialBadgeDefinitions = <String, BadgeDefinition>{
   'friend_invite_1': BadgeDefinition(
     id: 'friend_invite_1',

@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/ranking_model.dart';
+
 import '../services/ranking_service.dart';
 import 'ranking_privacy_provider.dart';
 
-/// ランキングサービスプロバイダー
 final rankingServiceProvider = Provider<RankingService>((ref) {
   return RankingService();
 });

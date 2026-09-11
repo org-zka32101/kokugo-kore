@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/reading_passages_data.dart';
 import '../models/reading_passage_model.dart';
 import '../providers/coin_provider.dart';
@@ -8,6 +9,7 @@ import 'summary_training_screen.dart';
 
 class ComprehensionQuizScreen extends ConsumerStatefulWidget {
   final String passageId;
+
   final String passageTitle;
 
   const ComprehensionQuizScreen({

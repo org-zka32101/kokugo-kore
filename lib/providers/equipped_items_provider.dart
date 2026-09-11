@@ -8,4 +8,5 @@ import 'package:shared_core/shared_core.dart' show BaseEquippedItemsNotifier;
 class EquippedItemsNotifier extends BaseEquippedItemsNotifier {
   @override
   String get storageKey => 'kokugo_equipped_items_v1';
+
 }

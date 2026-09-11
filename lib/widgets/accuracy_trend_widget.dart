@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import '../theme/app_theme.dart';
 
 class AccuracyTrendWidget extends StatelessWidget {
   final List<double> weeklyAccuracies;
+
   final List<String> dayLabels;
 
   const AccuracyTrendWidget({

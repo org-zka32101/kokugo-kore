@@ -6,23 +6,24 @@ import 'package:shared_core/shared_core.dart'
         FeedbackFormPage,
         requireParentalGate,
         ScreenTimeSettingsWidget;
+import 'package:shared_preferences/shared_preferences.dart';
+
+const _appVersion = '1.4.0';
+
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
+import '../providers/coin_provider.dart';
+import '../providers/referral_provider.dart';
 import '../providers/drawing_settings_provider.dart';
 import '../providers/premium_provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/sound_provider.dart';
-import '../providers/vocab_mastery_provider.dart';
-import '../providers/profile_provider.dart';
-import '../providers/coin_provider.dart';
-import '../providers/referral_provider.dart';
 import '../providers/purchased_items_provider.dart';
 import '../providers/ranking_privacy_provider.dart';
+import '../providers/vocab_mastery_provider.dart';
+import '../providers/profile_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_intro_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-const _appVersion = '1.4.0';
 
 const _changelog = <String, List<String>>{
   '1.4.0': [

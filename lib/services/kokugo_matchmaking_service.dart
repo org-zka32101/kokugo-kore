@@ -1,8 +1,6 @@
 import 'package:shared_core/shared_core.dart'
     show FirestoreMatchmakingService, MatchmakingHandlers, MatchHandlers, MatchState;
 
-// RatingCalculator を国語コレ側からも参照できるよう、shared_core からの import を
-// このファイルに一本化して再エクスポートする。
 export 'package:shared_core/shared_core.dart' show RatingCalculator;
 
 /// 国語コレ！用のマルチプレイ対戦（レートマッチング）サービス。

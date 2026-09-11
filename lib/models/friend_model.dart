@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'friend_model.freezed.dart';
+
 part 'friend_model.g.dart';
 
 @freezed

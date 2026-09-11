@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import '../theme/app_theme.dart';
 
 class ProgressChartWidget extends StatelessWidget {
   final int totalQuestions;
+
   final int completedQuestions;
   final double accuracy;
 

@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'badge_time_definitions.dart';
 
 const _habitPrefix = 'study_habit_';
+
 const _consistentSlotPrefix = 'consistent_slot_';
 const _weekendQuestionsKey = 'weekend_questions_';
 const _dailyQuestionsPrefix = 'daily_questions_';

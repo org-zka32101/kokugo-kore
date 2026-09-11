@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:shared_core/models/badge_model.dart';
 import 'dart:math' as math;
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:shared_core/models/badge_model.dart';
+
 import '../theme/app_theme.dart';
 import '../models/badge_set_bonus_model.dart';
 
-/// バッジ獲得の通知ウィジェット（高度なアニメーション＆エフェクト付き）
 class BadgeAchievementNotification extends StatefulWidget {
   final List<BadgeModel>? badges;
   final BadgeSetBonus? setBonus;

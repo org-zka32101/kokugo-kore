@@ -1,13 +1,16 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/vocab_mastery_provider.dart';
+
 import '../services/ad_service.dart';
 import '../providers/premium_provider.dart';
 import '../theme/app_theme.dart';
 
 class VocabQuestion {
   final String word;
+
   final String reading;
   final String question;
   final List<String> choices;

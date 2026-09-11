@@ -1,10 +1,12 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+
 import '../models/ranking_model.dart';
 
 /// ランキング機能を提供するサービス
 class RankingService {
   static const String APP_PREFIX = 'kokugo-kore';
+
   final _db = FirebaseDatabase.instance;
 
   /// フィルター条件に基づいて学生ランキングデータを取得

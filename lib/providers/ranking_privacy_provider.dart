@@ -23,6 +23,13 @@ class RankingPrivacyState {
       dialogShown: dialogShown ?? this.dialogShown,
     );
   }
+
+  /// ユーザー名公開許可ダイアログを表示すべきか判定
+  /// - まだ表示していない かつ
+  /// - ユーザー名が非公開の場合に true を返す
+  bool shouldShowPrivacyDialog() {
+    return !dialogShown && !isNamePublic;
+  }
 }
 
 /// ランキング表示プライバシー設定を管理

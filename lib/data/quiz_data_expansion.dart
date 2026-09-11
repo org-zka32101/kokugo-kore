@@ -120,7 +120,6 @@ final grade1ExtraStages = [
   ),
 ];
 
-// ─── 小学2年生 追加ステージ ────────────────────────────────────
 final grade2ExtraStages = [
   Stage(
     stageNumber: 4,

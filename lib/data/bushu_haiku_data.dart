@@ -205,7 +205,6 @@ const bushuItems = <GenericQuizItem>[
   ),
 ];
 
-// ─── 俳句クイズ（20問）──────────────────────────────────────────
 const haikuItems = <GenericQuizItem>[
   GenericQuizItem(
     highlight: '古池や 蛙飛び込む 水の音',

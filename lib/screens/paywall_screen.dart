@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../providers/subscription_provider.dart';
 import '../utils/constants.dart';
 
@@ -84,7 +85,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 const SizedBox(height: 12),
                 _buildFeatureItem(
                   context,
-                  icon: Icons.repeat,
+                  icon: Icons.all_inclusive,
                   title: '無制限クイズ',
                   description: '毎日無制限にクイズができます',
                 ),

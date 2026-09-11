@@ -2,9 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_progress_model.dart';
+
 import 'badge_provider.dart';
 
 const _progressPrefix = 'badge_progress_';
+
 const _rarePrefix = 'badge_rarity_';
 
 /// バッジ進捗・レアリティデータを管理するプロバイダー

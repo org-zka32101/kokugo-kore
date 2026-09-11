@@ -5,11 +5,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:path_drawing/path_drawing.dart';
+
 import '../data/stroke_order_data.dart';
 import '../theme/app_theme.dart';
 
-/// All individual glyphs in [text] have bundled stroke data (single kana,
-/// kanji, or a multi-glyph combination like 'きゃ' = 'き' + 'ゃ').
 bool hasStrokeOrderData(String text) =>
     text.isNotEmpty && text.runes.every((r) => strokeOrderData.containsKey(String.fromCharCode(r)));
 

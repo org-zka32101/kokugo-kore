@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/badge_set_bonus_model.dart';
 import '../providers/badge_provider.dart';
 import '../theme/app_theme.dart';

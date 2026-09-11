@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_core/models/badge_model.dart';
+
 import '../providers/badge_provider.dart';
 import '../providers/badge_acquisition_history_provider.dart';
 
-/// バッジシステム用デバッグユーティリティ
 class BadgeDebugUtils {
   /// すべてのバッジを獲得状態にセット（デバッグ用）
   // TODO: Implement getAllBadges() in BadgeNotifier

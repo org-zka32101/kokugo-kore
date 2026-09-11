@@ -1,19 +1,24 @@
+import 'package:cross_promo_kit/cross_promo_kit.dart'
+    show CrossPromoSection;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../data/quiz_data.dart';
-import '../providers/adaptive_provider.dart';
-import '../providers/daily_bonus_provider.dart';
-import '../providers/learning_timer_provider.dart';
-import '../providers/progress_provider.dart';
-import '../providers/badge_provider.dart';
-import '../providers/coin_provider.dart';
-import '../providers/profile_provider.dart';
-import '../providers/purchased_items_provider.dart';
-import '../providers/profile_avatar_provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_core/models/avatar_model.dart';
 import 'package:shared_core/widgets/avatar_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../data/quiz_data.dart';
+
+import '../data/kokugo_characters.dart';
+import '../widgets/app_intro_dialog.dart';
+import '../providers/adaptive_provider.dart';
+import '../providers/daily_bonus_provider.dart';
+import '../providers/badge_provider.dart';
+import '../providers/coin_provider.dart';
+import '../providers/learning_timer_provider.dart';
+import '../providers/progress_provider.dart';
+import '../providers/profile_avatar_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../providers/profile_provider.dart';
+import '../providers/purchased_items_provider.dart';
 import '../theme/app_theme.dart';
 import 'package:shared_core/shared_core.dart'
     show
@@ -21,18 +26,14 @@ import 'package:shared_core/shared_core.dart'
         equippedItemsProvider,
         kCommonShopItems,
         AppShopItem,
-        requireParentalGate;
-import 'package:cross_promo_kit/cross_promo_kit.dart'
-    show CrossPromoSection;
-import '../data/kokugo_characters.dart';
-import '../widgets/app_intro_dialog.dart';
+        requireParentalGate,
+        FriendsListPage,
+        DailyMissionPage;
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
 import '../widgets/badge_progress_tracker.dart';
 
-/// 装着中のIDから shared_core 共通ショップアイテム（テーマ/フレーム）を探す。
-/// 見つからない場合（未所持アイテムの旧IDが残っている等）は null。
 AppShopItem? _findCommonShopItem(String? id) {
   if (id == null) return null;
   for (final item in kCommonShopItems) {
@@ -296,6 +297,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             actions: [
+              // デイリーミッションボタン（Phase 4.5）
+              IconButton(
+                icon: const Icon(Icons.assignment, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DailyMissionPage(
+                        primaryColor: topColor,
+                        appTitle: '小学コレ！国語',
+                        filterSubject: 'japanese',
+                      ),
+                    ),
+                  );
+                },
+                tooltip: 'デイリーミッション',
+              ),
+              // フレンドボタン（Phase 4.4 フレンド機能）
+              IconButton(
+                icon: const Icon(Icons.people, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const FriendsListPage()),
+                  );
+                },
+                tooltip: 'フレンド',
+              ),
               // タイマーチップ（動作中のみ表示）
               Padding(
                 padding: const EdgeInsets.only(right: 4),

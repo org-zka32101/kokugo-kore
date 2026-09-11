@@ -2,41 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_core/shared_core.dart' show FeedbackReport;
+
 import '../models/analytics_model.dart';
 import '../models/friend_model.dart';
 import '../models/battle_model.dart';
 import '../models/reading_passage_model.dart';
-
-/// Firebase Realtime Database スキーマ
-/// https://firebase.google.com/docs/database/structure-your-data
-///
-/// Database structure:
-/// ```
-/// users/
-///   {userId}/
-///     profile/
-///       name: String
-///       grade: Int
-///     progress/
-///       clearedStages: Int
-///       totalQuestions: Int
-///       correctAnswers: Int
-///       streakDays: Int
-///     characters/
-///       {characterId}/
-///         isUnlocked: Boolean
-///         level: Int
-///         experience: Int
-///         evolutionLevel: Int (derived)
-///     badges/
-///       {badgeId}/
-///         earnedAt: Timestamp
-///     skins/
-///       {skinId}/
-///         unlockedAt: Timestamp
-///         isEquipped: Boolean
-///     lastSync: Timestamp
-/// ```
 
 class FirebaseRealtimeDB {
   static const String usersPath = 'users';

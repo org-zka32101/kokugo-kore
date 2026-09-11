@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../data/kokugo_characters.dart';
 import '../providers/progress_provider.dart';
 import '../widgets/kokugo_character_collection.dart';

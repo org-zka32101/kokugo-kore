@@ -7,14 +7,10 @@ import 'package:shared_core/shared_core.dart'
         MatchmakingStatus,
         MatchmakingSearchWidget,
         PlayerRatingCard;
+
 import '../../providers/multiplayer_provider.dart';
 import '../../theme/app_theme.dart';
 
-/// 対戦相手探し画面（検索開始 + 待機を1画面にまとめたもの）。
-///
-/// レート ±300 の範囲で相手を自動マッチングする（shared_core の
-/// [matchmakingProvider] / [MatchmakingSearchWidget] を利用）。
-/// 参考: social_quiz_app の matchmaker_screen.dart / matching_waiting_screen.dart。
 class RatedMatchScreen extends ConsumerStatefulWidget {
   const RatedMatchScreen({super.key});
 

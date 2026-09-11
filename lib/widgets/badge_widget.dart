@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_core/models/badge_model.dart';
+
 import '../theme/app_theme.dart';
 
 class BadgeWidget extends StatelessWidget {
   final EarnedBadge earnedBadge;
+
   const BadgeWidget({super.key, required this.earnedBadge});
 
   @override

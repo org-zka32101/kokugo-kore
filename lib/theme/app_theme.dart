@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// 国語コレ！メインカラー（イエロー）
 const kPrimaryColor = Color(0xFFF39C12);
 const kPrimaryDark = Color(0xFFD68910);
 const kPrimaryDeep = Color(0xFFBA4A00);

@@ -1,87 +1,96 @@
+import 'package:cross_promo_kit/cross_promo_kit.dart'
+    show CrossPromoService;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'services/ad_service.dart';
-import 'data/kana_data.dart';
-import 'firebase_options.dart';
-import 'models/quest_model.dart';
-import 'screens/character_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/idiom_quiz_screen.dart';
-import 'screens/kanji_list_screen.dart';
-import 'screens/kana_list_screen.dart';
-import 'screens/learn_screen.dart';
-import 'screens/lesson_screen.dart';
-import 'screens/privacy_policy_screen.dart';
-import 'screens/proverb_quiz_screen.dart';
-import 'screens/profile_selection_screen.dart';
-import 'screens/quest_screen.dart';
-import 'screens/result_screen.dart';
-import 'screens/settings_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderContainer, UncontrolledProviderScope;
 import 'package:shared_core/shared_core.dart'
     show
         characterStateProvider,
         coinProvider,
-        CoinState,
-        CoinNotifier,
         avatarProvider,
         equippedItemsProvider,
         screenTimeProvider,
         ScreenTimeLimitReachedWidget,
-        lessonProvider;
-import 'package:cross_promo_kit/cross_promo_kit.dart'
-    show CrossPromoService;
-import 'providers/character_provider.dart';
-import 'providers/equipped_items_provider.dart';
-import 'providers/screen_time_provider.dart';
-import 'providers/lesson_provider.dart' show LessonNotifier;
+        badgeProvider,
+        unifiedBadges,
+        BadgeNotifier,
+        rankingProvider,
+        globalRankingProvider,
+        missionProvider,
+        friendProvider;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
+
+import 'data/kana_data.dart';
+import 'firebase_options.dart';
+import 'models/quest_model.dart';
+import 'screens/character_screen.dart';
+import 'providers/badge_metrics_provider.dart';
+import 'providers/study_habit_provider.dart';
+import 'providers/character_provider.dart';
+import 'providers/equipped_items_provider.dart';
+import 'providers/multiplayer_provider.dart';
+import 'providers/avatar_unlock_provider.dart';
 import 'providers/purchased_items_provider.dart';
 import 'providers/profile_avatar_provider.dart';
+import 'providers/quest_performance_provider.dart';
+import 'theme/app_theme.dart';
+import 'providers/ranking_privacy_provider.dart';
+import 'providers/badge_progress_provider.dart';
+import 'providers/screen_time_provider.dart';
+import 'providers/lesson_provider.dart' show LessonNotifier, lessonProvider;
+import 'screens/bushu_quiz_screen.dart';
+import 'screens/haiku_quiz_screen.dart';
+import 'screens/detailed_analytics_screen.dart';
+import 'screens/multiplayer/rated_match_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/idiom_quiz_screen.dart';
+import 'screens/homophone_quiz_screen.dart';
+import 'screens/grammar_quiz_screen.dart';
+import 'screens/kanji_list_screen.dart';
+import 'screens/kana_list_screen.dart';
+import 'screens/learn_screen.dart';
+import 'screens/lesson_screen.dart';
+import 'screens/multiplayer/multiplayer_quiz_screen.dart';
+import 'screens/multiplayer/kokugo_leaderboard_screen.dart';
+import 'screens/multiplayer_menu_screen.dart';
+import 'screens/friend_invitation_screen.dart';
+import 'screens/parent_report_screen.dart';
+import 'screens/parent_dashboard_screen.dart';
+import 'screens/privacy_policy_screen.dart';
+import 'screens/proverb_quiz_screen.dart';
+import 'screens/profile_selection_screen.dart';
+import 'screens/quest_screen.dart';
+import 'screens/random_match_screen.dart';
+import 'screens/battle_stats_screen.dart';
+import 'screens/ranking_screen.dart';
+import 'screens/badge_screen.dart';
+import 'screens/mission/mission_screen.dart';
+import 'screens/reading_menu_screen.dart';
+import 'screens/smart_menu_screen.dart';
+import 'screens/result_screen.dart';
+import 'screens/settings_screen.dart';
 import 'screens/shop_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/stage_select_screen.dart';
 import 'screens/study_menu_screen.dart';
-import 'screens/parent_report_screen.dart';
-import 'screens/parent_dashboard_screen.dart';
-import 'screens/multiplayer_menu_screen.dart';
-import 'screens/friend_invitation_screen.dart';
-import 'screens/ranking_screen.dart';
-import 'screens/badge_screen.dart';
-import 'screens/reading_menu_screen.dart';
-import 'screens/smart_menu_screen.dart';
-import 'screens/yojijukugo_quiz_screen.dart';
-import 'screens/synonym_antonym_quiz_screen.dart';
-import 'screens/homophone_quiz_screen.dart';
-import 'screens/grammar_quiz_screen.dart';
-import 'screens/bushu_quiz_screen.dart';
-import 'screens/haiku_quiz_screen.dart';
 import 'screens/upgrade_screen.dart';
 import 'screens/vocabulary_screen.dart';
 import 'screens/writing_screen.dart';
 import 'screens/goal_setting_screen.dart';
-import 'screens/random_match_screen.dart';
-import 'screens/battle_stats_screen.dart';
-import 'screens/detailed_analytics_screen.dart';
-import 'screens/multiplayer/rated_match_screen.dart';
-import 'screens/multiplayer/multiplayer_quiz_screen.dart';
-import 'screens/multiplayer/kokugo_leaderboard_screen.dart';
-import 'providers/multiplayer_provider.dart';
-import 'providers/avatar_unlock_provider.dart';
-import 'providers/ranking_privacy_provider.dart';
-import 'providers/badge_progress_provider.dart';
-import 'providers/badge_metrics_provider.dart';
-import 'providers/study_habit_provider.dart';
-import 'providers/quest_performance_provider.dart';
-import 'theme/app_theme.dart';
+import 'screens/yojijukugo_quiz_screen.dart';
+import 'screens/synonym_antonym_quiz_screen.dart';
+import 'services/ad_service.dart';
+import 'services/revenue_cat_service.dart';
+import 'services/firestore_ranking_service.dart';
+import 'services/firestore_friend_service.dart';
+import 'services/firestore_mission_service.dart';
 import 'widgets/premium_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // エッジtoエッジ表示（SafeAreaで余白制御）
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
@@ -96,11 +105,19 @@ Future<void> main() async {
     await CrossPromoService.init();
   } catch (_) {}
 
+  // RevenueCat 初期化（サブスクリプション管理）
+  try {
+    await RevenueCatService().initialize();
+  } catch (e) {
+    debugPrint('[RevenueCat] 初期化スキップ: $e');
+  }
+
   // AdMob 初期化
   await AdService.initialize();
 
   // テスト用設定: コイン初期値を999999に設定・全機能開放
   const bool isTestMode = false; // リリース版：本番機能のみ
+
   if (isTestMode) {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('total_coins', 999999);
@@ -109,12 +126,14 @@ Future<void> main() async {
     await prefs.setInt('unlocked_stages', 100); // 全ステージ開放フラグ
   }
 
-  runApp(ProviderScope(
+  final container = ProviderContainer(
     overrides: [
       // 国語コレのキャラクターノティファイアを注入
       characterStateProvider.overrideWith(CharacterNotifier.new),
       // 国語コレのショップアイテム装着状態ノティファイアを注入
       equippedItemsProvider.overrideWith(EquippedItemsNotifier.new),
+      // 統一バッジシステム（Phase 4.1）: 国語コレ用バッジを主題タグで初期化
+      badgeProvider.overrideWith(() => BadgeNotifier()),
       // 国語コレの利用時間制限（スクリーンタイム管理）ノティファイアを注入
       screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
       // 国語コレの解説記事管理（LessonProvider）ノティファイアを注入
@@ -122,6 +141,33 @@ Future<void> main() async {
       // マルチプレイ対戦（レートマッチング）のFirestoreハンドラを注入
       ...kokugoMultiplayerProviderOverrides,
     ],
+  );
+
+  // バッジシステム初期化: 統一バッジを主題タグで初期化
+  container.read(badgeProvider.notifier).setBadgeDefinitions(unifiedBadges, subject: 'kokugo');
+
+  // Firestore ランキング・フレンド・ミッション サービスの初期化
+  final rankingService = FirestoreRankingService();
+  final friendService = FirestoreFriendService();
+  final missionService = FirestoreMissionService();
+
+  // Handler を shared_core provider に注入
+  container.read(rankingProvider.notifier).setFetchHandler(rankingService.fetchRankings);
+  container.read(globalRankingProvider.notifier).setFetchHandler(rankingService.fetchGlobalRankings);
+  container.read(friendProvider.notifier)
+    ..setFetchHandler(friendService.fetchFriends)
+    ..setAddFriendHandler(friendService.addFriend)
+    ..setRemoveFriendHandler(friendService.removeFriend);
+
+  // Phase 4.5: デイリーミッション統一
+  // ミッション初期化: 現在のユーザー ID で初期化
+  final currentUserId = missionService.getCurrentUserId();
+  if (currentUserId != null) {
+    unawaited(container.read(missionProvider.notifier).initializeMissions(currentUserId));
+  }
+
+  runApp(UncontrolledProviderScope(
+    container: container,
     child: const KokugoKoreApp(),
   ));
 }
@@ -219,6 +265,7 @@ class KokugoKoreApp extends ConsumerWidget {
             ),
         '/badges': (context) => const BadgeScreen(),
         '/goal-setting': (context) => const GoalSettingScreen(),
+        '/mission': (context) => const MissionScreen(),
         '/random-match': (context) => const RandomMatchScreen(),
         '/battle-stats': (context) => const BattleStatsScreen(),
         '/analytics': (context) => const DetailedAnalyticsScreen(),

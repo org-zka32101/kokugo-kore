@@ -7,8 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _soundKey = 'sound_enabled';
 
-// ── Sound service (singleton-ish wrapper) ────────────────────────────────
-
 class SoundService {
   static final SoundService _instance = SoundService._internal();
   factory SoundService() => _instance;

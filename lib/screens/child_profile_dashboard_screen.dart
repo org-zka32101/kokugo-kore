@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../theme/app_theme.dart';
 import '../widgets/progress_chart_widget.dart';
 import '../widgets/accuracy_trend_widget.dart';
 
 class ChildProfileDashboardScreen extends ConsumerStatefulWidget {
   final String childId;
+
   final String childName;
 
   const ChildProfileDashboardScreen({

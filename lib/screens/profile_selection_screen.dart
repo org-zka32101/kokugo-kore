@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_core/shared_core.dart' show requireParentalGate;
-import '../providers/profile_provider.dart';
-import '../providers/profile_avatar_provider.dart';
-import '../providers/avatar_unlock_provider.dart';
 import 'package:shared_core/models/avatar_model.dart';
 import 'package:shared_core/widgets/avatar_widget.dart';
+import 'package:shared_core/shared_core.dart' show requireParentalGate;
+import '../providers/profile_provider.dart';
+
+import '../providers/profile_avatar_provider.dart';
+import '../providers/avatar_unlock_provider.dart';
 import '../theme/app_theme.dart';
 
 class ProfileSelectionScreen extends ConsumerStatefulWidget {

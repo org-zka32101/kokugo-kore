@@ -1,9 +1,9 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/badge_acquisition_history.dart';
 
-/// バッジ獲得履歴状態
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class BadgeAcquisitionHistoryState {
   final List<BadgeAcquisitionRecord> badgeRecords;
   final List<SetBonusAcquisitionRecord> setBonusRecords;

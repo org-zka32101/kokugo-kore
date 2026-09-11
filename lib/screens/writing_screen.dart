@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import '../screens/drawing_canvas_screen.dart';
+
 import '../theme/app_theme.dart';
 
 enum _WritingMode { hiragana, katakana, kanji }

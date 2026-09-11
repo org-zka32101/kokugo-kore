@@ -3,8 +3,10 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/drawing_settings_provider.dart';
+
 import '../theme/app_theme.dart';
 import '../widgets/stroke_order_view.dart';
 

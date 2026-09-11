@@ -1,16 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart' show matchmakingHandlersProvider, matchHandlersProvider;
+
 import '../services/kokugo_matchmaking_service.dart';
 import 'profile_provider.dart';
 
-// 国語コレ！のマルチプレイ対戦（レートマッチング）機能で使う provider 群。
-//
-// 実データアクセス（Firestore）は KokugoMatchmakingService に集約し、
-// shared_core の matchmakingHandlersProvider / matchHandlersProvider に
-// override して注入する。実際の override は main.dart の ProviderScope で行う
-// （kokugoMultiplayerProviderOverrides を参照）。
-
-/// main.dart の `ProviderScope(overrides: [...])` にそのまま渡すためのリスト。
 final List<Override> kokugoMultiplayerProviderOverrides = [
   matchmakingHandlersProvider.overrideWithValue(KokugoMatchmakingService.matchmakingHandlers),
   matchHandlersProvider.overrideWithValue(KokugoMatchmakingService.matchHandlers),

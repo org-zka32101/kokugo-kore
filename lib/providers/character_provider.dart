@@ -1,37 +1,31 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/shared_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/kokugo_characters.dart';
+
 import '../models/character_model.dart';
 
-/// 国語コレ固有のキャラクターノティファイア。
-/// main.dart で characterStateProvider をこれで上書きする:
-/// ```dart
-/// characterStateProvider.overrideWith(CharacterNotifier.new)
-/// ```
-class CharacterNotifier extends BaseCharacterNotifier {
+// ─── Phase 4.1: CharacterProfile統合版 ────────────────────────────────────
+
+/// 国語コレ固有のキャラクターノティファイア（Phase 4.1: CharacterProfile対応）
+class CharacterNotifier extends BaseCharacterProfileNotifier {
   @override
   List<BaseCharacter> get characterList => kKokugoCharacters;
 
   @override
-  String get storageKey => 'kokugo_char_states_v2'; // v2: 16体キャラ新設計
+  String get storageKey => 'kokugo_character_profiles'; // Phase 4.1: 統一フォーマット
 
-  /// キャラクターに経験値を付与（v1.3 再実装）
-  /// 独立した EXP プロバイダで管理するため、ここでは基本メソッドのみ実装
-  Future<void> grantExperience(String characterId, int expAmount) async {
-    // v1.3: 独立した expProvider で実装
-    debugPrint('✓ Experience granted to $characterId: +$expAmount EXP');
-  }
-
-  /// 複数キャラに一括で経験値を付与
-  Future<void> grantExperienceToAll(int expAmount) async {
-    for (final char in characterList) {
-      await grantExperience(char.id, expAmount);
-    }
-  }
+  @override
+  Subject get appSubject => Subject.kokugo;
 }
+
+/// 統一キャラクタープロバイダー（Phase 4.1）
+final characterProvider = NotifierProvider<CharacterNotifier, CharacterProfileMap>(
+  CharacterNotifier.new,
+);
 
 /// クイズ画面に表示する「注目キャラクター」（=最後にレベルアップしたキャラ）
 final featuredCharacterProvider =

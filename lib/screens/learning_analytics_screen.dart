@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../theme/app_theme.dart';
-import '../widgets/accuracy_trend_widget.dart';
-import '../widgets/monthly_chart_widget.dart';
-import '../widgets/learning_stats_card.dart';
+
 import '../providers/analytics_provider.dart';
 
 class LearningAnalyticsScreen extends ConsumerWidget {
   final String childId;
+import '../theme/app_theme.dart';
+import '../widgets/accuracy_trend_widget.dart';
+import '../widgets/monthly_chart_widget.dart';
+import '../widgets/learning_stats_card.dart';
 
   const LearningAnalyticsScreen({
     super.key,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/friend_model.dart';
 import '../models/ranking_model.dart';
 import '../providers/badge_metrics_provider.dart';
@@ -11,11 +12,6 @@ import '../providers/ranking_provider.dart' show rankingServiceProvider;
 import '../theme/app_theme.dart';
 import '../widgets/ranking_privacy_dialog.dart';
 
-/// ランキング画面
-///
-/// 全体・学年別・開始月別・学年×開始月のランキング（Firebase Realtime Database
-/// `kokugo-kore/rankings/students` を参照）と、友達ランキング（[friendListProvider]）
-/// をタブで切り替えて表示する。名前の公開・匿名化は [rankingPrivacyProvider] で管理する。
 class RankingScreen extends ConsumerStatefulWidget {
   const RankingScreen({super.key});
 
@@ -30,7 +26,7 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(rankingPrivacyProvider.notifier).load();
@@ -48,68 +44,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  /// グローバルランキングタブを構築
-  Widget _buildGlobalRankingTab(BuildContext context, WidgetRef ref) {
-    return ref.watch(globalRankingProvider).when(
-      data: (state) {
-        if (state.entries.isEmpty) {
-          return const Center(
-            child: Text('ランキングデータがありません'),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: state.entries.length,
-          itemBuilder: (context, index) {
-            final entry = state.entries[index];
-            return _GlobalRankingEntryTile(
-              rank: entry.globalRank,
-              username: entry.username,
-              score: entry.totalScore,
-              percentile: entry.percentile,
-              isHighlight: index == 0,
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) =>
-          Center(child: Text('エラーが発生しました: $error')),
-    );
-  }
-
-  /// 教科別（国語）ランキングタブを構築
-  Widget _buildSubjectRankingTab(BuildContext context, WidgetRef ref) {
-    return ref.watch(subjectRankingStreamProvider('japanese')).when(
-      data: (entries) {
-        if (entries.isEmpty) {
-          return const Center(
-            child: Text('ランキングデータがありません'),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: entries.length,
-          itemBuilder: (context, index) {
-            final entry = entries[index];
-            return _SubjectRankingEntryTile(
-              rank: entry.subjectRank,
-              username: entry.username,
-              score: entry.score,
-              percentile: entry.percentile,
-              isHighlight: index == 0,
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) =>
-          Center(child: Text('エラーが発生しました: $error')),
-    );
   }
 
   /// フレンドランキングタブを構築
@@ -156,8 +90,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: const [
-              Tab(text: '🌍 全体'),
-              Tab(text: '📖 国語'),
               Tab(text: '👥 友達'),
             ],
           ),
@@ -175,8 +107,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildGlobalRankingTab(context, ref),
-            _buildSubjectRankingTab(context, ref),
             _buildFriendRankingTab(context, ref),
           ],
         ),
@@ -399,266 +329,6 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
         return const Color(0xFFCD7F32); // 銅
       default:
         return Colors.grey.shade500;
-    }
-  }
-}
-
-/// グローバルランキング 1 件表示タイル
-class _GlobalRankingEntryTile extends StatelessWidget {
-  final int rank;
-  final String username;
-  final int score;
-  final double percentile;
-  final bool isHighlight;
-
-  const _GlobalRankingEntryTile({
-    required this.rank,
-    required this.username,
-    required this.score,
-    required this.percentile,
-    required this.isHighlight,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          color: isHighlight
-              ? (isDarkMode
-                  ? Colors.amber.withAlpha(40)
-                  : Colors.amber.withAlpha(30))
-              : (isDarkMode ? Colors.grey.shade900 : Colors.white),
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: _getRankColor(rank),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: _getRankColor(rank).withAlpha(100),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  '$rank',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    username,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: isDarkMode ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '上位 ${percentile.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isHighlight)
-              const Icon(Icons.star, color: Colors.amber, size: 20),
-            if (!isHighlight) const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'スコア',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$score',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: kPrimaryColor,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getRankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return Colors.amber;
-      case 2:
-        return Colors.grey[400]!;
-      case 3:
-        return Colors.brown[400]!;
-      default:
-        return Colors.blue;
-    }
-  }
-}
-
-/// 教科別ランキング 1 件表示タイル
-class _SubjectRankingEntryTile extends StatelessWidget {
-  final int rank;
-  final String username;
-  final int score;
-  final double percentile;
-  final bool isHighlight;
-
-  const _SubjectRankingEntryTile({
-    required this.rank,
-    required this.username,
-    required this.score,
-    required this.percentile,
-    required this.isHighlight,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          color: isHighlight
-              ? (isDarkMode
-                  ? Colors.red.withAlpha(40)
-                  : Colors.red.withAlpha(30))
-              : (isDarkMode ? Colors.grey.shade900 : Colors.white),
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: _getRankColor(rank),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: _getRankColor(rank).withAlpha(100),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  '$rank',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    username,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: isDarkMode ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '上位 ${percentile.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isHighlight)
-              const Icon(Icons.star, color: Colors.red, size: 20),
-            if (!isHighlight) const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'スコア',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$score',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.red.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getRankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return Colors.red.shade600;
-      case 2:
-        return Colors.red.shade400;
-      case 3:
-        return Colors.red.shade300;
-      default:
-        return Colors.red.shade200;
     }
   }
 }

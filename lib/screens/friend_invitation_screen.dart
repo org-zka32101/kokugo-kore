@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/friend_provider.dart';
-import '../providers/badge_provider.dart';
+
 import '../providers/badge_metrics_provider.dart';
 import '../theme/app_theme.dart';
+import '../providers/friend_provider.dart';
+import '../providers/badge_provider.dart';
 import 'battle_screen.dart';
 
 class FriendInvitationScreen extends ConsumerStatefulWidget {

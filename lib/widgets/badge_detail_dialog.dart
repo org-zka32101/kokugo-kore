@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_core/models/badge_model.dart';
 import '../models/badge_set_bonus_model.dart';
+
 import '../theme/app_theme.dart';
 
 /// バッジ詳細情報ダイアログ
 class BadgeDetailDialog extends StatelessWidget {
   final BadgeModel badge;
+
   final DateTime? acquiredAt;
   final bool isAcquired;
   final List<BadgeSetBonus> relatedSetBonuses;
