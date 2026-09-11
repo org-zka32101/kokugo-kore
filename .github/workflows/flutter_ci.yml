@@ -62,7 +62,7 @@ jobs:
       # コード署名なしのビルド（コンパイルが通るかの確認）のみを行う軽量ジョブ。
       # 署名付きビルド・TestFlightアップロードは build-ios-signed ジョブ（手動実行）を使う。
       - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
+        run: flutter build ios --release --simulator --no-codesign
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

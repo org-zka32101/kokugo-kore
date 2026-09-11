@@ -7,9 +7,6 @@ import 'package:shared_core/shared_core.dart'
         requireParentalGate,
         ScreenTimeSettingsWidget;
 import 'package:shared_preferences/shared_preferences.dart';
-
-const _appVersion = '1.4.0';
-
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/coin_provider.dart';
@@ -24,6 +21,8 @@ import '../providers/vocab_mastery_provider.dart';
 import '../providers/profile_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_intro_dialog.dart';
+
+const _appVersion = '1.4.0';
 
 const _changelog = <String, List<String>>{
   '1.4.0': [
