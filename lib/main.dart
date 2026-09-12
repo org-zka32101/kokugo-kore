@@ -189,7 +189,7 @@ Future<void> main() async {
       // 統一バッジシステム（Phase 4.1）: 国語コレ用バッジを主題タグで初期化
       badgeProvider.overrideWith(() => BadgeNotifier()),
       // 国語コレの利用時間制限（スクリーンタイム管理）ノティファイアを注入
-      screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
+      screenTimeProvider.overrideWith(() => ScreenTimeNotifier()),
       // 国語コレの解説記事管理（LessonProvider）ノティファイアを注入
       lessonProvider.overrideWith(LessonNotifier.new),
       // Phase 4.7: 統一サブスクリプション管理（PremiumProvider）
