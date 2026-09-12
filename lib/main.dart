@@ -1,5 +1,7 @@
 import 'package:cross_promo_kit/cross_promo_kit.dart'
     show CrossPromoService;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -26,9 +28,10 @@ import 'package:shared_core/shared_core.dart'
         PremiumNotifier,
         PushNotificationService,
         adaptiveDifficultyNotifierProvider,
-        // Phase 4.22: Push Notifications & Retention
-        pushNotificationProvider,
-        retentionProvider;
+// Phase 4.22: Push Notifications & Retention
+pushNotificationProvider,
+retentionProvider,
+weeklyBonusProvider;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 
@@ -92,6 +95,7 @@ import 'screens/goal_setting_screen.dart';
 import 'screens/yojijukugo_quiz_screen.dart';
 import 'screens/synonym_antonym_quiz_screen.dart';
 import 'screens/ai_kanji_consultation_screen.dart';
+import 'screens/ai_coaching_dashboard_screen.dart';
 import 'services/ad_service.dart';
 import 'services/revenue_cat_service.dart';
 import 'services/firestore_ranking_service.dart';
@@ -140,7 +144,14 @@ Future<void> main() async {
       // FCM token retrieval failed, continue anyway
     }
 
-    // Phase 4.19: 適応難易度エンジン初期化
+    // Phase 4.23: ローカル通知・リマインダーシステム初期化
+    final reminderService = ReminderService.instance;
+    // 通知コールバック設定（オプション）
+    reminderService.setNotificationCallback((notification) {
+      debugPrint('Reminder notification: ${notification.title}');
+    });
+
+// Phase 4.19: 適応難易度エンジン初期化
     // 注: ユーザーID取得後（プロフィール画面後）に各ユーザーごとに initializeAdaptiveDifficulty() を呼ぶこと
     debugPrint('Phase 4.19 Retention Optimization Engine: Initialized');
 
@@ -195,7 +206,7 @@ Future<void> main() async {
       // 統一バッジシステム（Phase 4.1）: 国語コレ用バッジを主題タグで初期化
       badgeProvider.overrideWith(() => BadgeNotifier()),
       // 国語コレの利用時間制限（スクリーンタイム管理）ノティファイアを注入
-      screenTimeProvider.overrideWith(ScreenTimeNotifier.new),
+      screenTimeProvider.overrideWith(() => ScreenTimeNotifier()),
       // 国語コレの解説記事管理（LessonProvider）ノティファイアを注入
       lessonProvider.overrideWith(LessonNotifier.new),
       // Phase 4.7: 統一サブスクリプション管理（PremiumProvider）
@@ -221,8 +232,15 @@ Future<void> main() async {
     ..setAddFriendHandler(friendService.addFriend)
     ..setRemoveFriendHandler(friendService.removeFriend);
 
+  // Phase 4.5: デイリーミッション統一
+  // ミッション Handler を shared_core provider に注入
+  container.read(missionProvider.notifier)
+    ..setFetchHandler(missionService.fetchMissions)
+    ..setProgressHandler(missionService.updateProgress)
+    ..setCompleteHandler(missionService.completeMission);
+
   // Phase 4.7: 統一サブスクリプション初期化
-  final currentUserId = missionService.getCurrentUserId();
+  final currentUserId = FirebaseAuth.instance.currentUser?.uid;
   if (currentUserId != null) {
     container.read(premiumProvider.notifier)
       ..setCheckHandler((userId) => revenueCatService.isSubscribed(userId))
@@ -233,7 +251,31 @@ Future<void> main() async {
   // Phase 4.5: デイリーミッション統一
   // ミッション初期化: 現在のユーザー ID で初期化
   if (currentUserId != null) {
-    unawaited(container.read(missionProvider.notifier).initializeMissions(currentUserId));
+    unawaited(container.read(missionProvider.notifier).initializeDailyMissions(currentUserId, 'kokugo'));
+  }
+
+  // Phase 4.20: 週次ボーナスシステム統一
+  // 週次ボーナス初期化とFirestoreハンドラ設定
+  if (currentUserId != null) {
+    // Firestore 永続化ハンドラを設定
+    container.read(weeklyBonusProvider.notifier).setPersistHandler(
+      (userId, bonus) async {
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .collection('bonuses')
+              .doc('weekly')
+              .set(bonus.toJson());
+        } catch (e) {
+          debugPrint('Failed to persist weekly bonus: $e');
+        }
+      },
+    );
+    // 週次ボーナス初期化
+    unawaited(
+      container.read(weeklyBonusProvider.notifier).initializeWeeklyBonus(currentUserId),
+    );
   }
 
   // Phase 4.20: デイリーミッション統一実装
@@ -338,6 +380,7 @@ class KokugoKoreApp extends ConsumerWidget {
         '/shop': (context) => const ShopScreen(),
         '/learn': (context) => const LearnScreen(),
         '/lesson': (context) => const LessonScreen(),
+        '/ai-coaching': (context) => const AiCoachingDashboardScreen(),
         '/vocabulary': (context) => const PremiumGate(
               featureName: 'ことば',
               featureEmoji: '💬',
@@ -508,3 +551,4 @@ class _RootShellState extends ConsumerState<RootShell> {
     );
   }
 }
+

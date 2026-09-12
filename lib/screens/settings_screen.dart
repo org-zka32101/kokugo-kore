@@ -4,9 +4,13 @@ import 'package:shared_core/shared_core.dart'
     show
         CrossPromoSection,
         FeedbackFormPage,
+        NotificationSettingsPage,
         requireParentalGate,
-        ScreenTimeSettingsWidget;
+        RetentionDashboard,
+        ScreenTimeSettingsWidget,
+        AddFriendDialog;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../data/kana_data.dart';
 import '../providers/drawing_progress_provider.dart';
 import '../providers/coin_provider.dart';
@@ -244,6 +248,51 @@ class SettingsScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 11)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
             onTap: () => _openScreenTimeSettings(context),
+          ),
+          const Divider(),
+          _SectionHeader(title: '🔔 通知設定'),
+          ListTile(
+            leading: const Text('🔔', style: TextStyle(fontSize: 20)),
+            title: const Text('通知設定を変更'),
+            subtitle: const Text('通知の受け取り設定を管理',
+                style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
+            onTap: () {
+              final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+              if (userId.isNotEmpty) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => NotificationSettingsPage(userId: userId),
+                  ),
+                );
+              }
+            },
+          ),
+          const Divider(),
+          _SectionHeader(title: '📈 分析'),
+          ListTile(
+            leading: const Text('📊', style: TextStyle(fontSize: 20)),
+            title: const Text('ユーザーリテンション分析'),
+            subtitle: const Text('あなたの活動パターンと継続性を分析',
+                style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const RetentionDashboard(),
+              ),
+            ),
+          ),
+          const Divider(),
+          _SectionHeader(title: 'ソーシャル'),
+          ListTile(
+            leading: const Icon(Icons.person_add, color: kPrimaryColor),
+            title: const Text('フレンドを探す'),
+            subtitle: const Text('ユーザーを検索してフレンド申請する', style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
+            onTap: () => showDialog(
+              context: context,
+              builder: (context) => const AddFriendDialog(),
+            ),
           ),
           const Divider(),
           _SectionHeader(title: 'テーマ'),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_core/models/avatar_model.dart';
 import 'package:shared_core/widgets/avatar_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'ai_coaching_dashboard_screen.dart';
 import '../data/quiz_data.dart';
 
 import '../data/kokugo_characters.dart';
@@ -28,7 +29,12 @@ import 'package:shared_core/shared_core.dart'
         AppShopItem,
         requireParentalGate,
         FriendsListPage,
-        DailyMissionPage;
+        DailyMissionPage,
+        weeklyBonusProvider,
+        coinProvider,
+        WeeklyBonusWidget,
+        NotificationBadge,
+        notificationProvider;
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
@@ -196,6 +202,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           )
         : null;
     final equipped = ref.watch(equippedItemsProvider).equippedByCategory;
+    final weeklyBonus = ref.watch(weeklyBonusProvider);
 
     // ショップで装着中の背景テーマ（shared_core の共通テーマ）があれば優先。
     final equippedThemeId = equipped['背景'];
@@ -330,6 +337,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   onTap: () => Navigator.pushNamed(context, '/smart-menu'),
                 ),
               ),
+              // Phase 4.23: ローカル通知・リマインダーシステム
+              Builder(
+                builder: (context) {
+                  final notifications = ref.watch(notificationProvider);
+                  return NotificationBadge(
+                    notificationCount: notifications.length,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('通知: ${notifications.length}件'),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
               PopupMenuButton(
                 itemBuilder: (context) => [
                   PopupMenuItem(
@@ -373,6 +397,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
               onStartStage: (stage) {
                 Navigator.of(context).pushNamed('/quest', arguments: stage);
+              },
+            ),
+          ),
+          // Phase 4.20: 週次ボーナスシステム
+          SliverToBoxAdapter(
+            child: WeeklyBonusWidget(
+              onBonusClaimed: (coins) {
+                ref.read(coinProvider.notifier).addCoins(coins);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('ボーナス $coins コイン獲得しました！🎉'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
               },
             ),
           ),
@@ -536,6 +575,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SliverToBoxAdapter(
             child: _RecentCharactersSection(),
+          ),
+          // AI コーチング機能
+          SliverToBoxAdapter(
+            child: _AiCoachingCard(),
           ),
           // クロスプロモーション（他アプリ紹介）
           SliverToBoxAdapter(
@@ -755,6 +798,75 @@ class _FramedAvatar extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// AI コーチングダッシュボード ナビゲーションカード（Phase 4.24 統合）
+class _AiCoachingCard extends ConsumerWidget {
+  const _AiCoachingCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(profileProvider).currentProfile;
+    final userId = currentUser?.userId;
+
+    if (userId == null) {
+      return const SizedBox.shrink();
+    }
+
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed('/ai-coaching'),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue.shade400, Colors.blue.shade600],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withAlpha(100),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: const Row(
+          children: [
+            Text('🤖', style: TextStyle(fontSize: 32)),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'AI コーチング',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'あなたの学習パターンを分析して、\nアドバイスをくれます',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.white),
+          ],
+        ),
       ),
     );
   }
