@@ -1,15 +1,11 @@
 // Application Constants
-// Phase 4.2: RevenueCat Configuration
+// Phase 4.7: RevenueCat Configuration
 
 class AppConstants {
-  // RevenueCat Configuration
-  static const String revenueCatApiKey = String.fromEnvironment(
-    'REVENUE_CAT_API_KEY',
-    defaultValue: 'appl_KokugoKoreDevelopment',
-  );
-
-  static const String subscriptionProductId = 'kokugo_premium_monthly';
-  static const String premiumEntitlementId = 'premium_access';
+  // RevenueCat Configuration (Phase 4.7: Moved to shared_core SubscriptionConfig)
+  // - revenueCatApiKey: Use SubscriptionConfig.apiKey
+  // - subscriptionProductId: Use SubscriptionConfig.monthlyProductId
+  // - premiumEntitlementId: Use SubscriptionConfig.premiumEntitlementId
 
   // Feature Flags
   static const bool adsFreeWithSubscription = true;
