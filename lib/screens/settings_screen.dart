@@ -7,7 +7,8 @@ import 'package:shared_core/shared_core.dart'
         NotificationSettingsPage,
         requireParentalGate,
         RetentionDashboard,
-        ScreenTimeSettingsWidget;
+        ScreenTimeSettingsWidget,
+        AddFriendDialog;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../data/kana_data.dart';
@@ -279,6 +280,18 @@ class SettingsScreen extends ConsumerWidget {
               MaterialPageRoute(
                 builder: (_) => const RetentionDashboard(),
               ),
+            ),
+          ),
+          const Divider(),
+          _SectionHeader(title: 'ソーシャル'),
+          ListTile(
+            leading: const Icon(Icons.person_add, color: kPrimaryColor),
+            title: const Text('フレンドを探す'),
+            subtitle: const Text('ユーザーを検索してフレンド申請する', style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: kTextMuted),
+            onTap: () => showDialog(
+              context: context,
+              builder: (context) => const AddFriendDialog(),
             ),
           ),
           const Divider(),
