@@ -32,7 +32,9 @@ import 'package:shared_core/shared_core.dart'
         DailyMissionPage,
         weeklyBonusProvider,
         coinProvider,
-        WeeklyBonusWidget;
+        WeeklyBonusWidget,
+        NotificationBadge,
+        notificationProvider;
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
@@ -334,6 +336,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: TimerChip(
                   onTap: () => Navigator.pushNamed(context, '/smart-menu'),
                 ),
+              ),
+              // Phase 4.23: ローカル通知・リマインダーシステム
+              Builder(
+                builder: (context) {
+                  final notifications = ref.watch(notificationProvider);
+                  return NotificationBadge(
+                    notificationCount: notifications.length,
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('通知: ${notifications.length}件'),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
               PopupMenuButton(
                 itemBuilder: (context) => [
