@@ -54,7 +54,7 @@ jobs:
           path: |
             ~/.pub-cache
             ~/.flutter
-          key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          key: flutter-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_number }}
           restore-keys: |
             flutter-${{ runner.os }}-
 

@@ -22,12 +22,16 @@ import 'package:shared_core/shared_core.dart'
         rankingProvider,
         globalRankingProvider,
         missionProvider,
+        dailyMissionProvider,
         friendProvider,
         premiumProvider,
         PremiumNotifier,
         PushNotificationService,
         adaptiveDifficultyNotifierProvider,
-        weeklyBonusProvider;
+// Phase 4.22: Push Notifications & Retention
+pushNotificationProvider,
+retentionProvider,
+weeklyBonusProvider;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/progress_provider.dart';
 
@@ -97,6 +101,8 @@ import 'services/revenue_cat_service.dart';
 import 'services/firestore_ranking_service.dart';
 import 'services/firestore_friend_service.dart';
 import 'services/firestore_mission_service.dart';
+import 'services/firestore_push_notification_service.dart';
+import 'services/firestore_retention_service.dart';
 import 'widgets/premium_gate.dart';
 
 Future<void> main() async {
@@ -270,6 +276,51 @@ Future<void> main() async {
     unawaited(
       container.read(weeklyBonusProvider.notifier).initializeWeeklyBonus(currentUserId),
     );
+  }
+
+  // Phase 4.20: デイリーミッション統一実装
+  // 日次ミッション初期化: 現在のユーザー ID とアプリ ID で初期化
+  if (currentUserId != null) {
+    unawaited(container.read(dailyMissionProvider.notifier).initializeDailyMissions(currentUserId, 'kokugo'));
+  }
+
+  // Phase 4.22: プッシュ通知・ユーザーリテンション統合
+  final pushNotificationService = FirestorePushNotificationService();
+  final retentionService = FirestoreRetentionService();
+
+  // プッシュ通知ハンドラーを設定
+  container.read(pushNotificationProvider.notifier).setHandlers(
+    fetchHandler: (userId, limit) => pushNotificationService.fetchNotificationConfig().then((config) => config != null ? [config] : []),
+    fcmTokenHandler: () async => (await pushService.getFCMToken()) ?? '',
+    scheduleHandler: (schedule) async => debugPrint('Notification scheduled: ${schedule.scheduledTime}'),
+    logHandler: (log) => pushNotificationService.logNotification(
+      log.notificationId,
+      log.type.name,
+      log.title,
+      log.body,
+      deepLink: log.deepLink,
+      customData: log.customData,
+    ),
+    markAsReadHandler: (notificationId) => pushNotificationService.markNotificationAsRead(notificationId),
+    updateConfigHandler: (config) => pushNotificationService.updateNotificationConfig(config),
+  );
+
+  // リテンション分析ハンドラーを設定
+  container.read(retentionProvider.notifier).setHandlers(
+    churnHandler: (limit) => retentionService.fetchChurnPredictions(limit: limit),
+    analyticsHandler: (userId) => retentionService.fetchUserRetentionAnalytics(userId),
+    campaignHandler: (campaign) => retentionService.saveReengagementCampaign(campaign),
+    cohortHandler: (cohortId) => retentionService.fetchCohortAnalytics(cohortId),
+    statsHandler: () => retentionService.fetchPopulationStats(),
+    configHandler: () => retentionService.fetchRetentionConfig(),
+  );
+
+  // FCM トークン更新時にFirestoreに保存
+  if (currentUserId != null) {
+    final fcmToken = await pushService.getFCMToken();
+    if (fcmToken != null) {
+      unawaited(pushNotificationService.updateFCMToken(fcmToken));
+    }
   }
 
   runApp(UncontrolledProviderScope(
@@ -500,3 +551,4 @@ class _RootShellState extends ConsumerState<RootShell> {
     );
   }
 }
+
