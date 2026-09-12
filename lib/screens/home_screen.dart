@@ -28,7 +28,10 @@ import 'package:shared_core/shared_core.dart'
         AppShopItem,
         requireParentalGate,
         FriendsListPage,
-        DailyMissionPage;
+        DailyMissionPage,
+        weeklyBonusProvider,
+        coinProvider,
+        WeeklyBonusWidget;
 import '../widgets/daily_bonus_dialog.dart';
 import '../widgets/daily_mission_card.dart';
 import '../widgets/timer_chip_widget.dart';
@@ -196,6 +199,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           )
         : null;
     final equipped = ref.watch(equippedItemsProvider).equippedByCategory;
+    final weeklyBonus = ref.watch(weeklyBonusProvider);
 
     // ショップで装着中の背景テーマ（shared_core の共通テーマ）があれば優先。
     final equippedThemeId = equipped['背景'];
@@ -373,6 +377,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
               onStartStage: (stage) {
                 Navigator.of(context).pushNamed('/quest', arguments: stage);
+              },
+            ),
+          ),
+          // Phase 4.20: 週次ボーナスシステム
+          SliverToBoxAdapter(
+            child: WeeklyBonusWidget(
+              onBonusClaimed: (coins) {
+                ref.read(coinProvider.notifier).addCoins(coins);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('ボーナス $coins コイン獲得しました！🎉'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
               },
             ),
           ),
